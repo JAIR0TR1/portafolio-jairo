@@ -25,7 +25,7 @@ npm run check:content -- --write
 | --- | --- | --- |
 | `components/About.tsx` | 17 | confirmar |
 | `components/Contact.tsx` | 13 | crear en formspree.io y ponerlo en Vercel |
-| `components/ui/AvatarBot.tsx` | 17 | reemplazar por los PNG de /public/avatar (dev.png, design.png, ai.png). |
+| `components/ui/AvatarBot.tsx` | 15 | reemplazar por los PNG de /public/avatar (dev.png, design.png, ai.png). |
 | `data/experience.ts` | 12 | confirmar fechas, nombres y logros de cada ítem. |
 | `data/experience.ts` | 18 | meses exactos |
 | `data/experience.ts` | 26 | nombre del emprendimiento |
@@ -39,13 +39,16 @@ npm run check:content -- --write
 | `data/profile.ts` | 18 | semestre actual, ej. "7.º semestre" |
 | `data/profile.ts` | 19 | confirmar intereses |
 | `data/profile.ts` | 22 | revisar el párrafo |
-| `data/profile.ts` | 23 | foto en /public/images/jairo.webp y poner aquí la ruta |
-| `data/profile.ts` | 25 | correo real |
-| `data/profile.ts` | 27 | número de WhatsApp (opcional) |
-| `data/profile.ts` | 28 | URL de tu GitHub |
-| `data/profile.ts` | 29 | completar: githubHandle: "@TODO-usuario", |
-| `data/profile.ts` | 30 | URL de tu LinkedIn |
-| `data/profile.ts` | 31 | completar: linkedinHandle: "in/TODO-usuario", |
+| `data/profile.ts` | 25 | "/avatar/dev.png" |
+| `data/profile.ts` | 26 | "/avatar/design.png" |
+| `data/profile.ts` | 27 | "/avatar/ai.png" |
+| `data/profile.ts` | 29 | foto en /public/images/jairo.webp y poner aquí la ruta |
+| `data/profile.ts` | 31 | correo real |
+| `data/profile.ts` | 33 | número de WhatsApp (opcional) |
+| `data/profile.ts` | 34 | URL de tu GitHub |
+| `data/profile.ts` | 35 | completar: githubHandle: "@TODO-usuario", |
+| `data/profile.ts` | 36 | URL de tu LinkedIn |
+| `data/profile.ts` | 37 | completar: linkedinHandle: "in/TODO-usuario", |
 | `data/projects.ts` | 13 | confirmar descripciones, etiquetas, años, estados y enlaces de cada proyecto. |
 | `data/projects.ts` | 15 | tu usuario de GitHub |
 | `data/projects.ts` | 23 | completar: github: ${GH}/escudo-guardian, |

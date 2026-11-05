@@ -2,7 +2,8 @@ import { ArrowDownToLine, ArrowRight } from "lucide-react";
 import { profile } from "@/data/profile";
 import { HeroBackdrop } from "@/components/ui/HeroBackdrop";
 import { JvSticker } from "@/components/ui/JvSticker";
-import { AvatarBot } from "@/components/ui/AvatarBot";
+import { HeroAvatar } from "@/components/ui/HeroAvatar";
+import { ModeSubtitle } from "@/components/ui/ModeSubtitle";
 
 export default function Hero() {
   return (
@@ -43,7 +44,7 @@ export default function Hero() {
           </h1>
 
           <p className="hero-in mt-6 font-mono text-sm text-ink/90" style={{ ["--i" as string]: 4 }}>
-            {profile.role} <span className="text-accent">·</span> Desarrollo
+            {profile.role} <span className="text-accent">·</span> <ModeSubtitle />
           </p>
           <p className="hero-in mt-3 max-w-[46ch] text-pretty text-lg text-muted" style={{ ["--i" as string]: 5 }}>
             {profile.tagline}
@@ -60,13 +61,8 @@ export default function Hero() {
         </div>
 
         <div className="order-1 flex justify-center lg:order-2 lg:col-span-5">
-          <div
-            role="img"
-            aria-label="Avatar de Jairo: un personaje con casco y ojos de luz"
-            className="hero-in relative w-[min(62vw,240px)] md:w-[300px] lg:w-full lg:max-w-[440px]"
-            style={{ ["--i" as string]: 2 }}
-          >
-            <AvatarBot uid="hero" className="h-auto w-full drop-shadow-[0_30px_60px_rgb(0_0_0/.6)]" />
+          <div className="hero-in w-full" style={{ ["--i" as string]: 2 }}>
+            <HeroAvatar />
           </div>
         </div>
       </div>

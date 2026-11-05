@@ -3,8 +3,6 @@ import type { CSSProperties } from "react";
 type Props = {
   /** Color emisivo (ojos, antena, rim light). Por defecto el --accent global. */
   color?: string;
-  /** Desplazamiento de las pupilas en px del viewBox (seguimiento del cursor). */
-  look?: { x: number; y: number };
   blinking?: boolean;
   className?: string;
   style?: CSSProperties;
@@ -16,7 +14,7 @@ type Props = {
  * Avatar PROVISIONAL original: casco con visor oscuro, dos ojos emisivos y antena que pulsa.
  * TODO(Jairo): reemplazar por los PNG de /public/avatar (dev.png, design.png, ai.png).
  */
-export function AvatarBot({ color = "var(--accent)", look = { x: 0, y: 0 }, blinking = false, className, style, uid = "a" }: Props) {
+export function AvatarBot({ color = "var(--accent)", blinking = false, className, style, uid = "a" }: Props) {
   const id = (s: string) => `${uid}-${s}`;
   const eyeScale = blinking ? 0.08 : 1;
   return (
@@ -88,8 +86,9 @@ export function AvatarBot({ color = "var(--accent)", look = { x: 0, y: 0 }, blin
       {/* ojos */}
       <g
         style={{
-          transform: `translate(${look.x}px, ${look.y}px)`,
-          transition: "transform 120ms linear",
+          // --lx/--ly los pone HeroAvatar (seguimiento del cursor sin re-render)
+          transform: "translate(calc(var(--lx, 0) * 1px), calc(var(--ly, 0) * 1px))",
+          transition: "transform 160ms ease-out",
         }}
       >
         <g
