@@ -46,7 +46,7 @@ function Depth({
   const tx = useTransform(x, (v) => v * depth * 18);
   const ty = useTransform(y, (v) => v * depth * 14);
   return (
-    <motion.div style={{ x: tx, y: ty }} className={className}>
+    <motion.div style={{ x: tx, y: ty }} className={cn("hero-fade", className)}>
       {children}
     </motion.div>
   );
@@ -117,12 +117,12 @@ export function HeroAvatar() {
     return () => window.clearTimeout(t);
   }, [index, paused]);
 
+  // Solo cicla cerca del inicio de la página (no durante el viaje del avatar ni más abajo).
   useEffect(() => {
-    const el = rootRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.25 });
-    io.observe(el);
-    return () => io.disconnect();
+    const check = () => setInView(window.scrollY < window.innerHeight * 0.15);
+    check();
+    window.addEventListener("scroll", check, { passive: true });
+    return () => window.removeEventListener("scroll", check);
   }, []);
 
   // Parpadeo aleatorio
@@ -191,6 +191,7 @@ export function HeroAvatar() {
   return (
     <div ref={rootRef} className="relative mx-auto flex w-full max-w-[460px] flex-col items-center">
       <div
+        data-avatar-source
         className="relative w-[min(64vw,250px)] md:w-[320px] lg:w-full"
         onPointerEnter={() => {
           setHovering(true);
@@ -355,7 +356,7 @@ export function HeroAvatar() {
       </div>
 
       {/* Selector de modo (visible: heurísticas 3 y 6) */}
-      <div className="relative z-20 mt-5 flex flex-col items-center gap-3">
+      <div className="hero-fade relative z-20 mt-5 flex flex-col items-center gap-3">
         <div
           role="group"
           aria-label="Elige un modo"

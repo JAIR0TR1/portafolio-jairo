@@ -6,6 +6,7 @@ import { aboutTech } from "@/data/skills";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { TechIcon, tagToIcon } from "@/components/ui/TechIcon";
+import { AvatarBot } from "@/components/ui/AvatarBot";
 
 const facts = [
   { icon: MapPin, label: "Ubicación", value: profile.location },
@@ -37,6 +38,8 @@ export default function About() {
           <RevealItem className="lg:col-span-5 lg:row-span-2">
             <figure
               data-avatar-target
+              data-has-photo={profile.photo ? "true" : "false"}
+              style={{ containerType: "size" }}
               className="glass spotlight relative h-full min-h-[360px] overflow-hidden md:min-h-[440px]"
             >
               {profile.photo ? (
@@ -51,9 +54,13 @@ export default function About() {
                 <div aria-hidden="true" className="absolute inset-0">
                   <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_110%,color-mix(in_oklab,var(--accent)_70%,transparent),transparent_60%)]" />
                   <div className="absolute inset-0 bg-[radial-gradient(60%_40%_at_20%_10%,rgb(124_92_255/.35),transparent)]" />
-                  <span className="absolute inset-0 grid place-items-center font-serif text-[clamp(7rem,14vw,11rem)] italic leading-none tracking-tight text-ink/90 [text-shadow:0_10px_60px_var(--accent)]">
+                  <span className="avatar-initials absolute inset-0 grid place-items-center font-serif text-[clamp(7rem,14vw,11rem)] italic leading-none tracking-tight text-ink/90 [text-shadow:0_10px_60px_var(--accent)]">
                     {profile.initials}
                   </span>
+                  {/* Aquí "aterriza" el avatar viajero del Hero (solo escritorio con efectos) */}
+                  <div className="avatar-landing absolute left-1/2 top-[44%] aspect-[400/460] w-[min(78cqw,69.5cqh)] -translate-x-1/2 -translate-y-1/2">
+                    <AvatarBot uid="about" className="h-full w-full" />
+                  </div>
                 </div>
               )}
               <figcaption className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/45 px-4 py-3 backdrop-blur-md">

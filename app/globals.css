@@ -342,7 +342,7 @@ footer[id] {
   background: conic-gradient(from var(--holo-angle), #c6ff3d, #ff3d9a, #3de8ff, #7c5cff, #c6ff3d);
   box-shadow: 0 0 18px -8px #7c5cff;
   animation: holo-spin 5s linear infinite paused;
-  transition: box-shadow 0.4s;
+  transition: box-shadow 0.4s, transform 0.25s ease-out;
 }
 .holo-shine {
   background: conic-gradient(from calc(var(--holo-angle) + 90deg), #c6ff3d33, #ff3d9a44, #3de8ff33, #7c5cff44, #c6ff3d33);
@@ -363,3 +363,20 @@ footer[id] {
   animation: hero-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: calc(var(--i, 0) * 80ms);
 }
+
+/* ───────────── Storytelling Hero → Sobre mí (avatar viajero) ───────────── */
+.hero-fade { opacity: calc(1 - var(--hero-p, 0) * 4); }
+[data-avatar-source] { transition: opacity 0.2s; }
+:root[data-avatar="traveling"] [data-avatar-source],
+:root[data-avatar="landed"] [data-avatar-source] { opacity: 0; }
+.avatar-landing { opacity: 0; transition: opacity 0.25s; }
+.avatar-initials { transition: opacity 0.25s; }
+:root[data-avatar="landed"] .avatar-landing { opacity: 1; }
+:root[data-avatar="landed"] .avatar-initials { opacity: 0; }
+
+/* Anillo de logos en 3D (Habilidades) */
+@keyframes ring-spin { to { transform: rotateY(360deg); } }
+.logo-ring { transform-style: preserve-3d; animation: ring-spin 26s linear infinite; }
+
+/* Ícono holográfico: se inclina con el puntero (--nx/--ny de SpotlightTracker) */
+.group:hover .holo { transform: perspective(240px) rotateY(calc(var(--nx, 0) * 22deg)) rotateX(calc(var(--ny, 0) * -22deg)); }

@@ -32,7 +32,26 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   return (
     <article className="glass spotlight group flex h-full flex-col overflow-hidden transition-[transform,box-shadow] duration-500 ease-[var(--ease-out-expo)] hover:-translate-y-1 hover:shadow-[0_30px_60px_-30px_var(--accent)]">
       <div className="relative aspect-[16/10] overflow-hidden rounded-t-[23px] border-b border-line">
-        <ProjectCover project={project} priority={index < 2} />
+        {/* La portada sale de la oscuridad con un barrido de luz al entrar en pantalla */}
+        <motion.div
+          className="absolute inset-0"
+          initial={{ filter: "brightness(0.12) saturate(0.3)" }}
+          whileInView={{ filter: "brightness(1) saturate(1)" }}
+          viewport={{ once: true, margin: "0px 0px -15% 0px" }}
+          transition={{ duration: 1.1, ease: EASE, delay: 0.1 }}
+        >
+          <ProjectCover project={project} priority={index < 2} />
+        </motion.div>
+        <motion.span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 -left-[60%] w-[60%]"
+          initial={{ x: "0%", opacity: 1 }}
+          whileInView={{ x: "300%", opacity: [1, 1, 0] }}
+          viewport={{ once: true, margin: "0px 0px -15% 0px" }}
+          transition={{ duration: 1.3, ease: EASE, delay: 0.15 }}
+        >
+          <span className="block h-full w-full skew-x-[-18deg] bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+        </motion.span>
         <span
           className={cn(
             "chip absolute left-3 top-3 bg-black/55 backdrop-blur-sm",

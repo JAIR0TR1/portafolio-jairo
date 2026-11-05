@@ -19,6 +19,8 @@ export function SpotlightTracker() {
       const r = target.getBoundingClientRect();
       target.style.setProperty("--mx", `${last.clientX - r.left}px`);
       target.style.setProperty("--my", `${last.clientY - r.top}px`);
+      target.style.setProperty("--nx", (((last.clientX - r.left) / r.width) * 2 - 1).toFixed(3));
+      target.style.setProperty("--ny", (((last.clientY - r.top) / r.height) * 2 - 1).toFixed(3));
     };
     const onMove = (e: PointerEvent) => {
       last = e;
