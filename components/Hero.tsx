@@ -28,7 +28,7 @@ export default function Hero() {
                 className="hero-in mb-4 text-[clamp(1.5rem,1rem+2.2vw,2.5rem)] font-medium tracking-[-0.03em] text-muted"
                 style={{ ["--i" as string]: 1 }}
               >
-                Hola, soy <span className="text-ink">{profile.name}</span>
+                Hola, soy <span className="text-ink">{profile.brand}</span>
               </span>
               <span
                 className="hero-in text-display text-[clamp(2.25rem,1rem+4.6vw,4.6rem)] md:whitespace-nowrap"

@@ -11,6 +11,8 @@ export type SocialLink = {
 export const profile = {
   name: "Jairo Vallejo Burbano",
   shortName: "Jairo",
+  /** Nombre con el que se presenta en el saludo del Hero. */
+  brand: "JairoVende",
   initials: "JV",
   role: "Estudiante de Ingeniería de Software",
   university: "Universidad Cooperativa de Colombia",
