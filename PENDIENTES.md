@@ -23,7 +23,7 @@ npm run check:content -- --write
 <!-- AUTO:INICIO -->
 | Archivo | Línea | Qué falta |
 | --- | --- | --- |
-| `components/About.tsx` | 17 | confirmar |
+| `components/About.tsx` | 18 | confirmar |
 | `components/Contact.tsx` | 13 | crear en formspree.io y ponerlo en Vercel |
 | `components/ui/AvatarBot.tsx` | 15 | reemplazar por los PNG de /public/avatar (dev.png, design.png, ai.png). |
 | `data/experience.ts` | 12 | confirmar fechas, nombres y logros de cada ítem. |

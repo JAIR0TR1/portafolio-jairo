@@ -6,7 +6,7 @@ import { profile } from "@/data/profile";
 import { Providers } from "@/components/ui/Providers";
 import { ScrollProgress } from "@/components/ui/ScrollProgress";
 import { SpotlightTracker } from "@/components/ui/SpotlightTracker";
-import { EFFECTS_KEY } from "@/lib/keys";
+import { bootScript } from "@/lib/keys";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -57,8 +57,6 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-// Aplica "Reducir efectos" antes del primer pintado (evita parpadeo).
-const effectsScript = `try{if(localStorage.getItem('${EFFECTS_KEY}')==='1')document.documentElement.dataset.effects='reduced'}catch(e){}`;
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
@@ -69,7 +67,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
       className={`scroll-smooth ${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: effectsScript }} />
+        <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       </head>
       <body className="min-h-dvh">
         <a

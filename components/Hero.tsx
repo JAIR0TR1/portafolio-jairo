@@ -5,10 +5,12 @@ import { HeroStage } from "@/components/ui/HeroStage";
 import { JvSticker } from "@/components/ui/JvSticker";
 import { HeroAvatar } from "@/components/ui/HeroAvatar";
 import { ModeSubtitle } from "@/components/ui/ModeSubtitle";
+import { IntroGate } from "@/components/three/IntroGate";
 
 export default function Hero() {
   return (
     <section id="inicio" aria-labelledby="hero-title" className="relative -mt-[var(--header-h)]">
+      <IntroGate />
       <HeroStage
         backdrop={<HeroBackdrop />}
         text={

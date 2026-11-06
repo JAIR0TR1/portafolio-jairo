@@ -3,7 +3,7 @@
 import { RotateCcw } from "lucide-react";
 import { setReduceEffects, useUserReducedEffects } from "@/lib/effects";
 
-import { INTRO_KEY } from "@/lib/keys";
+import { INTRO_KEY, INTRO_REPLAY_KEY } from "@/lib/keys";
 
 /** Toggle "Reducir efectos" (se guarda en localStorage). */
 export function ReduceEffectsToggle() {
@@ -37,6 +37,7 @@ export function ReplayIntroButton() {
       onClick={() => {
         try {
           sessionStorage.removeItem(INTRO_KEY);
+          sessionStorage.setItem(INTRO_REPLAY_KEY, "1");
         } catch {
           /* sin storage */
         }

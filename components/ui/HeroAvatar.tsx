@@ -77,6 +77,7 @@ export function HeroAvatar() {
   const mode = MODES[index];
 
   const [transitionId, setTransitionId] = useState(0);
+  const [deferTick, setDeferTick] = useState(0);
   const [userPaused, setUserPaused] = useState(false);
   const [hoverPaused, setHoverPaused] = useState(false);
   const [inView, setInView] = useState(true);
@@ -111,11 +112,13 @@ export function HeroAvatar() {
   useEffect(() => {
     if (paused) return;
     const t = window.setTimeout(() => {
+      // Mientras se ve la intro, no cambia (el Hero está tapado): se reprograma.
+      if (document.documentElement.dataset.intro) return setDeferTick((n) => n + 1);
       setModeIndex(index + 1);
       setTransitionId((n) => n + 1);
     }, CYCLE_MS);
     return () => window.clearTimeout(t);
-  }, [index, paused]);
+  }, [index, paused, deferTick]);
 
   // Solo cicla cerca del inicio de la página (no durante el viaje del avatar ni más abajo).
   useEffect(() => {

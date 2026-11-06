@@ -8,9 +8,11 @@ const full: Variants = {
   hidden: { opacity: 0, y: 24, filter: "blur(8px)" },
   show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.6, ease: EASE } },
 };
+// Reinicia y/blur de forma explícita: el SSR usa las variantes completas y, tras hidratar
+// con reduced-motion, sin esto el contenido se quedaría desplazado y borroso.
 const reduced: Variants = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { duration: 0.3 } },
+  hidden: { opacity: 0, y: 0, filter: "blur(0px)" },
+  show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.3 } },
 };
 
 type Props = {
