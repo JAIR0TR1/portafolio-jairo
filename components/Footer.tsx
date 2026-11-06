@@ -11,14 +11,10 @@ export default function Footer() {
   const year = currentYear();
   return (
     <footer id="footer" className="relative isolate overflow-hidden border-t border-line">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-80 w-[90%] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--accent)_22%,transparent),transparent)]"
-      />
       <div className="container-x grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-12">
         <div className="lg:col-span-5">
-          <p className="flex items-center gap-3 text-lg font-semibold tracking-[-0.02em]">
-            <span className="grid size-10 place-items-center rounded-full bg-ink font-mono text-sm text-bg">{profile.initials}</span>
+          <p className="flex items-center gap-3 font-display text-lg font-medium tracking-[-0.02em]">
+            <span className="grid size-10 place-items-center rounded-[6px] bg-ink font-mono text-sm text-bg">{profile.initials}</span>
             {profile.name}
           </p>
           <p className="mt-4 max-w-sm text-pretty text-muted">
@@ -34,7 +30,7 @@ export default function Footer() {
           <ul className="grid grid-cols-2 gap-x-6 md:grid-cols-1">
             {sections.map((s) => (
               <li key={s.id}>
-                <a href={`#${s.id}`} className="flex min-h-11 items-center text-[15px] text-ink/85 transition-colors hover:text-accent">
+                <a href={`#${s.id}`} className="flex min-h-11 items-center text-[15px] text-ink/85 transition-colors hover:text-muted">
                   {s.label}
                 </a>
               </li>
@@ -77,7 +73,7 @@ export default function Footer() {
 
       <p
         aria-hidden="true"
-        className="pointer-events-none select-none whitespace-nowrap text-center font-semibold leading-[0.8] tracking-[-0.06em] text-transparent [-webkit-text-stroke:1px_rgb(255_255_255/.08)] [font-size:clamp(4rem,17vw,15rem)] translate-y-[18%]"
+        className="pointer-events-none select-none whitespace-nowrap text-center font-display font-medium leading-[0.8] tracking-[-0.05em] text-transparent [-webkit-text-stroke:1px_rgb(255_255_255/.08)] [font-size:clamp(4rem,17vw,15rem)] translate-y-[18%]"
       >
         Jairo Vallejo
       </p>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { AvatarBot } from "./AvatarBot";
+import { ModeAvatar } from "./ModeAvatar";
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -99,7 +99,7 @@ export function AvatarTraveler() {
       aria-hidden="true"
       className="pointer-events-none fixed left-0 top-0 z-30 origin-top-left opacity-0 will-change-transform"
     >
-      <AvatarBot uid="traveler" className="h-full w-full" />
+      <ModeAvatar uid="traveler" className="h-full w-full" />
     </div>
   );
 }

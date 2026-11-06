@@ -28,11 +28,11 @@ export default function Experience() {
       <div className="container-x">
         <SectionHeading
           id="experiencia-title"
-          index="04"
+          index="05"
           eyebrow="Experiencia"
           title={
             <>
-              Lo que he <span className="serif-accent text-accent">aprendido</span> y hecho.
+              Lo que he aprendido y hecho.
             </>
           }
           description="Formación académica y trabajo, de lo más reciente a lo más antiguo."
@@ -44,7 +44,7 @@ export default function Experience() {
               <div
                 role="radiogroup"
                 aria-label="Tipo de experiencia"
-                className="inline-flex rounded-full border border-line bg-white/[.03] p-1"
+                className="inline-flex rounded-[8px] border border-line p-1"
               >
                 {options.map((o) => {
                   const on = filter === o.id;
@@ -56,14 +56,14 @@ export default function Experience() {
                       aria-checked={on}
                       onClick={() => setFilter(o.id)}
                       className={cn(
-                        "relative min-h-11 rounded-full px-4 text-sm transition-colors",
+                        "relative min-h-11 rounded-[6px] px-4 text-sm transition-colors",
                         on ? "text-bg" : "text-muted hover:text-ink",
                       )}
                     >
                       {on && (
                         <motion.span
                           layoutId="exp-seg"
-                          className="absolute inset-0 rounded-full bg-ink"
+                          className="absolute inset-0 rounded-[6px] bg-ink"
                           transition={{ type: "spring", stiffness: 420, damping: 36 }}
                         />
                       )}
@@ -79,7 +79,7 @@ export default function Experience() {
                 ].map(({ icon: Icon, label, n }) => (
                   <div key={label} className="p-5">
                     <dt className="flex items-center gap-2 text-sm text-muted">
-                      <Icon aria-hidden="true" className="size-4 text-accent" /> {label}
+                      <Icon aria-hidden="true" className="size-4 text-muted" /> {label}
                     </dt>
                     <dd className="mt-2 font-mono text-3xl tracking-tight">{String(n).padStart(2, "0")}</dd>
                   </div>
@@ -97,7 +97,7 @@ export default function Experience() {
             <motion.span
               aria-hidden="true"
               style={reduced ? undefined : { scaleY }}
-              className="absolute bottom-2 left-[21px] top-2 w-px origin-top bg-gradient-to-b from-accent via-accent to-transparent shadow-[0_0_10px_var(--accent)]"
+              className="absolute bottom-2 left-[21px] top-2 w-px origin-top bg-gradient-to-b from-ink via-ink to-transparent"
             />
 
             <ol className="space-y-6">
@@ -115,7 +115,7 @@ export default function Experience() {
                       transition={{ duration: 0.6, ease: EASE }}
                       className="relative pl-16"
                     >
-                      <span className="absolute left-0 top-5 grid size-11 place-items-center rounded-full border border-white/15 bg-bg text-accent shadow-[0_0_0_6px_var(--color-bg)]">
+                      <span className="absolute left-0 top-5 grid size-11 place-items-center rounded-[6px] border border-line-2 bg-bg text-ink shadow-[0_0_0_6px_var(--color-bg)]">
                         <Icon aria-hidden="true" className="size-[18px]" />
                       </span>
                       <article className="glass spotlight p-6">
@@ -123,7 +123,7 @@ export default function Experience() {
                           <span className="chip text-muted">
                             <time>{item.date}</time>
                           </span>
-                          <span className="font-mono text-xs uppercase tracking-[.14em] text-accent">
+                          <span className="font-mono text-xs uppercase tracking-[.14em] text-muted">
                             {item.type === "academica" ? "Académica" : "Laboral"}
                           </span>
                         </div>

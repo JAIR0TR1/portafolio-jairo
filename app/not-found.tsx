@@ -8,15 +8,15 @@ export const metadata: Metadata = { title: "Página no encontrada" };
 export default function NotFound() {
   return (
     <main id="contenido" className="relative isolate grid min-h-dvh place-items-center overflow-hidden px-4 text-center">
-      <div
+      <p
         aria-hidden="true"
-        className="absolute left-1/2 top-1/2 -z-10 size-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--accent)_45%,transparent),transparent)]"
-      />
+        className="pointer-events-none absolute inset-x-0 top-1/2 -z-10 -translate-y-1/2 select-none font-display text-[34vw] font-medium leading-none tracking-[-0.06em] text-[#161616]"
+      >
+        404
+      </p>
       <div>
-        <p className="text-eyebrow text-accent">Error 404</p>
-        <h1 className="text-display mt-4 text-[clamp(3rem,2rem+6vw,7rem)]">
-          Esta página se perdió en la <span className="serif-accent accent-word">oscuridad</span>.
-        </h1>
+        <p className="text-eyebrow text-muted">Error 404</p>
+        <h1 className="text-display mt-4 text-[clamp(3rem,2rem+6vw,7rem)]">Esta página se perdió en la oscuridad.</h1>
         <p className="mx-auto mt-6 max-w-md text-lg text-muted">
           El enlace puede estar mal escrito o la página ya no existe. Vuelve al inicio para seguir explorando.
         </p>

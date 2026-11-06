@@ -34,20 +34,16 @@ function Pinned() {
   return (
     <div ref={ref} className="relative" style={{ height: `${n * 80 + 100}vh` }}>
       <div className="sticky top-0 flex h-[100svh] flex-col overflow-hidden pb-10 pt-[calc(var(--header-h)+1.5rem)]">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute bottom-0 left-1/2 -z-10 h-[60%] w-[90%] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--accent)_16%,transparent),transparent)]"
-        />
         <div className="container-x flex min-h-0 flex-1 flex-col">
           <header className="mb-8 flex items-end justify-between gap-8">
             <div>
               <p className="text-eyebrow flex items-center gap-3 text-muted">
-                <span className="text-accent">06</span>
+                <span className="text-ink">07</span> / 07
                 <span aria-hidden="true" className="h-px w-8 bg-line" />
                 Habilidades
               </p>
               <h2 id="habilidades-title" className="text-display mt-4 text-[clamp(2.25rem,1.2rem+3.6vw,4rem)]">
-                Mi stack, por <span className="serif-accent text-accent">capas</span>.
+                Mi stack, por capas.
               </h2>
             </div>
             <p className="max-w-xs text-pretty text-muted">
@@ -68,7 +64,7 @@ function Pinned() {
                 >
                   <div className="flex min-h-0 flex-col justify-center">
                     <p className="font-mono text-sm text-muted">
-                      Capa <span className="text-accent">0{active + 1}</span> / 0{n}
+                      Capa <span className="text-ink">0{active + 1}</span> / 0{n}
                     </p>
                     <h3 className="mt-2 text-4xl font-semibold tracking-[-0.03em]">{cat.title}</h3>
                     <p className="mt-2 max-w-sm text-muted">{cat.blurb}</p>
@@ -98,7 +94,7 @@ function Pinned() {
                       <span
                         className={cn(
                           "w-1.5 rounded-full transition-all duration-500",
-                          i === active ? "h-10 bg-accent shadow-[0_0_12px_var(--accent)]" : "h-3 bg-white/20 group-hover:bg-white/40",
+                          i === active ? "h-10 bg-ink" : "h-3 bg-white/20 group-hover:bg-white/40",
                         )}
                       />
                       <span

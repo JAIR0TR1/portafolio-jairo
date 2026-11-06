@@ -18,7 +18,7 @@ function Stars({ rating = 5 }: { rating?: number }) {
         <Star
           key={i}
           aria-hidden="true"
-          className={cn("size-4", i < rating ? "fill-amber-300 text-amber-300" : "text-white/20")}
+          className={cn("size-4", i < rating ? "fill-ink text-ink" : "text-white/20")}
         />
       ))}
     </div>
@@ -53,11 +53,11 @@ export default function Testimonials() {
       <div className="container-x">
         <SectionHeading
           id="testimonios-title"
-          index="03"
+          index="04"
           eyebrow="Testimonios"
           title={
             <>
-              Lo que dicen de <span className="serif-accent text-accent">trabajar</span> conmigo.
+              Lo que dicen de trabajar conmigo.
             </>
           }
           description="Opiniones de docentes, compañeros y clientes, publicadas con su permiso."
@@ -77,7 +77,7 @@ export default function Testimonials() {
           <div className="glass spotlight relative min-h-[340px] overflow-hidden p-6 md:p-10 lg:col-span-8">
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute right-6 top-2 font-serif text-[9rem] leading-[0.8] text-accent/20 select-none md:right-10 md:text-[12rem]"
+              className="pointer-events-none absolute right-6 top-2 font-display text-[9rem] leading-[0.8] text-[#2a2a2a] select-none md:right-10 md:text-[12rem]"
             >
               ”
             </span>
@@ -127,7 +127,7 @@ export default function Testimonials() {
                       aria-current={on ? "true" : undefined}
                       aria-label={`Testimonio ${i + 1}: ${item.name}`}
                       className={cn(
-                        "relative flex min-h-11 w-full items-center gap-3 overflow-hidden rounded-2xl border p-2 text-left transition-colors lg:p-4",
+                        "relative flex min-h-11 w-full items-center gap-3 overflow-hidden rounded-[6px] border p-2 text-left transition-colors lg:p-4",
                         on ? "border-white/15 bg-white/[.06]" : "border-line hover:bg-white/[.03]",
                       )}
                     >
@@ -140,7 +140,7 @@ export default function Testimonials() {
                         <span
                           key={`${index}-${paused}`}
                           aria-hidden="true"
-                          className="absolute inset-x-0 bottom-0 h-0.5 origin-left bg-accent"
+                          className="absolute inset-x-0 bottom-0 h-px origin-left bg-ink"
                           style={{
                             animation: paused ? "none" : `progress ${DURATION}ms linear forwards`,
                             transform: paused ? "scaleX(0)" : undefined,

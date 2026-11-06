@@ -22,12 +22,6 @@ export const profile = {
   tagline: "Diseño y programo interfaces claras, rápidas y con detalles que se sienten.",
   about:
     "Soy Jairo, estudiante de Ingeniería de Software en la Universidad Cooperativa de Colombia, en Pasto. Me gusta convertir ideas en interfaces claras y rápidas, cuidando cada detalle. He creado apps de escritorio, móviles y para smartwatch, y ahora exploro cómo la IA puede hacerlas más útiles. Busco proyectos donde el diseño y el código trabajen juntos.", // TODO(Jairo): revisar el párrafo
-  /** Avatares PNG con fondo transparente por modo. Mientras falten se usa el avatar SVG provisional. */
-  avatars: {
-    dev: undefined as string | undefined, // TODO(Jairo): "/avatar/dev.png"
-    design: undefined as string | undefined, // TODO(Jairo): "/avatar/design.png"
-    ai: undefined as string | undefined, // TODO(Jairo): "/avatar/ai.png"
-  },
   photo: undefined as string | undefined, // TODO(Jairo): foto en /public/images/jairo.webp y poner aquí la ruta
   available: true,
   email: "correo@ejemplo.com", // TODO(Jairo): correo real

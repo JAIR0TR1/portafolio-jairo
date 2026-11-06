@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
 const LOGOS = [
   { icon: "typescript", section: "inicio", x: 5, y: 24, size: 60, depth: 1.3 },
   { icon: "react", section: "inicio", x: 94, y: 78, size: 84, depth: 0.7 },
-  { icon: "nextdotjs", section: "inicio", x: 30, y: 90, size: 52, depth: 1.7 },
+  { icon: "nextdotjs", section: "inicio", x: 95, y: 52, size: 52, depth: 1.7 },
   { icon: "git", section: "sobre-mi", x: 95, y: 16, size: 58, depth: 1.2 },
   { icon: "github", section: "sobre-mi", x: 3, y: 62, size: 76, depth: 0.8 },
   { icon: "javascript", section: "sobre-mi", x: 92, y: 88, size: 50, depth: 1.6 },
@@ -109,14 +109,14 @@ function Backdrop() {
             <div
               className={cn(
                 "transition-[opacity,scale,filter] duration-[900ms] ease-[var(--ease-out-expo)]",
-                on ? "scale-100 opacity-[.16] blur-0 md:opacity-[.22]" : "scale-[.6] opacity-0 blur-md",
+                on ? "scale-100 opacity-[.07] blur-0 md:opacity-[.09]" : "scale-[.6] opacity-0 blur-md",
               )}
               style={{ transitionDelay: on ? `${(i % 4) * 90}ms` : "0ms" }}
             >
               <div ref={(el) => void (nodes.current[i] = el)} className="will-change-transform">
                 <TechIcon
                   name={l.icon}
-                  className="text-ink [filter:drop-shadow(0_0_14px_var(--accent))]"
+                  className="text-ink"
                   style={{ width: `clamp(${Math.round(l.size * 0.55)}px, ${l.size / 14}vw, ${l.size}px)`, height: "auto" }}
                 />
               </div>

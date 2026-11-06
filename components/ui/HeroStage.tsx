@@ -7,20 +7,22 @@ import { AvatarTraveler } from "./AvatarTraveler";
 import { cn } from "@/lib/cn";
 
 /**
- * Escenario del Hero. En escritorio con efectos: contenedor de 200vh con un sticky;
- * al bajar, el texto sube y se desvanece, el fondo pasa a obsidiana y el avatar viaja
- * a "Sobre mí". En móvil / reduced-motion: Hero normal.
+ * Escenario del Hero «ficha técnica». En escritorio con efectos: contenedor de 150vh con
+ * un sticky; al bajar, el título gigante y el pie se desvanecen, el halo se apaga y el
+ * avatar viaja a «Sobre mí». En móvil / reduced-motion: Hero normal.
  */
 export function HeroStage({
-  backdrop,
-  text,
-  visual,
-  hint,
+  meta,
+  title,
+  avatar,
+  notes,
+  bottom,
 }: {
-  backdrop: ReactNode;
-  text: ReactNode;
-  visual: ReactNode;
-  hint: ReactNode;
+  meta: ReactNode;
+  title: ReactNode;
+  avatar: ReactNode;
+  notes: ReactNode;
+  bottom: ReactNode;
 }) {
   const reduced = useReducedEffects();
   const desktop = useMediaQuery("(min-width: 1024px) and (min-height: 680px)");
@@ -28,37 +30,39 @@ export function HeroStage({
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress: p } = useScroll({ target: ref, offset: ["start start", "end end"] });
 
-  const textY = useTransform(p, [0, 0.45], [0, -160]);
-  const textOpacity = useTransform(p, [0.02, 0.38], [1, 0]);
-  const textBlur = useTransform(p, [0.02, 0.38], ["blur(0px)", "blur(10px)"]);
-  const darken = useTransform(p, [0.1, 0.75], [0, 1]);
+  const fadeY = useTransform(p, [0, 0.45], [0, -120]);
+  const fadeOpacity = useTransform(p, [0.02, 0.38], [1, 0]);
+  const fadeBlur = useTransform(p, [0.02, 0.38], ["blur(0px)", "blur(10px)"]);
+  const fade = enabled ? { y: fadeY, opacity: fadeOpacity, filter: fadeBlur } : undefined;
 
-  // --hero-p: lo usan las tarjetas y chips del avatar para desvanecerse
+  // --hero-p: lo usan las anotaciones y el halo del avatar para desvanecerse
   useMotionValueEvent(p, "change", (v) => {
     ref.current?.style.setProperty("--hero-p", enabled ? v.toFixed(3) : "0");
   });
 
   return (
-    <div ref={ref} data-hero-stage className={cn("relative", enabled && "h-[150vh]")}>
+    <div ref={ref} data-hero-stage className={cn("hero-f relative", enabled && "h-[150vh]")}>
       <div className={cn("relative isolate overflow-hidden", enabled && "sticky top-0 h-[100svh]")}>
-        {backdrop}
-        {enabled && (
-          <motion.div
-            aria-hidden="true"
-            style={{ opacity: darken }}
-            className="pointer-events-none absolute inset-0 -z-[5] bg-bg"
-          />
-        )}
-        <div className="container-x grid min-h-[100svh] items-center gap-6 pb-28 pt-[calc(var(--header-h)+1.5rem)] lg:grid-cols-12 lg:gap-8">
-          <motion.div
-            style={enabled ? { y: textY, opacity: textOpacity, filter: textBlur } : undefined}
-            className="order-2 lg:order-1 lg:col-span-7"
-          >
-            {text}
-          </motion.div>
-          <div className="order-1 flex justify-center lg:order-2 lg:col-span-5">{visual}</div>
+        <div className="container-x flex min-h-[100svh] flex-col pb-6 pt-[calc(var(--header-h)+0.5rem)] md:pb-8">
+          <motion.div style={enabled ? { opacity: fadeOpacity } : undefined}>{meta}</motion.div>
+
+          {/* Composición central: título gigante DETRÁS, avatar delante */}
+          <div className="flex flex-1 flex-col justify-center pt-[calc(var(--f)*0.34)]">
+            <div className="relative h-[calc(var(--f)*1.7)]">
+              <motion.div style={fade} className="absolute inset-0">
+                {title}
+              </motion.div>
+              <div className="absolute left-1/2 top-[calc(var(--f)*-0.3)] z-10 w-[calc(var(--f)*1.9)] -translate-x-1/2 lg:w-[calc(var(--f)*1.34)]">
+                {avatar}
+              </div>
+            </div>
+            {/* el avatar sobresale por debajo del título en pantallas pequeñas */}
+            <div className="h-[calc(var(--f)*0.32)] lg:h-[calc(var(--f)*0.12)]" />
+            {notes}
+          </div>
+
+          <motion.div style={fade}>{bottom}</motion.div>
         </div>
-        <motion.div style={enabled ? { opacity: textOpacity } : undefined}>{hint}</motion.div>
       </div>
       {enabled && <AvatarTraveler />}
     </div>

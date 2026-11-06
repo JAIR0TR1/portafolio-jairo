@@ -13,11 +13,11 @@ function SkillsList() {
     <div className="section-y container-x">
       <SectionHeading
         id="habilidades-title"
-        index="06"
+        index="07"
         eyebrow="Habilidades"
         title={
           <>
-            Mi stack, por <span className="serif-accent text-accent">capas</span>.
+            Mi stack, por capas.
           </>
         }
         description="Niveles honestos: Aprendiendo, Cómodo o Fuerte. Sin porcentajes inventados."
@@ -29,12 +29,8 @@ function SkillsList() {
           return (
             <RevealItem key={cat.id}>
               <article className="glass spotlight h-full overflow-hidden p-6 md:p-8">
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -bottom-24 left-1/2 h-48 w-[80%] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--accent)_35%,transparent),transparent)]"
-                />
                 <header className="relative mb-6 flex items-start gap-4">
-                  <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[.04] text-accent">
+                  <span className="grid size-12 shrink-0 place-items-center rounded-[6px] border border-line-2 text-ink">
                     <Icon aria-hidden="true" className="size-5" />
                   </span>
                   <div>

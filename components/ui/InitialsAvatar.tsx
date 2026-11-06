@@ -1,12 +1,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/cn";
 
-const gradients = [
-  "from-blue to-violet",
-  "from-violet to-magenta",
-  "from-magenta to-[#ff7a3d]",
-  "from-cyan to-blue",
-];
+const gradients = ["from-[#2a2a2a] to-[#141414]", "from-[#262626] to-[#111111]", "from-[#303030] to-[#161616]"];
 
 export function initialsOf(name: string) {
   return name
@@ -32,7 +27,7 @@ export function InitialsAvatar({
   return (
     <span
       className={cn(
-        "relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br font-mono text-sm font-semibold text-white ring-1 ring-white/15",
+        "relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br font-mono text-sm font-semibold text-white ring-1 ring-line-2",
         gradients[index % gradients.length],
         className,
       )}

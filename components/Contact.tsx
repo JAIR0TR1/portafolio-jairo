@@ -126,7 +126,7 @@ export default function Contact() {
               return (
                 <RevealItem as="li" key={s.label}>
                   <div className="glass spotlight flex items-center gap-4 p-4 md:p-5">
-                    <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[.04] text-accent">
+                    <span className="grid size-12 shrink-0 place-items-center rounded-[6px] border border-line-2 text-ink">
                       <SocialGlyph icon={s.icon} className="size-5" />
                     </span>
                     <div className="min-w-0 flex-1">
@@ -156,7 +156,7 @@ export default function Contact() {
             <RevealItem as="li">
               <p className="px-2 pt-2 text-sm text-muted">
                 ¿Prefieres tu propia app?{" "}
-                <a href={`mailto:${profile.email}`} className="text-ink underline underline-offset-4 hover:text-accent">
+                <a href={`mailto:${profile.email}`} className="text-ink underline underline-offset-4 hover:text-muted">
                   Escríbeme por correo
                 </a>
                 .
@@ -179,9 +179,9 @@ export default function Contact() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.4, ease: EASE }}
-                    className="mt-8 flex flex-col items-start gap-4 rounded-2xl border border-emerald-400/30 bg-emerald-400/[.06] p-6"
+                    className="mt-8 flex flex-col items-start gap-4 rounded-[8px] border border-line-2 bg-card p-6"
                   >
-                    <span className="grid size-11 place-items-center rounded-full bg-emerald-400 text-bg">
+                    <span className="grid size-11 place-items-center rounded-[6px] bg-ink text-bg">
                       <Check aria-hidden="true" />
                     </span>
                     <p className="text-lg font-medium">¡Gracias! Tu mensaje está listo.</p>
@@ -282,7 +282,7 @@ export default function Contact() {
                       <p
                         id={`${uid}-err`}
                         role="alert"
-                        className="flex items-start gap-2 rounded-xl border border-[#ff6b8b]/40 bg-[#ff6b8b]/[.08] p-3 text-sm md:col-span-2"
+                        className="flex items-start gap-2 rounded-[6px] border border-[#ff6b8b]/40 bg-[#ff6b8b]/[.08] p-3 text-sm md:col-span-2"
                       >
                         <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-[#ff8fa8]" />
                         No se pudo enviar (puede ser tu conexión). Tu mensaje sigue aquí: inténtalo de nuevo o
@@ -327,9 +327,9 @@ export default function Contact() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8 }}
               transition={{ duration: 0.3, ease: EASE }}
-              className="flex items-center gap-2 rounded-full border border-white/15 bg-[#14141c] px-4 py-2.5 text-sm shadow-[0_20px_40px_-12px_rgb(0_0_0/.8)]"
+              className="flex items-center gap-2 rounded-[6px] border border-line-2 bg-card px-4 py-2.5 text-sm"
             >
-              <Check aria-hidden="true" className="size-4 text-emerald-400" /> {toast}
+              <Check aria-hidden="true" className="size-4 text-ink" /> {toast}
             </motion.p>
           )}
         </AnimatePresence>
@@ -357,7 +357,7 @@ function Field({
     <div className={cn("flex flex-col gap-2", className)}>
       <div className="flex items-center justify-between">
         <label htmlFor={id} className="text-sm font-medium">
-          {label} <span className="text-accent" aria-hidden="true">*</span>
+          {label} <span className="text-muted" aria-hidden="true">*</span>
         </label>
         {aside}
       </div>

@@ -6,7 +6,6 @@ import { useMemo, useState } from "react";
 import { projects, type Project } from "@/data/projects";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProjectCover } from "@/components/ui/ProjectCover";
-import { HoloIcon } from "@/components/ui/HoloIcon";
 import { GithubIcon } from "@/components/ui/BrandIcons";
 import { TechIcon, tagToIcon } from "@/components/ui/TechIcon";
 import { EASE, useReducedEffects } from "@/lib/effects";
@@ -31,8 +30,8 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   const reduced = useReducedEffects();
   const published = project.status !== "en-desarrollo";
   return (
-    <article className="glass spotlight group flex h-full flex-col overflow-hidden transition-[transform,box-shadow] duration-500 ease-[var(--ease-out-expo)] hover:-translate-y-1 hover:shadow-[0_30px_60px_-30px_var(--accent)]">
-      <div className="relative aspect-[16/10] overflow-hidden rounded-t-[23px] border-b border-line">
+    <article className="glass spotlight group flex h-full flex-col overflow-hidden transition-colors duration-300 hover:border-[#3a3a3a]">
+      <div className="relative aspect-[16/10] overflow-hidden rounded-t-[7px] border-b border-line grayscale">
         {/* La portada sale de la oscuridad con un barrido de luz al entrar en pantalla */}
         <motion.div
           className="absolute inset-0"
@@ -57,10 +56,10 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         <span
           className={cn(
             "chip absolute left-3 top-3 bg-black/55 backdrop-blur-sm",
-            published ? "text-emerald-300" : "text-amber-300",
+            published ? "text-ink" : "text-muted",
           )}
         >
-          <span className={cn("size-1.5 rounded-full", published ? "bg-emerald-400" : "bg-amber-400")} />
+          <span className={cn("size-1.5 rounded-full", published ? "bg-ink" : "border border-muted")} />
           {published ? "Publicado" : "En desarrollo"}
         </span>
         {project.year ? (
@@ -70,8 +69,8 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 
       <div className="flex flex-1 flex-col gap-4 p-6">
         <div className="flex items-center gap-3">
-          <HoloIcon label={project.title.slice(0, 1)} />
-          <h3 className="text-xl font-semibold tracking-[-0.02em]">{project.title}</h3>
+          <span className="grid size-10 shrink-0 place-items-center rounded-[6px] border border-line-2 font-mono text-xs text-muted">{String(index + 1).padStart(2, "0")}</span>
+          <h3 className="font-display text-xl font-medium tracking-[-0.025em]">{project.title}</h3>
         </div>
         <p className="text-pretty text-[15px] leading-relaxed text-muted">{project.description}</p>
         <ul className="flex flex-wrap gap-1.5" aria-label="Tecnologías">
@@ -117,11 +116,11 @@ export default function Projects() {
       <div className="container-x">
         <SectionHeading
           id="proyectos-title"
-          index="02"
+          index="03"
           eyebrow="Proyectos"
           title={
             <>
-              Cosas que he <span className="serif-accent text-accent">construido</span>.
+              Cosas que he construido.
             </>
           }
           description="Apps de escritorio, móviles, para reloj y web. Filtra por tecnología y abre el código o la demo."
@@ -137,14 +136,14 @@ export default function Projects() {
                 aria-pressed={on}
                 onClick={() => setFilter(f)}
                 className={cn(
-                  "relative min-h-11 rounded-full border px-4 text-sm transition-colors",
+                  "relative min-h-11 rounded-[6px] border px-4 text-sm transition-colors",
                   on ? "border-transparent text-bg" : "border-line text-muted hover:border-white/25 hover:text-ink",
                 )}
               >
                 {on && (
                   <motion.span
                     layoutId="project-filter"
-                    className="absolute inset-0 rounded-full bg-ink"
+                    className="absolute inset-0 rounded-[6px] bg-ink"
                     transition={{ type: "spring", stiffness: 420, damping: 36 }}
                   />
                 )}

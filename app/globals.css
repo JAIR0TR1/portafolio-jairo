@@ -1,36 +1,37 @@
 @import "tailwindcss";
 
-/* ───────────────────────── OBSIDIAN AURORA · tokens ───────────────────────── */
+/* ───────────────────────── FICHA TÉCNICA · tokens ─────────────────────────
+   Monocromo casi total. El acento (--accent) cambia con el modo del avatar y SOLO
+   aparece en: halo detrás del avatar, punto del modo activo, puntos de las
+   anotaciones, indicador del menú y estados de foco. */
 
 /* --accent registrada para que el cambio de color se anime en CSS (sin JS por frame) */
 @property --accent {
   syntax: "<color>";
   inherits: true;
-  initial-value: #2d7bff;
+  initial-value: #7c5cff;
 }
 
 @theme {
-  --color-bg: #06060a;
-  --color-bg-2: #0b0b12;
-  --color-ink: #f4f3fa;
-  --color-muted: #9a98ad;
-  --color-line: rgb(255 255 255 / 0.1);
-  --color-surface: rgb(255 255 255 / 0.04);
+  --color-bg: #0a0a0a;
+  --color-card: #0f0f0f;
+  --color-ink: #ededed;
+  --color-muted: #8a8a8a;
+  --color-faint: #2a2a2a; /* SOLO texto decorativo (título de fondo), nunca texto que haya que leer */
+  --color-line: #1f1f1f;
+  --color-line-2: #2e2e2e;
   --color-blue: #2d7bff;
   --color-violet: #7c5cff;
   --color-magenta: #ff3d9a;
-  --color-lime: #c6ff3d;
-  --color-cyan: #3de8ff;
 
-  --radius-card: 24px;
+  --radius-card: 8px;
   --container-site: 1200px;
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-display: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
 
-  --animate-drift: drift 22s ease-in-out infinite alternate;
   --animate-spin-slow: spin 24s linear infinite;
   --animate-pulse-soft: pulse-soft 2.4s ease-in-out infinite;
   --animate-float: float 6s ease-in-out infinite;
@@ -38,12 +39,6 @@
   @keyframes float {
     0%, 100% { transform: translate3d(0, 0, 0); }
     50% { transform: translate3d(0, -12px, 0); }
-  }
-
-  @keyframes drift {
-    0% { transform: translate3d(0, 0, 0) scale(1); }
-    50% { transform: translate3d(4%, -3%, 0) scale(1.08); }
-    100% { transform: translate3d(-3%, 4%, 0) scale(0.96); }
   }
   @keyframes pulse-soft {
     0%, 100% { opacity: 1; transform: scale(1); }
@@ -55,13 +50,13 @@
   --color-accent: var(--accent);
 }
 
-/* Modos del avatar → color de acento de toda la página */
+/* Modos del avatar → acento: Jairo violeta (por defecto) · Desarrollador azul · IA magenta */
 :root {
-  --accent: #2d7bff;
+  --accent: #7c5cff;
   --header-h: 76px;
   transition: --accent 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
-:root[data-mode="design"] { --accent: #7c5cff; }
+:root[data-mode="dev"] { --accent: #2d7bff; }
 :root[data-mode="ai"] { --accent: #ff3d9a; }
 
 /* ───────────────────────── base ───────────────────────── */
@@ -83,14 +78,14 @@ body {
   overflow-x: clip;
 }
 
-/* Grano sutil sobre todo (no intercepta el puntero) */
+/* Grano muy leve sobre todo (no intercepta el puntero) */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: 90;
   pointer-events: none;
-  opacity: 0.045;
+  opacity: 0.03;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
@@ -100,12 +95,12 @@ footer[id] {
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--accent) 45%, transparent);
+  background: rgb(237 237 237 / 0.22);
   color: var(--color-ink);
 }
 
 :focus-visible {
-  outline: 2px solid color-mix(in oklab, var(--accent) 70%, white);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 
@@ -141,37 +136,30 @@ footer[id] {
   @media (width >= 48rem) { padding-block: 8rem; }
 }
 
+/* Títulos: Syne 500, una sola tipografía display en todo el sitio */
 @utility text-display {
-  font-weight: 600;
-  letter-spacing: -0.045em;
-  line-height: 0.95;
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
 }
 
 @utility text-eyebrow {
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-@utility serif-accent {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-}
-
-/* Tarjeta de vidrio (sin backdrop-blur: barata en GPU) */
+/* Tarjeta plana: fondo #0F0F0F + borde de 1px (sustituye al vidrio) */
 @utility glass {
   position: relative;
   border-radius: var(--radius-card);
   border: 1px solid var(--color-line);
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.055), rgb(255 255 255 / 0.015));
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 30px 60px -40px rgb(0 0 0 / 0.8);
+  background: var(--color-card);
 }
 
-/* Spotlight que sigue al cursor (--mx/--my los pone SpotlightTracker) */
+/* Spotlight neutro que sigue al cursor (--mx/--my los pone SpotlightTracker). Sin color. */
 @utility spotlight {
   isolation: isolate;
   &::before,
@@ -186,13 +174,11 @@ footer[id] {
   }
   &::before {
     z-index: -1;
-    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%),
-        color-mix(in oklab, var(--accent) 16%, transparent), transparent 60%);
+    background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%), rgb(255 255 255 / 0.035), transparent 60%);
   }
   &::after {
     padding: 1px;
-    background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%),
-        color-mix(in oklab, var(--accent) 80%, white), transparent 65%);
+    background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), rgb(255 255 255 / 0.28), transparent 65%);
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -201,12 +187,6 @@ footer[id] {
     &:hover::before,
     &:hover::after { opacity: 1; }
   }
-}
-
-@utility glow-accent {
-  box-shadow:
-    0 0 0 1px color-mix(in oklab, var(--accent) 55%, transparent),
-    0 18px 50px -18px color-mix(in oklab, var(--accent) 75%, transparent);
 }
 
 /* ───────────────────────── botones (un solo sistema) ───────────────────────── */
@@ -219,18 +199,13 @@ footer[id] {
     justify-content: center;
     gap: 0.5rem;
     min-height: 44px;
-    padding: 0.625rem 1.25rem;
-    border-radius: 999px;
+    padding: 0.625rem 1.125rem;
+    border-radius: 6px;
     font-size: 0.9375rem;
     font-weight: 500;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.005em;
     white-space: nowrap;
-    transition:
-      transform 0.35s var(--ease-out-expo),
-      box-shadow 0.35s var(--ease-out-expo),
-      background-color 0.25s,
-      border-color 0.25s,
-      color 0.25s;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
   }
   .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .btn svg { width: 1.05em; height: 1.05em; flex-shrink: 0; }
@@ -238,42 +213,32 @@ footer[id] {
   .btn-primary {
     background: var(--color-ink);
     color: var(--color-bg);
-    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.4) inset;
   }
-  .btn-primary:not(:disabled):hover {
-    transform: translateY(-3px);
-    box-shadow:
-      0 0 0 1px color-mix(in oklab, var(--accent) 60%, white),
-      0 16px 44px -12px color-mix(in oklab, var(--accent) 85%, transparent);
-  }
+  .btn-primary:not(:disabled):hover { background: #ffffff; }
 
   .btn-secondary {
-    background: rgb(255 255 255 / 0.05);
+    background: transparent;
     color: var(--color-ink);
-    border: 1px solid var(--color-line);
+    border: 1px solid var(--color-line-2);
   }
-  .btn-secondary:not(:disabled):hover {
-    transform: translateY(-3px);
-    border-color: color-mix(in oklab, var(--accent) 60%, transparent);
-    background: color-mix(in oklab, var(--accent) 12%, transparent);
-  }
+  .btn-secondary:not(:disabled):hover { border-color: #5a5a5a; background: rgb(255 255 255 / 0.03); }
 
   .btn-ghost {
     color: var(--color-muted);
     padding-inline: 0.75rem;
   }
-  .btn-ghost:not(:disabled):hover { color: var(--color-ink); background: rgb(255 255 255 / 0.05); }
+  .btn-ghost:not(:disabled):hover { color: var(--color-ink); background: rgb(255 255 255 / 0.04); }
 
-  .btn-sm { min-height: 40px; padding: 0.5rem 1rem; font-size: 0.875rem; }
+  .btn-sm { min-height: 40px; padding: 0.5rem 0.875rem; font-size: 0.875rem; }
 
   .chip {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    border-radius: 999px;
-    border: 1px solid var(--color-line);
-    background: rgb(255 255 255 / 0.035);
-    padding: 0.3rem 0.7rem;
+    border-radius: 4px;
+    border: 1px solid var(--color-line-2);
+    background: transparent;
+    padding: 0.25rem 0.55rem;
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--color-ink);
@@ -282,49 +247,33 @@ footer[id] {
 
   .field {
     width: 100%;
-    border-radius: 14px;
-    border: 1px solid var(--color-line);
-    background: rgb(255 255 255 / 0.03);
+    border-radius: 6px;
+    border: 1px solid var(--color-line-2);
+    background: var(--color-card);
     padding: 0.8rem 1rem;
     color: var(--color-ink);
     font-size: 1rem;
-    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .field::placeholder { color: color-mix(in oklab, var(--color-muted) 70%, transparent); }
-  .field:hover { border-color: rgb(255 255 255 / 0.18); }
+  .field::placeholder { color: #6a6a6a; }
+  .field:hover { border-color: #4a4a4a; }
   .field:focus-visible {
     outline: none;
-    border-color: color-mix(in oklab, var(--accent) 80%, white);
-    box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 22%, transparent);
-    background: rgb(255 255 255 / 0.05);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent);
   }
   .field[aria-invalid="true"] { border-color: #ff6b8b; }
 }
 
-/* Texto con degradado que se desvanece (2.ª línea del Hero) */
-.fade-line {
-  background: linear-gradient(180deg, var(--color-ink) 10%, rgb(244 243 250 / 0.38) 95%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.accent-word {
-  background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 35%, white) 0%, var(--accent) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  padding-right: 0.08em;
-}
-
-/* Piso de cuadrícula en perspectiva (banner de cierre) */
+/* Piso de líneas finas en perspectiva (banner de cierre), sin glow */
 @keyframes grid-move { to { background-position: 0 64px, 0 0; } }
 .grid-floor {
   background-image:
-    linear-gradient(color-mix(in oklab, var(--accent) 55%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in oklab, var(--accent) 40%, transparent) 1px, transparent 1px);
+    linear-gradient(rgb(237 237 237 / 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(237 237 237 / 0.12) 1px, transparent 1px);
   background-size: 100% 64px, 64px 100%;
-  mask-image: linear-gradient(to top, black 10%, transparent 85%);
-  animation: grid-move 3s linear infinite;
+  mask-image: linear-gradient(to top, black 5%, transparent 80%);
+  animation: grid-move 5s linear infinite;
 }
 
 @keyframes progress {
@@ -332,30 +281,7 @@ footer[id] {
   to { transform: scaleX(1); }
 }
 
-/* Ícono holográfico iridiscente */
-@property --holo-angle {
-  syntax: "<angle>";
-  inherits: true;
-  initial-value: 0deg;
-}
-@keyframes holo-spin { to { --holo-angle: 360deg; } }
-.holo {
-  background: conic-gradient(from var(--holo-angle), #c6ff3d, #ff3d9a, #3de8ff, #7c5cff, #c6ff3d);
-  box-shadow: 0 0 18px -8px #7c5cff;
-  animation: holo-spin 5s linear infinite paused;
-  transition: box-shadow 0.4s, transform 0.25s ease-out;
-}
-.holo-shine {
-  background: conic-gradient(from calc(var(--holo-angle) + 90deg), #c6ff3d33, #ff3d9a44, #3de8ff33, #7c5cff44, #c6ff3d33);
-  opacity: 0.35;
-  transition: opacity 0.4s;
-}
-.group:hover .holo,
-.group:focus-within .holo { animation-play-state: running; box-shadow: 0 0 28px -4px #ff3d9a; }
-.group:hover .holo-shine,
-.group:focus-within .holo-shine { opacity: 1; }
-
-/* Entrada del texto del Hero (CSS, para no retrasar el LCP) */
+/* Entrada del Hero (CSS, para no retrasar el LCP) */
 @keyframes hero-in {
   from { opacity: 0; transform: translateY(24px); filter: blur(8px); }
   to { opacity: 1; transform: none; filter: blur(0); }
@@ -367,6 +293,18 @@ footer[id] {
     animation-delay: calc(var(--i, 0) * 80ms);
   }
 }
+
+/* ───────────── Hero «ficha técnica» ───────────── */
+/* --f: tamaño base del título gigante (≈20vw), limitado por la altura de la ventana */
+.hero-f { --f: min(20vw, calc((100svh - 22rem) / 2.05), 19rem); }
+@media (max-width: 767px) { .hero-f { --f: 22vw; } }
+
+/* Anotaciones del avatar: flotan suave, con desfase */
+@keyframes note-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -6px, 0); }
+}
+.note-float { animation: note-float 5.5s ease-in-out infinite; }
 
 /* ───────────── Storytelling Hero → Sobre mí (avatar viajero) ───────────── */
 .hero-fade { opacity: calc(1 - var(--hero-p, 0) * 4); }
@@ -382,9 +320,6 @@ footer[id] {
 @keyframes ring-spin { to { transform: rotateY(360deg); } }
 .logo-ring { transform-style: preserve-3d; animation: ring-spin 26s linear infinite; }
 
-/* Ícono holográfico: se inclina con el puntero (--nx/--ny de SpotlightTracker) */
-.group:hover .holo { transform: perspective(240px) rotateY(calc(var(--nx, 0) * 22deg)) rotateX(calc(var(--ny, 0) * -22deg)); }
-
 /* ───────────── Intro (pantalla en la sala oscura) ───────────── */
 :root[data-intro="webgl"],
 :root[data-intro="css"] { overflow: hidden; }
@@ -395,7 +330,7 @@ footer[id] {
   position: fixed;
   inset: 0;
   z-index: 199;
-  background: #06060a;
+  background: #0a0a0a;
 }
 
 @keyframes intro-fade-in { from { opacity: 0; } to { opacity: 1; } }

@@ -13,11 +13,11 @@ export function SkillMeter({ skill }: { skill: Skill }) {
   const filled = steps.indexOf(label) + 1;
   return (
     <li className="flex items-center gap-3">
-      <span className="grid size-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[.04]">
+      <span className="grid size-9 shrink-0 place-items-center rounded-[6px] border border-line-2">
         {skill.icon ? (
           <TechIcon name={skill.icon} className="size-4 text-ink/85" />
         ) : (
-          <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
+          <span aria-hidden="true" className="size-1.5 rounded-full bg-muted" />
         )}
       </span>
       <div className="min-w-0 flex-1">
@@ -29,7 +29,7 @@ export function SkillMeter({ skill }: { skill: Skill }) {
           {steps.map((s, i) => (
             <span key={s} className="h-1.5 overflow-hidden rounded-full bg-white/[.08]">
               {i < filled ? (
-                <span className={cn("meter-fill block h-full rounded-full bg-accent")} style={{ animationDelay: `${i * 40}ms` }} />
+                <span className={cn("meter-fill block h-full rounded-full bg-ink")} style={{ animationDelay: `${i * 40}ms` }} />
               ) : null}
             </span>
           ))}

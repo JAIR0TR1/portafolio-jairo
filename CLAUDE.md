@@ -11,12 +11,14 @@ Entrega del curso "Diseño de Interfaces" (UCC). Límite: 8 nov 2026. Se calific
 - Componentes en `components/*.tsx` (nombres fijos); extras en `components/ui/` y `components/three/`. Datos tipados en `data/`.
 - Requisitos: Navbar sticky + hamburguesa; Hero con nombre grande, rol, avatar, frase, `<a href="/cv.pdf" download>` + botón secundario; Sobre mí (párrafo 3–5 líneas, foto, tecnologías, datos rápidos); Proyectos con `.map()`, imagen, tags, GitHub y Demo con `target="_blank" rel="noopener noreferrer"`, grid 1→2–3 col; ≥3 testimonios; experiencia académica Y laboral con fechas, línea vertical, reciente→antiguo; contacto con correo, LinkedIn, GitHub, formulario (required, type=email, confirmación, "use client"); footer con nombre, © `new Date().getFullYear()`, redes, enlaces, volver arriba, "Hecho con Next.js + Tailwind"; Habilidades antes del footer.
 
-## Dirección de arte "Obsidian Aurora"
-- Negro obsidiana `#06060A`; el color es LUZ (glows, bordes, halos), no relleno. Vidrio sin backdrop-blur grande. Grano sutil.
-- Tokens: ink `#F4F3FA`, muted `#9A98AD`, line `rgb(255 255 255/.1)`, blue `#2D7BFF`, violet `#7C5CFF`, magenta `#FF3D9A`. `--accent` (registrada con `@property`) cambia por modo: `html[data-mode=design|ai]`.
-- Tipos: Geist (display, tracking −0.045em), Instrument Serif cursiva solo 1 palabra por título (`serif-accent`), Geist Mono para etiquetas (`text-eyebrow`).
-- Utilidades propias: `container-x`, `section-y`, `glass`, `spotlight` (+ `SpotlightTracker` global), `glow-accent`, `.btn .btn-primary|secondary|ghost`, `.chip`, `.field`.
-- Motion: `motion/react`, easing `[.22,1,.36,1]`, `<Reveal>`/`<RevealItem>` (y24, blur8, 0.6 s, stagger 0.08). Hover lift −4 px + glow.
+## Dirección de arte "Ficha técnica" (rama `minimal`; referencia Evolute)
+- Monocromo casi total: bg `#0A0A0A`, card `#0F0F0F`, ink `#EDEDED`, muted `#8A8A8A`, faint `#2A2A2A` (SOLO título decorativo, nunca texto a leer), líneas `#1F1F1F`/`#2E2E2E`.
+- `--accent` (registrada con `@property`) cambia por modo: Jairo violeta (por defecto), `html[data-mode=dev]` azul, `[data-mode=ai]` magenta. SOLO en: halo del avatar, punto del modo activo, puntos de anotaciones, indicador del menú y foco. Nada más lleva color.
+- Prohibido: mallas/gradientes de color, vidrio, glows en tarjetas/botones, cursivas serif, íconos holográficos, píldoras grandes. Radios 6–8 px (chips 4 px).
+- Tipos: Syne 500 (`font-display`, `text-display`), Manrope (texto, `font-sans`), JetBrains Mono (etiquetas, `text-eyebrow`). Numeración de sección «0X / 07».
+- Hero: título gigante detrás del avatar (`HeroTitle`: ajuste de ancho por tracking + scramble por modo, textos en `data/avatar.ts`), anotaciones tipo Figma (`HeroAvatar`), modos en `lib/mode.ts` (store con pausa compartida). Imagen por modo: `public/avatar/{jairo,robot,hibrido}.png` si existe (detectada en next.config), si no el robot SVG.
+- Utilidades: `container-x`, `section-y`, `glass` (= tarjeta plana), `spotlight` (neutro), `.btn .btn-primary|secondary|ghost`, `.chip`, `.field`, `.hero-f` (define `--f`).
+- Motion: `motion/react`, easing `[.22,1,.36,1]`, `<Reveal>`/`<RevealItem>`. Sin lift ni glow al hover.
 
 ## Reglas técnicas
 - Orden/nombres de page.tsx intocables · ids fijos · datos en `data/` tipados.

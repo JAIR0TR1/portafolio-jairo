@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { JetBrains_Mono, Manrope, Syne } from "next/font/google";
 import "./globals.css";
 import { profile } from "@/data/profile";
 import { Providers } from "@/components/ui/Providers";
@@ -9,14 +9,10 @@ import { SpotlightTracker } from "@/components/ui/SpotlightTracker";
 import { TechBackdrop } from "@/components/ui/TechBackdrop";
 import { bootScript } from "@/lib/keys";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["italic"],
-});
+// Tipografía C "Geométrica": Syne (títulos) · Manrope (texto) · JetBrains Mono (etiquetas)
+const syne = Syne({ variable: "--font-syne", subsets: ["latin"], weight: ["500", "600"] });
+const manrope = Manrope({ variable: "--font-manrope", subsets: ["latin"], weight: ["400", "500", "600"] });
+const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"], weight: ["400", "500"] });
 
 const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
@@ -54,7 +50,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#06060A",
+  themeColor: "#0A0A0A",
   colorScheme: "dark",
 };
 
@@ -65,7 +61,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
       lang="es"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`scroll-smooth ${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased`}
+      className={`scroll-smooth ${syne.variable} ${manrope.variable} ${jetbrains.variable} antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />

@@ -26,7 +26,7 @@ export function SectionHeading({ index, eyebrow, title, description, id, classNa
       <div className={cn("flex flex-col gap-4", align === "center" && "items-center")}>
         <RevealItem>
           <p className="text-eyebrow flex items-center gap-3 text-muted">
-            <span className="text-accent">{index}</span>
+            <span className="text-ink">{index}</span> / 07
             <span aria-hidden="true" className="h-px w-8 bg-line" />
             {eyebrow}
           </p>
