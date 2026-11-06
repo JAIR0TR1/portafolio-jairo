@@ -4,6 +4,8 @@ Portafolio personal de **Jairo Vallejo Burbano**, estudiante de Ingeniería de S
 
 > Dirección de arte **"Obsidian Aurora"**: fondo negro obsidiana con azul, violeta y magenta usados como luz (glows, bordes y halos), más vidrio y un 3D sutil.
 
+**Sitio en vivo:** https://portafolio-jairo-self.vercel.app
+
 ![Inicio en escritorio](docs/capturas/1440-inicio.jpg)
 
 ## Experiencias principales
@@ -111,7 +113,7 @@ git push -u origin main
 1. Entra a [vercel.com/new](https://vercel.com/new) e inicia sesión con GitHub.
 2. Importa el repositorio `portafolio-jairo`. Vercel detecta Next.js solo, así que no hay que cambiar nada.
 3. Opcional: en *Environment Variables* agrega `NEXT_PUBLIC_FORMSPREE_ID`.
-4. Pulsa **Deploy**. La URL pública queda en `https://portafolio-jairo.vercel.app` (o similar).
+4. Pulsa **Deploy**. Vercel asigna la URL pública según el nombre disponible; `portafolio-jairo.vercel.app` ya pertenece a otra persona, así que revisa en *Domains* cuál te tocó.
 5. Cada `git push` a `main` vuelve a publicar el sitio automáticamente.
 
 ## Contenido pendiente
