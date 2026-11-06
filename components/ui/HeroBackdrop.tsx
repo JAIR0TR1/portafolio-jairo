@@ -2,13 +2,13 @@
 export function HeroBackdrop() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-      <div className="absolute -right-[20%] -top-[30%] h-[110%] w-[80%] animate-drift rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--accent)_55%,transparent),transparent)] opacity-70" />
+      <div className="absolute -right-[20%] -top-[30%] h-[110%] w-[80%] md:animate-drift rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--accent)_55%,transparent),transparent)] opacity-70" />
       <div
-        className="absolute -left-[25%] top-[10%] h-[90%] w-[70%] animate-drift rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--accent)_30%,var(--color-violet)_25%),transparent)] opacity-50"
+        className="absolute -left-[25%] top-[10%] h-[90%] w-[70%] md:animate-drift rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--accent)_30%,var(--color-violet)_25%),transparent)] opacity-50"
         style={{ animationDelay: "-8s" }}
       />
       <div
-        className="absolute -bottom-[40%] left-[25%] h-[80%] w-[70%] animate-drift rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--accent)_35%,var(--color-magenta)_20%),transparent)] opacity-40"
+        className="absolute -bottom-[40%] left-[25%] h-[80%] w-[70%] md:animate-drift rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--accent)_35%,var(--color-magenta)_20%),transparent)] opacity-40"
         style={{ animationDelay: "-15s" }}
       />
       {/* cuadrícula técnica */}

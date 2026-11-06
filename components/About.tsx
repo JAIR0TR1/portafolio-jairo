@@ -102,12 +102,12 @@ export default function About() {
               <h3 className="text-eyebrow mb-5 text-muted">Datos rápidos</h3>
               <dl className="space-y-4">
                 {facts.map(({ icon: Icon, label, value }) => (
-                  <div key={label} className="flex gap-3">
-                    <Icon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-accent" />
-                    <div>
-                      <dt className="font-mono text-xs text-muted">{label}</dt>
-                      <dd className="text-[15px] text-ink">{value}</dd>
-                    </div>
+                  <div key={label}>
+                    <dt className="flex items-center gap-2 font-mono text-xs text-muted">
+                      <Icon aria-hidden="true" className="size-4 shrink-0 text-accent" />
+                      {label}
+                    </dt>
+                    <dd className="pl-6 text-[15px] text-ink">{value}</dd>
                   </div>
                 ))}
               </dl>

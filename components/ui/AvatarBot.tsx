@@ -54,19 +54,19 @@ export function AvatarBot({ color = "var(--accent)", blinking = false, className
 
       {/* halo y luz desde abajo */}
       <circle cx="200" cy="250" r="200" fill={`url(#${id("halo")})`} />
-      <ellipse cx="200" cy="452" rx="150" ry="14" fill="currentColor" opacity="0.35" filter={`url(#${id("glow")})`} />
+      <ellipse cx="200" cy="452" rx="150" ry="14" fill="currentColor" opacity="0.35" filter={`url(#${id("glow")})`} className="avatar-glow" />
 
       {/* cuerpo / hombros */}
       <path d="M78 460 C84 392 120 352 200 352 C280 352 316 392 322 460 Z" fill={`url(#${id("body")})`} />
       <path d="M78 460 C84 392 120 352 200 352 C280 352 316 392 322 460" fill="none" stroke={`url(#${id("rim")})`} strokeWidth="2" />
       <rect x="176" y="300" width="48" height="60" rx="14" fill="#0e0e15" />
       {/* insignia */}
-      <circle cx="200" cy="410" r="7" fill="currentColor" filter={`url(#${id("glow")})`} />
+      <circle cx="200" cy="410" r="7" fill="currentColor" filter={`url(#${id("glow")})`} className="avatar-glow" />
 
       {/* antena */}
       <line x1="200" y1="112" x2="200" y2="66" stroke="#2a2a37" strokeWidth="6" strokeLinecap="round" />
-      <g className="origin-[200px_58px] animate-pulse-soft">
-        <circle cx="200" cy="58" r="10" fill="currentColor" filter={`url(#${id("glow")})`} />
+      <g className="origin-[200px_58px] md:animate-pulse-soft">
+        <circle cx="200" cy="58" r="10" fill="currentColor" filter={`url(#${id("glow")})`} className="avatar-glow" />
       </g>
 
       {/* orejas */}
@@ -99,8 +99,8 @@ export function AvatarBot({ color = "var(--accent)", blinking = false, className
             transition: "transform 90ms ease-out",
           }}
         >
-          <rect x="156" y="194" width="20" height="38" rx="10" fill="currentColor" filter={`url(#${id("glow")})`} />
-          <rect x="224" y="194" width="20" height="38" rx="10" fill="currentColor" filter={`url(#${id("glow")})`} />
+          <rect x="156" y="194" width="20" height="38" rx="10" fill="currentColor" filter={`url(#${id("glow")})`} className="avatar-glow" />
+          <rect x="224" y="194" width="20" height="38" rx="10" fill="currentColor" filter={`url(#${id("glow")})`} className="avatar-glow" />
         </g>
       </g>
     </svg>

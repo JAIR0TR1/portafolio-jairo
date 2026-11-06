@@ -16,7 +16,12 @@ npm run check:content -- --write
 6. **Avatares PNG** (fondo transparente) → `public/avatar/dev.png`, `design.png`, `ai.png`. Mientras no estén, se usa un avatar SVG provisional original.
 7. **Formulario**: crea un formulario gratis en formspree.io y en Vercel agrega la variable `NEXT_PUBLIC_FORMSPREE_ID`. Sin ella, el formulario abre la app de correo (mailto).
 8. **Experiencia**: nombre del emprendimiento, años, semestre, cursos.
-9. **Habilidades y niveles**: confirma que sean honestos (`data/skills.ts`).
+9. **Habilidades y niveles**: confirma que sean honestos (`data/skills.ts`) y revisa los logos de fondo (`components/ui/TechBackdrop.tsx`). VS Code no existe en simple-icons, así que se usó JavaScript.
+10. **Textura de la intro**: cada vez que cambies contenido visible, ejecuta `npm run build`, luego `npm start` y, en otra terminal, `npm run intro:texture`, para que la pantalla de la intro muestre el sitio actualizado.
+11. **Checklist de 10 preguntas** (`docs/evaluacion-heuristica.md`): ajusta la redacción a la del PDF del curso.
+12. **Rendimiento**: tras publicar en Vercel, mide en https://pagespeed.web.dev (móvil). En local, Lighthouse dio Performance ≈ 60 con mucha variación por la GPU por software del entorno (ver README).
+13. **Publicar**: `git push` a GitHub e importar en Vercel (comandos en el README).
+14. (Opcional, no hecho) Paleta de comandos Ctrl/⌘+K.
 
 ## Lista automática (archivo y línea)
 
@@ -26,6 +31,7 @@ npm run check:content -- --write
 | `components/About.tsx` | 18 | confirmar |
 | `components/Contact.tsx` | 13 | crear en formspree.io y ponerlo en Vercel |
 | `components/ui/AvatarBot.tsx` | 15 | reemplazar por los PNG de /public/avatar (dev.png, design.png, ai.png). |
+| `components/ui/TechBackdrop.tsx` | 8 | confirmar que usas cada tecnología (VS Code no está en simple-icons: se usa JavaScript) |
 | `data/experience.ts` | 12 | confirmar fechas, nombres y logros de cada ítem. |
 | `data/experience.ts` | 18 | meses exactos |
 | `data/experience.ts` | 26 | nombre del emprendimiento |

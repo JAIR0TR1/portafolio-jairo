@@ -6,6 +6,7 @@ import { profile } from "@/data/profile";
 import { Providers } from "@/components/ui/Providers";
 import { ScrollProgress } from "@/components/ui/ScrollProgress";
 import { SpotlightTracker } from "@/components/ui/SpotlightTracker";
+import { TechBackdrop } from "@/components/ui/TechBackdrop";
 import { bootScript } from "@/lib/keys";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -78,6 +79,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         </a>
         <ScrollProgress />
         <SpotlightTracker />
+        <TechBackdrop />
         <Providers>{children}</Providers>
       </body>
     </html>

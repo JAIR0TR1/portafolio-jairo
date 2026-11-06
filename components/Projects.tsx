@@ -9,7 +9,7 @@ import { ProjectCover } from "@/components/ui/ProjectCover";
 import { HoloIcon } from "@/components/ui/HoloIcon";
 import { GithubIcon } from "@/components/ui/BrandIcons";
 import { TechIcon, tagToIcon } from "@/components/ui/TechIcon";
-import { EASE } from "@/lib/effects";
+import { EASE, useReducedEffects } from "@/lib/effects";
 import { cn } from "@/lib/cn";
 
 const ALL = "Todos";
@@ -28,6 +28,7 @@ function useFilters() {
 }
 
 function ProjectCard({ project, index }: { project: Project; index: number }) {
+  const reduced = useReducedEffects();
   const published = project.status !== "en-desarrollo";
   return (
     <article className="glass spotlight group flex h-full flex-col overflow-hidden transition-[transform,box-shadow] duration-500 ease-[var(--ease-out-expo)] hover:-translate-y-1 hover:shadow-[0_30px_60px_-30px_var(--accent)]">
@@ -36,6 +37,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         <motion.div
           className="absolute inset-0"
           initial={{ filter: "brightness(0.12) saturate(0.3)" }}
+          animate={reduced ? { filter: "brightness(1) saturate(1)" } : undefined}
           whileInView={{ filter: "brightness(1) saturate(1)" }}
           viewport={{ once: true, margin: "0px 0px -15% 0px" }}
           transition={{ duration: 1.1, ease: EASE, delay: 0.1 }}
@@ -45,7 +47,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         <motion.span
           aria-hidden="true"
           className="pointer-events-none absolute inset-y-0 -left-[60%] w-[60%]"
-          initial={{ x: "0%", opacity: 1 }}
+          initial={reduced ? { opacity: 0 } : { x: "0%", opacity: 1 }}
           whileInView={{ x: "300%", opacity: [1, 1, 0] }}
           viewport={{ once: true, margin: "0px 0px -15% 0px" }}
           transition={{ duration: 1.3, ease: EASE, delay: 0.15 }}
@@ -88,7 +90,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             className="btn btn-secondary btn-sm"
             aria-label={`Código de ${project.title} en GitHub (abre en otra pestaña)`}
           >
-            <GithubIcon /> Código
+            <GithubIcon /> Código <ArrowUpRight aria-hidden="true" className="opacity-60" />
           </a>
           <a
             href={project.demo}
@@ -150,8 +152,9 @@ export default function Projects() {
               </button>
             );
           })}
-          <p className="sr-only" aria-live="polite">
-            {list.length} {list.length === 1 ? "proyecto" : "proyectos"} con el filtro {filter}
+          <p className="ml-auto self-center font-mono text-xs text-muted" aria-live="polite">
+            Mostrando <span className="text-ink">{list.length}</span> de {projects.length}
+            {filter === ALL ? "" : ` · ${filter}`}
           </p>
         </div>
 

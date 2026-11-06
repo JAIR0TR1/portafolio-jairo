@@ -72,8 +72,9 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* El fondo lo pinta <html>; body transparente para que la capa TechBackdrop (-z-10) se vea. */
 body {
-  background: var(--color-bg);
+  background: transparent;
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -359,9 +360,12 @@ footer[id] {
   from { opacity: 0; transform: translateY(24px); filter: blur(8px); }
   to { opacity: 1; transform: none; filter: blur(0); }
 }
-.hero-in {
-  animation: hero-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(var(--i, 0) * 80ms);
+/* Solo md+: en móvil el texto del Hero (LCP) se pinta de inmediato */
+@media (min-width: 768px) {
+  .hero-in {
+    animation: hero-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--i, 0) * 80ms);
+  }
 }
 
 /* ───────────── Storytelling Hero → Sobre mí (avatar viajero) ───────────── */
@@ -414,3 +418,25 @@ footer[id] {
 .intro-css-device { animation: intro-device 4.4s cubic-bezier(0.65, 0, 0.35, 1) both; }
 .intro-css-scroll { animation: intro-scroll 4.4s cubic-bezier(0.65, 0, 0.35, 1) both; }
 .intro-css-top { animation: intro-top 4.4s ease both; }
+
+/* Medidores de habilidades: se llenan al entrar en pantalla (scroll-driven, sin JS) */
+@keyframes meter-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.meter-fill { transform-origin: left center; }
+@supports (animation-timeline: view()) {
+  .meter-fill {
+    animation: meter-grow linear both;
+    animation-timeline: view();
+    animation-range: entry 10% cover 35%;
+  }
+}
+
+/* Móvil: sin filtros SVG de brillo en el avatar (el primer pintado era muy costoso) */
+@media (max-width: 767px) {
+  .avatar-glow { filter: none; }
+}
+
+/* Móvil: sin backdrop-filter ni grano (coste alto de GPU en equipos modestos) */
+@media (max-width: 767px) {
+  [class*="backdrop-blur"] { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  body::after { display: none; }
+}

@@ -1,14 +1,13 @@
-"use client";
-
-import { motion } from "motion/react";
 import { levelLabel, type Skill } from "@/data/skills";
-import { EASE } from "@/lib/effects";
 import { TechIcon } from "./TechIcon";
 import { cn } from "@/lib/cn";
 
 const steps = ["Aprendiendo", "Cómodo", "Fuerte"] as const;
 
-/** Medidor honesto de 3 tramos (Aprendiendo / Cómodo / Fuerte), no porcentajes. */
+/**
+ * Medidor honesto de 3 tramos (Aprendiendo / Cómodo / Fuerte), no porcentajes.
+ * Se llena con una animación CSS ligada al scroll (sin JS); sin soporte queda estático.
+ */
 export function SkillMeter({ skill }: { skill: Skill }) {
   const label = levelLabel(skill.level);
   const filled = steps.indexOf(label) + 1;
@@ -29,13 +28,9 @@ export function SkillMeter({ skill }: { skill: Skill }) {
         <div className="mt-2 grid grid-cols-3 gap-1" role="img" aria-label={`Nivel: ${label} (${filled} de 3)`}>
           {steps.map((s, i) => (
             <span key={s} className="h-1.5 overflow-hidden rounded-full bg-white/[.08]">
-              <motion.span
-                className={cn("block h-full origin-left rounded-full", i < filled ? "bg-accent" : "bg-transparent")}
-                initial={{ scaleX: 0 }}
-                whileInView={{ scaleX: i < filled ? 1 : 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, ease: EASE, delay: 0.15 + i * 0.12 }}
-              />
+              {i < filled ? (
+                <span className={cn("meter-fill block h-full rounded-full bg-accent")} style={{ animationDelay: `${i * 40}ms` }} />
+              ) : null}
             </span>
           ))}
         </div>

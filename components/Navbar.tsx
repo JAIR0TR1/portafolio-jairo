@@ -5,6 +5,7 @@ import { ArrowDownToLine, Menu, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { profile, sections, socials, type SectionId } from "@/data/profile";
 import { SocialGlyph } from "@/components/ui/BrandIcons";
+import { ReduceEffectsToggle } from "@/components/ui/FooterControls";
 import { EASE } from "@/lib/effects";
 import { cn } from "@/lib/cn";
 
@@ -99,7 +100,7 @@ export default function Navbar() {
       <header className="pointer-events-none sticky top-0 z-50 flex h-[var(--header-h)] items-center">
         <div className="container-x flex justify-center">
           {/* Marco de "selección de Figma" */}
-          <div className="figma-frame pointer-events-auto relative w-full lg:w-auto">
+          <div className="figma-frame group/nav pointer-events-auto relative w-full lg:w-auto">
             <span
               aria-hidden="true"
               className="absolute -inset-[7px] hidden rounded-[6px] border border-dashed border-accent/55 lg:block"
@@ -109,7 +110,7 @@ export default function Navbar() {
                   <span key={pos} className={cn("absolute size-[7px] border border-accent bg-bg", pos)} />
                 ),
               )}
-              <span className="absolute -bottom-[19px] left-1/2 -translate-x-1/2 rounded-[3px] bg-accent px-1.5 py-px font-mono text-[9.5px] leading-[14px] tracking-wider text-white">
+              <span className="absolute -bottom-[19px] left-1/2 -translate-x-1/2 rounded-[3px] bg-accent opacity-0 transition-opacity group-hover/nav:opacity-100 px-1.5 py-px font-mono text-[9.5px] leading-[14px] tracking-wider text-white">
                 Hug × 56
               </span>
             </span>
@@ -231,7 +232,10 @@ export default function Navbar() {
               </ul>
             </nav>
 
-            <div className="container-x relative flex flex-wrap items-center gap-2 py-8">
+            <div className="container-x relative pt-6">
+              <ReduceEffectsToggle />
+            </div>
+            <div className="container-x relative flex flex-wrap items-center gap-2 pb-8 pt-2">
               <a href="/cv.pdf" download className="btn btn-primary">
                 Descargar CV <ArrowDownToLine aria-hidden="true" />
               </a>

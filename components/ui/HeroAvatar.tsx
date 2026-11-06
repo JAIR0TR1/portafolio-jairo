@@ -273,7 +273,7 @@ export function HeroAvatar() {
         </AnimatePresence>
 
         {/* Visual: flota, se inclina y cambia de personaje a través del orbe */}
-        <div className={cn(!reduced && "animate-float")}>
+        <div className={cn(!reduced && "md:animate-float")}>
           <motion.div
             ref={visualRef}
             style={reduced ? undefined : { rotateX, rotateY, transformPerspective: 900 }}

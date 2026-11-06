@@ -17,7 +17,7 @@ export default function Hero() {
           <>
             <p className="hero-in chip mb-7 border-white/10 bg-white/[.04] py-1.5 pl-2 pr-3" style={{ ["--i" as string]: 0 }}>
               <span className="relative flex size-2">
-                <span className="absolute inset-0 animate-ping rounded-full bg-emerald-400/70" />
+                <span className="absolute inset-0 rounded-full bg-emerald-400/70 md:animate-ping" />
                 <span className="relative size-2 rounded-full bg-emerald-400" />
               </span>
               Disponible para proyectos

@@ -22,6 +22,8 @@ for (let y = 0; y < h; y += 350) {
 }
 await page.evaluate(() => window.scrollTo(0, 0));
 await page.waitForTimeout(1500);
+await page.addStyleTag({ content: ".hero-in{animation:none!important} *{transition:none!important}" });
+await page.waitForTimeout(200);
 const png = await page.screenshot({ fullPage: true });
 await browser.close();
 

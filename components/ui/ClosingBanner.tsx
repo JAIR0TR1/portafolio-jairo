@@ -1,4 +1,5 @@
 import { ArrowDown } from "lucide-react";
+import { FocusLink } from "./FocusLink";
 
 /** Banner de cierre: piso de cuadrícula en perspectiva + orbe con el --accent actual. */
 export function ClosingBanner() {
@@ -26,9 +27,9 @@ export function ClosingBanner() {
       <p className="mx-auto mt-6 max-w-md text-pretty text-lg text-muted">
         Cuéntame qué quieres construir y te respondo por correo.
       </p>
-      <a href="#formulario" className="btn btn-primary mt-10">
+      <FocusLink target="formulario" className="btn btn-primary mt-10">
         Escribir mensaje <ArrowDown aria-hidden="true" />
-      </a>
+      </FocusLink>
     </div>
   );
 }
