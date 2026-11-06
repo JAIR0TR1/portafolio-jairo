@@ -38,7 +38,7 @@ export function SectionHeading({ index, eyebrow, title, description, id, classNa
             <SectionTab index={index} label={eyebrow} />
           </RevealItem>
           <RevealItem>
-            <h2 id={id} className="text-display max-w-[16ch] text-[clamp(2.25rem,1.2rem+3.4vw,3.75rem)] text-balance">
+            <h2 id={id} className="text-display max-w-[22ch] text-[clamp(1.4rem,1rem+1.6vw,2.3rem)] text-balance">
               {text ? <DecodeText text={text} /> : title}
             </h2>
           </RevealItem>

@@ -1,10 +1,10 @@
 import type { ModeId } from "@/lib/mode";
 
 /**
- * Imágenes en public/avatar/*.webp (530×952, mismo recorte → misma línea de piso y centro).
+ * Imágenes en public/avatar/*.webp: 765×1024 a resolución completa (mismo lienzo → misma línea de piso y centro).
  * Se generan con `npm run avatars` desde assets/avatar/*.png.
  */
-export const AVATAR_ASPECT = 530 / 952;
+export const AVATAR_ASPECT = 765 / 1024;
 
 /**
  * Ojos dibujados por código dentro del visor del robot (el visor es vidrio negro vacío).
@@ -14,8 +14,8 @@ export const AVATAR_ASPECT = 530 / 952;
  */
 export type Eyes = { cx: number; cy: number; gap: number; w: number; h: number; rot: number; far: number };
 
-const EYES_A: Eyes = { cx: 43.2, cy: 16.9, gap: 9.6, w: 2.7, h: 3.7, rot: 0, far: 0.86 };
-const EYES_B: Eyes = { cx: 43.4, cy: 18.1, gap: 9.6, w: 2.7, h: 3.7, rot: 0, far: 0.86 };
+const EYES_A: Eyes = { cx: 45.22, cy: 19.13, gap: 6.65, w: 1.87, h: 3.44, rot: 0, far: 0.86 };
+const EYES_B: Eyes = { cx: 45.36, cy: 20.25, gap: 6.65, w: 1.87, h: 3.44, rot: 0, far: 0.86 };
 
 export type PoseId = "base" | "saludo" | "senala" | "laptop" | "pulgar";
 
@@ -32,15 +32,16 @@ export const JAIRO_SRC = "/avatar/jairo.webp";
 /** Cabeza del robot para el mini robot de móvil (recorte de robot.webp, ver prepare-avatars). */
 export const HEAD = {
   src: "/avatar/robot-cabeza.webp",
-  // mismos ojos, recalculados al recorte x 30–70 %, y 1–29 %
-  eyes: { cx: 33, cy: 57.5, gap: 24, w: 6.8, h: 13.2, rot: 0, far: 0.86 } satisfies Eyes,
+  // mismos ojos, recalculados a la región x 276–488, y 45–311 px de robot.webp
+  eyes: { cx: 33, cy: 56.7, gap: 24, w: 6.8, h: 13.2, rot: 0, far: 0.86 } satisfies Eyes,
 };
 
 /**
- * Híbrido (modo IA): jairo.webp y robot.webp superpuestas. El robot se desplaza/escala
+ * Robot alineado sobre Jairo (híbrido del modo IA y linterna de rayos X). Mismo lienzo y ancla en los pies.
+ * jairo.webp y robot.webp superpuestas. El robot se desplaza/escala
  * para alinear el centro de la cabeza con el de Jairo (% del ancho/alto de la imagen).
  */
-export const HYBRID = { robot: { dx: -0.8, dy: 0.6, scale: 1 } };
+export const HYBRID = { robot: { dx: -0.55, dy: 0.56, scale: 1 } };
 
 export type Expression = "neutral" | "happy" | "curious" | "focus";
 

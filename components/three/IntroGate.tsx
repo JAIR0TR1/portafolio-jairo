@@ -75,7 +75,14 @@ export function IntroGate() {
       /* sin storage */
     }
     setIntro("leaving");
-    window.setTimeout(() => setIntro(undefined), fast ? 300 : 650);
+    // Si la URL trae #ancla, al terminar la intro se va a esa sección.
+    const hash = decodeURIComponent(window.location.hash.slice(1));
+    const target = hash ? document.getElementById(hash) : null;
+    if (target) target.scrollIntoView({ behavior: "instant", block: "start" });
+    window.setTimeout(() => {
+      setIntro(undefined);
+      target?.scrollIntoView({ behavior: "instant", block: "start" });
+    }, fast ? 300 : 650);
   }, []);
 
   const onTick = useCallback(

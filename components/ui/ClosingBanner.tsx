@@ -13,7 +13,7 @@ export function ClosingBanner() {
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-1/2 bg-gradient-to-b from-card to-transparent" />
 
       <SectionTab index="06" label="Contacto" className="mb-6" />
-      <h2 id="contacto-title" className="text-display mx-auto max-w-[14ch] text-[clamp(2.5rem,1.2rem+4.4vw,5rem)] text-balance">
+      <h2 id="contacto-title" className="text-display mx-auto max-w-[20ch] text-[clamp(1.6rem,1rem+2.4vw,2.9rem)] text-balance">
         <DecodeText text="¿Tienes una idea grande? Hablemos." />
       </h2>
       <p className="mx-auto mt-6 max-w-md text-pretty text-lg text-muted">

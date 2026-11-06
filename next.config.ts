@@ -32,6 +32,8 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
+    // 90 para el personaje (nítido en retina); 75 para el resto
+    qualities: [75, 90],
   },
 };
 

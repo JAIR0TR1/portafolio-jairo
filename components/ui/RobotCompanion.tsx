@@ -106,10 +106,11 @@ function DesktopCompanion() {
       {/* halo */}
       <div className="absolute left-1/2 top-[36%] aspect-square w-[85%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--accent)_20%,transparent),transparent)]" />
 
-      <div className={cn("relative h-[min(68vh,640px)]", !reduced && "animate-float")}>
+      {/* alto limitado para que el ancho del lienzo (0.747 × alto) nunca supere la columna */}
+      <div className={cn("relative h-[min(68vh,calc(var(--cw)/0.747))]", !reduced && "animate-float")}>
         <div
           ref={figRef}
-          className={cn("companion-tilt group relative aspect-[530/952] h-full", visible && "pointer-events-auto")}
+          className={cn("companion-tilt group relative aspect-[765/1024] h-full", visible && "pointer-events-auto")}
         >
           {POSE_IDS.map((p) => (
             <div
@@ -122,7 +123,6 @@ function DesktopCompanion() {
               <RobotFigure pose={p} expression={p === pose ? expression : "neutral"} className="h-full" sizes="(min-width: 1024px) 360px, 1px" />
             </div>
           ))}
-          <div className="absolute inset-x-[-15%] bottom-0 h-[16%] bg-gradient-to-b from-transparent to-bg" />
         </div>
       </div>
 

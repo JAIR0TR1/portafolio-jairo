@@ -1,26 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { avatarModes } from "@/data/avatar";
 import { MODES, useModeIndex } from "@/lib/mode";
 import { useReducedEffects } from "@/lib/effects";
 
 const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ+";
 const SCRAMBLE_MS = 600;
-/** Ancho condensado permitido (eje wdth de Archivo). Palabras cortas más anchas, largas más estrechas. */
-const WDTH_MAX = 75;
-const WDTH_MIN = 62;
 
-function wdthFor(word: string) {
-  return Math.max(WDTH_MIN, Math.min(WDTH_MAX, WDTH_MAX - ([...word].length - 5) * 3.5));
-}
-
-type Fit = { size: number; wdth: number } | null;
+/** Estilo común de la palabra y de la sonda que la mide (deben ser idénticos). */
+const TYPE: CSSProperties = { fontSize: 100, lineHeight: 0.9, letterSpacing: "-0.02em" };
 
 /**
- * Palabra gigante detrás del personaje (JAIRO / CÓDIGO / HUMANO+IA). Se mide con la fuente
- * real y se escala para ocupar EXACTAMENTE el ancho del contenedor. Al cambiar de modo, las
- * letras se mezclan (~600 ms). Decorativa: el h1 real es «Jairo Vallejo Burbano».
+ * Palabra gigante detrás del personaje (JAIRO / CÓDIGO / HUMANO+IA) en Michroma.
+ * Se mide con la fuente real y se escala para ocupar EXACTAMENTE el ancho del contenedor.
+ * Al cambiar de modo, las letras se mezclan (~600 ms) sin cambiar de capa.
+ * Decorativa: el h1 real es «Jairo Vallejo Burbano».
  */
 export function HeroTitle() {
   const reduced = useReducedEffects();
@@ -31,23 +26,20 @@ export function HeroTitle() {
   const probeRef = useRef<HTMLSpanElement>(null);
   const prev = useRef(word);
   const [shown, setShown] = useState(word);
-  const [fit, setFit] = useState<Fit>(null);
+  const [size, setSize] = useState<number | null>(null);
 
-  // Ajuste exacto al ancho: se mide la palabra a 100px con su ancho condensado.
+  // Ajuste exacto al ancho: se mide la palabra a 100px y se escala.
   useEffect(() => {
     const wrap = wrapRef.current;
     const probe = probeRef.current;
     if (!wrap || !probe) return;
     let alive = true;
-    const wdth = wdthFor(word);
     const compute = () => {
       if (!alive) return;
-      probe.textContent = word;
-      probe.style.fontStretch = `${wdth}%`;
-      probe.style.fontVariationSettings = `"wdth" ${wdth}`;
-      const natural = probe.getBoundingClientRect().width; // a 100px
+      probe.textContent = word.replaceAll("Ó", "O");
+      const natural = probe.getBoundingClientRect().width;
       const T = wrap.clientWidth;
-      if (natural && T) setFit({ size: (100 * T) / natural, wdth });
+      if (natural && T) setSize((100 * T) / natural);
     };
     document.fonts.ready.then(compute);
     const ro = new ResizeObserver(compute);
@@ -86,25 +78,23 @@ export function HeroTitle() {
     return () => cancelAnimationFrame(raf);
   }, [word, reduced]);
 
-  const wdth = fit?.wdth ?? wdthFor(word);
   return (
     <div ref={wrapRef} aria-hidden="true" className="pointer-events-none relative w-full select-none">
-      {/* sonda invisible para medir */}
-      <span
-        ref={probeRef}
-        className="invisible absolute left-0 top-0 whitespace-nowrap font-display uppercase"
-        style={{ fontSize: 100, fontWeight: 800, lineHeight: 1 }}
-      />
+      <span ref={probeRef} className="invisible absolute left-0 top-0 whitespace-nowrap font-hero uppercase" style={TYPE} />
       <p
-        className="whitespace-nowrap text-center font-display font-extrabold uppercase leading-[0.8] text-[#e6e6e6]"
-        style={{
-          // antes de medir: tamaño aproximado para no saltar
-          fontSize: fit ? `${fit.size}px` : "min(26vw, 22rem)",
-          fontStretch: `${wdth}%`,
-          fontVariationSettings: `"wdth" ${wdth}`,
-        }}
+        data-hero-word
+        className="hero-word mx-auto w-fit whitespace-nowrap font-hero uppercase"
+        style={{ ...TYPE, fontSize: size ? `${size}px` : "min(15vw, 13rem)" }}
       >
-        {shown}
+        {[...shown].map((c, i) =>
+          c === "Ó" ? (
+            <span key={i} className="hero-word relative inline-block">
+              O<span aria-hidden="true" className="hero-acute" />
+            </span>
+          ) : (
+            c
+          ),
+        )}
       </p>
     </div>
   );

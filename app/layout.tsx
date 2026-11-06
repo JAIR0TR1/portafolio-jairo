@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Archivo, JetBrains_Mono } from "next/font/google";
+import { Archivo, JetBrains_Mono, Michroma } from "next/font/google";
 import "./globals.css";
 import { profile } from "@/data/profile";
 import { Providers } from "@/components/ui/Providers";
@@ -10,6 +10,8 @@ import { TechBackdrop } from "@/components/ui/TechBackdrop";
 import { bootScript } from "@/lib/keys";
 
 // Archivo (variable, eje de ancho 62–125) para todo el sitio · JetBrains Mono para etiquetas
+// Michroma: palabra gigante del Hero y títulos grandes de sección
+const michroma = Michroma({ variable: "--font-michroma", subsets: ["latin"], weight: "400" });
 const archivo = Archivo({ variable: "--font-archivo", subsets: ["latin"], axes: ["wdth"] });
 const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"], weight: ["400", "500"] });
 
@@ -60,7 +62,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
       lang="es"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`scroll-smooth ${archivo.variable} ${jetbrains.variable} antialiased`}
+      className={`scroll-smooth ${michroma.variable} ${archivo.variable} ${jetbrains.variable} antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />

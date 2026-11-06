@@ -39,7 +39,7 @@ function Pinned() {
           <header className="mb-8 flex items-end justify-between gap-8">
             <div>
               <SectionTab index="07" label="Habilidades" />
-              <h2 id="habilidades-title" className="text-display mt-4 text-[clamp(2.25rem,1.2rem+3.2vw,3.5rem)]">
+              <h2 id="habilidades-title" className="text-display mt-4 text-[clamp(1.4rem,1rem+1.6vw,2.3rem)]">
                 <DecodeText text="Mi stack, por capas." />
               </h2>
             </div>

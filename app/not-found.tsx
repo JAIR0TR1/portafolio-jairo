@@ -16,7 +16,7 @@ export default function NotFound() {
       </p>
       <div>
         <p className="text-eyebrow text-muted">Error 404</p>
-        <h1 className="text-display mt-4 text-[clamp(3rem,2rem+6vw,7rem)]">Esta página se perdió en la oscuridad.</h1>
+        <h1 className="text-display mt-4 text-[clamp(1.6rem,1rem+2.6vw,3.2rem)]">Esta página se perdió en la oscuridad.</h1>
         <p className="mx-auto mt-6 max-w-md text-lg text-muted">
           El enlace puede estar mal escrito o la página ya no existe. Vuelve al inicio para seguir explorando.
         </p>

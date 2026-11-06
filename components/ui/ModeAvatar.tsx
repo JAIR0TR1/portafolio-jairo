@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import type { ReactNode } from "react";
 import { HYBRID, JAIRO_SRC, poses, type Expression, type PoseId } from "@/data/avatar";
 import type { ModeId } from "@/lib/mode";
 import { AvatarBot } from "./AvatarBot";
@@ -11,12 +12,26 @@ import { cn } from "@/lib/cn";
 const AVAILABLE: string[] = JSON.parse(process.env.NEXT_PUBLIC_AVATAR_IMAGES ?? "[]");
 const has = (src: string) => AVAILABLE.includes(src.replace("/avatar/", ""));
 
-type FigureProps = { className?: string; priority?: boolean; sizes?: string };
-const SIZES = "(min-width: 1024px) 420px, 60vw";
+/** Calidad de las imágenes del personaje (permitida en next.config images.qualities). */
+export const AVATAR_QUALITY = 90;
 
-/** Caja con la proporción de las imágenes (530×952). */
-function Frame({ className, children }: { className?: string; children: React.ReactNode }) {
-  return <div className={cn("relative aspect-[530/952]", className)}>{children}</div>;
+type FigureProps = { className?: string; priority?: boolean; sizes?: string; shadow?: boolean };
+/** El personaje mide ~0.75 × el alto del escenario; en retina se pide el doble (máx. 765 px de origen). */
+const SIZES = "(min-width: 1024px) 560px, 80vw";
+
+/** Props de carga de next/image (en Next 16 `priority` pasó a llamarse `preload`). */
+function load(priority?: boolean) {
+  return priority ? ({ preload: true, loading: "eager", fetchPriority: "high" } as const) : {};
+}
+
+/** Caja con la proporción de las imágenes (765×1024) y sombra de contacto bajo los pies. */
+function Frame({ className, shadow = true, children }: { className?: string; shadow?: boolean; children: ReactNode }) {
+  return (
+    <div className={cn("relative aspect-[765/1024]", className)}>
+      {shadow && <span aria-hidden="true" className="contact-shadow" />}
+      {children}
+    </div>
+  );
 }
 
 export function RobotFigure({
@@ -25,52 +40,65 @@ export function RobotFigure({
   className,
   priority,
   sizes = SIZES,
+  shadow,
 }: FigureProps & { pose?: PoseId; expression?: Expression }) {
   const p = poses[pose];
   return (
-    <Frame className={className}>
+    <Frame className={className} shadow={shadow}>
       {has(p.src) ? (
         <>
-          <Image src={p.src} alt="" fill preload={priority} loading={priority ? "eager" : undefined} fetchPriority={priority ? "high" : undefined} sizes={sizes} className="object-contain" />
+          <Image src={p.src} alt="" fill quality={AVATAR_QUALITY} sizes={sizes} className="object-contain" {...load(priority)} />
           <RobotEyes eyes={p.eyes} expression={expression} />
         </>
       ) : (
-        <AvatarBot uid={`fb-${pose}`} className="absolute inset-x-0 bottom-[6%] h-auto w-full" />
+        <AvatarBot uid={`fb-${pose}`} className="absolute inset-x-[12%] bottom-[6%] h-auto" />
       )}
     </Frame>
   );
 }
 
-export function JairoFigure({ className, priority, sizes = SIZES }: FigureProps) {
+export function JairoFigure({ className, priority, sizes = SIZES, shadow }: FigureProps) {
   return (
-    <Frame className={className}>
+    <Frame className={className} shadow={shadow}>
       {has(JAIRO_SRC) ? (
-        <Image src={JAIRO_SRC} alt="" fill preload={priority} loading={priority ? "eager" : undefined} fetchPriority={priority ? "high" : undefined} sizes={sizes} className="object-contain" />
+        <Image src={JAIRO_SRC} alt="" fill quality={AVATAR_QUALITY} sizes={sizes} className="object-contain" {...load(priority)} />
       ) : (
-        <AvatarBot uid="fb-jairo" className="absolute inset-x-0 bottom-[6%] h-auto w-full" />
+        <AvatarBot uid="fb-jairo" className="absolute inset-x-[12%] bottom-[6%] h-auto" />
       )}
     </Frame>
+  );
+}
+
+/** Capa del robot alineada sobre Jairo (mismo lienzo, ajuste fino de la cabeza en data/avatar.ts). */
+export function AlignedRobot({
+  sizes = SIZES,
+  priority,
+  eyes = true,
+  className,
+}: {
+  sizes?: string;
+  priority?: boolean;
+  eyes?: boolean;
+  className?: string;
+}) {
+  const { dx, dy, scale } = HYBRID.robot;
+  return (
+    <div className={cn("absolute inset-0", className)} style={{ transform: `translate(${dx}%, ${dy}%) scale(${scale})` }}>
+      <Image src={poses.base.src} alt="" fill quality={AVATAR_QUALITY} sizes={sizes} className="object-contain" {...load(priority)} />
+      {eyes && <RobotEyes eyes={poses.base.eyes} />}
+    </div>
   );
 }
 
 /**
  * Híbrido por código: Jairo debajo y el robot encima con una máscara vertical.
  * A la izquierda de --split se ve Jairo, a la derecha el robot. La costura brilla con --accent.
- * El contenedor que lo usa actualiza --split (seguimiento del mouse / dedo / oscilación).
  */
-export function HybridFigure({ className, priority, sizes = SIZES }: FigureProps) {
-  const { dx, dy, scale } = HYBRID.robot;
-  const robot = poses.base;
+export function HybridFigure({ className, priority, sizes = SIZES, shadow }: FigureProps) {
   return (
-    <Frame className={cn("hybrid", className)}>
-      <Image src={JAIRO_SRC} alt="" fill preload={priority} loading={priority ? "eager" : undefined} fetchPriority={priority ? "high" : undefined} sizes={sizes} className="object-contain" />
-      <div
-        className="hybrid-robot absolute inset-0"
-        style={{ transform: `translate(${dx}%, ${dy}%) scale(${scale})` }}
-      >
-        <Image src={robot.src} alt="" fill preload={priority} loading={priority ? "eager" : undefined} fetchPriority={priority ? "high" : undefined} sizes={sizes} className="object-contain" />
-        <RobotEyes eyes={robot.eyes} />
-      </div>
+    <Frame className={cn("hybrid", className)} shadow={shadow}>
+      <Image src={JAIRO_SRC} alt="" fill quality={AVATAR_QUALITY} sizes={sizes} className="object-contain" {...load(priority)} />
+      <AlignedRobot sizes={sizes} priority={priority} className="hybrid-robot" />
       {/* costura de luz recortada a la silueta */}
       <div aria-hidden="true" className="hybrid-seam pointer-events-none absolute inset-0">
         <span className="hybrid-line" />

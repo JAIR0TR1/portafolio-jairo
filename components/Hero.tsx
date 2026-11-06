@@ -58,26 +58,29 @@ export default function Hero() {
           <span className="md:hidden">Toca para saludar</span>
         </div>
 
-        {/* Escenario: palabra gigante ATRÁS, personaje ADELANTE */}
-        <div className="relative mt-4 h-[var(--sh)]">
-          <div className="hero-in absolute inset-x-0 top-[36%] -translate-y-1/2" style={{ ["--i" as string]: 1 }}>
-            <HeroTitle />
+        {/* Escenario. Capas fijas: brillo → palabra gigante (z-0) → personaje (z-10) → anotaciones → UI (z-30) */}
+        <div className="relative isolate mt-4 h-[var(--sh)]">
+          <div className="hero-in absolute inset-x-0 top-[36%] z-0 -translate-y-1/2" style={{ ["--i" as string]: 1 }}>
+            {/* la palabra se mueve un poco en sentido contrario al personaje (profundidad) */}
+            <div className="hero-word-parallax">
+              <HeroTitle />
+            </div>
           </div>
-          <div className="hero-in absolute inset-0 flex justify-center" style={{ ["--i" as string]: 2 }}>
+          <div className="hero-in absolute inset-0 z-10 flex justify-center" style={{ ["--i" as string]: 2 }}>
             <HeroAvatar />
           </div>
         </div>
 
-        <NotesList className="mt-4 lg:hidden" />
+        <NotesList className="mt-8 lg:hidden" />
 
         {/* Dos columnas simétricas a los lados de las piernas */}
         <div
-          className="hero-in relative z-10 mt-6 grid gap-8 lg:-mt-[calc(var(--sh)*0.3)] lg:grid-cols-[1fr_calc(var(--sh)*0.5567+3rem)_1fr] lg:items-end"
+          className="hero-in relative z-30 mt-6 grid gap-8 lg:-mt-[calc(var(--sh)*0.3)] lg:grid-cols-[1fr_calc(var(--sh)*0.4+2rem)_1fr] lg:items-end"
           style={{ ["--i" as string]: 3 }}
         >
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted">Hola, soy {profile.brand}</p>
-            <h1 id="hero-title" className="text-display mt-2 text-[clamp(1.7rem,1.2rem+1.3vw,2.4rem)]">
+            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted">Hola, soy {profile.shortName}</p>
+            <h1 id="hero-title" className="text-display mt-3 text-[clamp(1.15rem,0.9rem+0.9vw,1.6rem)] leading-[1.15]">
               {profile.name}
             </h1>
             <p className="mt-2 max-w-[38ch] text-pretty text-[15px] leading-relaxed text-muted">{profile.role} en {profile.location}.</p>
@@ -100,14 +103,14 @@ export default function Hero() {
         </div>
 
         {/* Barra de cifras */}
-        <dl className="hero-in mt-8 grid grid-cols-2 rounded-[6px] border border-line md:grid-cols-4" style={{ ["--i" as string]: 4 }}>
+        <dl className="hero-in relative z-30 mt-8 grid grid-cols-2 rounded-[6px] border border-line md:grid-cols-4" style={{ ["--i" as string]: 4 }}>
           {stats.map((s, i) => (
             <div
               key={s.label}
               className={`flex items-baseline gap-3 px-5 py-4 ${i % 2 ? "border-l border-line" : ""} ${i > 1 ? "border-t border-line md:border-t-0" : ""} ${i === 2 ? "md:border-l" : ""}`}
             >
               <dt className="sr-only">{s.label}</dt>
-              <dd className="font-display text-2xl font-semibold leading-none text-ink">{s.value}</dd>
+              <dd className="font-mono text-2xl leading-none text-ink">{s.value}</dd>
               <dd className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-muted">{s.label}</dd>
             </div>
           ))}

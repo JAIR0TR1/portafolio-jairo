@@ -109,7 +109,7 @@ function Backdrop() {
             <div
               className={cn(
                 "transition-[opacity,scale,filter] duration-[900ms] ease-[var(--ease-out-expo)]",
-                on ? "scale-100 opacity-[.07] blur-0 md:opacity-[.09]" : "scale-[.6] opacity-0 blur-md",
+                on ? "scale-100 opacity-[.06] blur-0 md:opacity-[.08]" : "scale-[.6] opacity-0 blur-md",
               )}
               style={{ transitionDelay: on ? `${(i % 4) * 90}ms` : "0ms" }}
             >
