@@ -350,21 +350,10 @@ footer[id] {
   background-clip: text;
   color: transparent;
   -webkit-text-stroke: 1px rgb(255 255 255 / 0.12);
+  /* espacio para la tilde de la Ó: sin esto queda fuera del área del degradado */
+  padding-top: 0.22em;
+  margin-top: -0.22em;
 }
-/* Acento agudo de la Ó, dibujado (Michroma no compone bien la Ó) */
-.hero-acute {
-  position: absolute;
-  left: 50%;
-  top: -0.02em;
-  width: 0.26em;
-  height: 0.062em;
-  translate: -35% 0;
-  rotate: -24deg;
-  border-radius: 0.02em;
-  background: #ededed;
-  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12);
-}
-
 /* Profundidad: la palabra se mueve un poco al revés del personaje */
 .hero-word-parallax {
   transform: translate3d(calc(var(--px, 0) * -14px), calc(var(--py, 0) * -6px), 0);
@@ -396,40 +385,81 @@ footer[id] {
   pointer-events: none;
 }
 
-/* ───────────── Linterna de rayos X (Hero, modos Jairo y Desarrollador) ───────────── */
-.lantern { --hr: 90px; opacity: var(--ho, 0); transition: opacity 0.35s ease; }
-.lantern-reveal {
-  -webkit-mask-image: radial-gradient(circle var(--hr) at var(--hx, 50%) var(--hy, 30%), #000 60%, transparent 100%);
-  mask-image: radial-gradient(circle var(--hr) at var(--hx, 50%) var(--hy, 30%), #000 60%, transparent 100%);
-}
-.lantern-ring {
-  position: absolute;
-  left: var(--hx, 50%);
-  top: var(--hy, 30%);
-  width: calc(var(--hr) * 2);
-  aspect-ratio: 1;
-  translate: -50% -50%;
-  border-radius: 50%;
-  border: 1px solid color-mix(in oklab, var(--accent) 85%, white);
-  box-shadow: 0 0 14px -2px var(--accent), inset 0 0 18px -6px var(--accent);
-}
-.lantern-ring::before,
-.lantern-ring::after {
+/* ───────────── Tarjeta del Hero + mancha líquida ───────────── */
+/* Capa oscura (base): degradado #0A0A0A→#111, viñeta + retícula de puntos debajo, grano encima */
+.hero-surface { background: linear-gradient(180deg, #0a0a0a 0%, #111111 100%); }
+.hero-surface::before,
+.hero-surface::after {
   content: "";
   position: absolute;
-  background: color-mix(in oklab, var(--accent) 70%, white);
+  inset: 0;
+  pointer-events: none;
 }
-.lantern-ring::before { left: 50%; top: -6px; width: 1px; height: 6px; }
-.lantern-ring::after { top: 50%; left: -6px; height: 1px; width: 6px; }
-@keyframes scan-move { to { background-position: 0 6px; } }
-.lantern-scan {
-  background: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.07) 0 1px, transparent 1px 3px);
-  mix-blend-mode: screen;
-  animation: scan-move 0.6s linear infinite;
+.hero-surface::before {
+  background:
+    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 55%, rgb(0 0 0 / 0.55) 100%),
+    radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.04) 1px, transparent 1.5px) 0 0 / 22px 22px;
 }
-/* Versión «circuito» del robot: tinte del acento y rejilla de 8 px recortados a la silueta */
+.hero-surface::after {
+  z-index: 40;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+/* Capa clara (revelada): mismo sistema invertido */
+.hero-revealed {
+  background: linear-gradient(180deg, #f2f2f2 0%, #e6e6e6 100%);
+  visibility: hidden; /* el JS de la mancha la muestra; sin JS / reduced, nunca se ve */
+  clip-path: circle(0px at 50% 50%);
+  will-change: clip-path;
+}
+.hero-revealed::before {
+  background:
+    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 60%, rgb(0 0 0 / 0.1) 100%),
+    radial-gradient(circle at 1px 1px, rgb(0 0 0 / 0.04) 1px, transparent 1.5px) 0 0 / 22px 22px;
+}
+.hero-revealed::after { opacity: 0.08; }
+@media (prefers-reduced-motion: reduce) { .hero-revealed { display: none; } }
+:root[data-effects="reduced"] .hero-revealed { display: none; }
+@media (max-width: 767px) { .hero-surface::after { display: none; } }
+
+/* Tema claro por variables: las utilidades de Tailwind leen var(--color-*) y se invierten solas */
+.theme-light {
+  --color-bg: #f2f2f2;
+  --color-card: #e8e8e8;
+  --color-ink: #0a0a0a;
+  --color-muted: #4f4f4f;
+  --color-faint: #c8c8c8;
+  --color-line: rgb(0 0 0 / 0.1);
+  --color-line-2: #c2c2c2;
+  color: var(--color-ink);
+  color-scheme: light;
+}
+.theme-light .hero-word {
+  background-image: linear-gradient(180deg, #0a0a0a 0%, rgb(10 10 10 / 0.45) 100%);
+  -webkit-text-stroke-color: rgb(0 0 0 / 0.14);
+}
+.theme-light .contact-shadow {
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.32), rgb(0 0 0 / 0.1) 55%, transparent);
+  box-shadow: none;
+}
+/* Al pasar por el personaje base, el robot revelado también sonríe */
+#inicio:has([data-hero-figure]:hover) .hero-revealed .robot-eyes .eye-open { opacity: 0; }
+#inicio:has([data-hero-figure]:hover) .hero-revealed .robot-eyes .eye-happy { opacity: 1; }
+
+/* Luz ambiental detrás de la tarjeta: el personaje ampliado, desenfocado y teñido */
+.hero-ambient-img {
+  transform: scale(2.3);
+  transform-origin: 50% 30%;
+  filter: blur(40px) brightness(0.35);
+}
+.hero-ambient-tint { background: var(--accent); mix-blend-mode: color; opacity: 0.7; }
+
+/* Robot «circuito» (capa revelada del modo IA): grises + tinte + rejilla 8 px + scanlines */
+.circuit-img { filter: grayscale(1) contrast(1.7) brightness(1.15); }
 .circuit-tint,
-.circuit-grid {
+.circuit-grid,
+.circuit-scan {
   -webkit-mask: url("/avatar/robot.webp") center / contain no-repeat;
   mask: url("/avatar/robot.webp") center / contain no-repeat;
 }
@@ -440,6 +470,20 @@ footer[id] {
     linear-gradient(90deg, color-mix(in oklab, var(--accent) 55%, transparent) 1px, transparent 1px) 0 0 / 8px 8px;
   mix-blend-mode: screen;
 }
+@keyframes scan-move { to { background-position: 0 6px; } }
+.circuit-scan {
+  background: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.09) 0 1px, transparent 1px 3px);
+  mix-blend-mode: screen;
+  animation: scan-move 0.6s linear infinite;
+}
+
+/* Secciones: alternan #0A0A0A / #0E0E0E (semitransparente: los logos de fondo siguen viéndose),
+   separador de 1 px y una luz suave arriba, para que nada sea negro plano */
+main > section:not(#inicio) {
+  border-top: 1px solid var(--color-line);
+  background-image: radial-gradient(ellipse 70% 45% at 50% 0%, rgb(255 255 255 / 0.022), transparent 70%);
+}
+main > section:not(#inicio):nth-of-type(odd) { background-color: rgb(255 255 255 / 0.016); }
 
 /* ───────────── Ojos del robot (por código) ───────────── */
 .robot-eyes svg { fill: currentColor; filter: drop-shadow(0 0 3px var(--accent)); transition: scale 0.3s; }

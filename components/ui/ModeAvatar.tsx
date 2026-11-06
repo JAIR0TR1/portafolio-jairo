@@ -110,6 +110,48 @@ export function HybridFigure({ className, priority, sizes = SIZES, shadow }: Fig
   );
 }
 
+/* ───── Personajes «B» (los que revela la mancha líquida del Hero) ───── */
+
+/** Robot alineado al encuadre de Jairo (Jairo → su robot). */
+export function RobotAligned({ className, sizes = SIZES, shadow }: FigureProps) {
+  return (
+    <Frame className={className} shadow={shadow}>
+      <AlignedRobot sizes={sizes} />
+    </Frame>
+  );
+}
+
+/** Jairo alineado al encuadre del robot (desfase inverso de HYBRID): Desarrollador → la persona. */
+export function JairoAligned({ className, sizes = SIZES, shadow }: FigureProps) {
+  const { dx, dy, scale } = HYBRID.robot;
+  return (
+    <Frame className={className} shadow={shadow}>
+      <div className="absolute inset-0" style={{ transform: `scale(${1 / scale}) translate(${-dx}%, ${-dy}%)` }}>
+        <Image src={JAIRO_SRC} alt="" fill quality={AVATAR_QUALITY} sizes={sizes} className="object-contain" />
+      </div>
+    </Frame>
+  );
+}
+
+/**
+ * Robot «circuito» hecho por código (IA → su interior): escala de grises con contraste,
+ * tinte del acento, rejilla de 8 px y scanlines, todo recortado a la silueta del robot
+ * y alineado como en el híbrido.
+ */
+export function CircuitFigure({ className, sizes = SIZES, shadow }: FigureProps) {
+  const { dx, dy, scale } = HYBRID.robot;
+  return (
+    <Frame className={className} shadow={shadow}>
+      <div className="absolute inset-0" style={{ transform: `translate(${dx}%, ${dy}%) scale(${scale})` }}>
+        <Image src={poses.base.src} alt="" fill quality={AVATAR_QUALITY} sizes={sizes} className="circuit-img object-contain" />
+        <span className="circuit-tint absolute inset-0" />
+        <span className="circuit-grid absolute inset-0" />
+        <span className="circuit-scan absolute inset-0" />
+      </div>
+    </Frame>
+  );
+}
+
 /** Personaje de cada modo del Hero. */
 export function ModeFigure({ id, ...props }: FigureProps & { id: ModeId }) {
   if (id === "jairo") return <JairoFigure {...props} />;

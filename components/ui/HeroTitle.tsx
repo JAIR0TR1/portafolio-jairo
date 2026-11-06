@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { avatarModes } from "@/data/avatar";
 import { MODES, useModeIndex } from "@/lib/mode";
 import { useReducedEffects } from "@/lib/effects";
+import { hash01 } from "@/lib/heroMotion";
 
 const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ+";
 const SCRAMBLE_MS = 600;
@@ -36,7 +37,7 @@ export function HeroTitle() {
     let alive = true;
     const compute = () => {
       if (!alive) return;
-      probe.textContent = word.replaceAll("Ó", "O");
+      probe.textContent = word;
       const natural = probe.getBoundingClientRect().width;
       const T = wrap.clientWidth;
       if (natural && T) setSize((100 * T) / natural);
@@ -61,15 +62,18 @@ export function HeroTitle() {
       return () => cancelAnimationFrame(raf);
     }
     const len = word.length;
-    const th = Array.from({ length: len }, (_, i) => 0.15 + (i / len) * 0.55 + Math.random() * 0.3);
+    const seed = word.length * 31 + word.charCodeAt(0);
+    const th = Array.from({ length: len }, (_, i) => 0.15 + (i / len) * 0.55 + hash01(seed + i) * 0.3);
+    const glyph = (i: number, step: number) => GLYPHS[Math.floor(hash01(seed * 7 + i * 13 + step * 101) * GLYPHS.length)];
     const start = performance.now();
     const tick = (now: number) => {
       const p = Math.min(1, (now - start) / SCRAMBLE_MS);
       let out = "";
       for (let i = 0; i < len; i++) {
+        const step = Math.floor(p * 24); // cambia de letra 24 veces en 600 ms, igual en ambas capas
         if (p >= th[i]) out += word[i];
-        else if (p >= th[i] * 0.35) out += GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
-        else out += from[i] ?? GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+        else if (p >= th[i] * 0.35) out += glyph(i, step);
+        else out += from[i] ?? glyph(i, step);
       }
       setShown(out);
       if (p < 1) raf = requestAnimationFrame(tick);
@@ -86,15 +90,7 @@ export function HeroTitle() {
         className="hero-word mx-auto w-fit whitespace-nowrap font-hero uppercase"
         style={{ ...TYPE, fontSize: size ? `${size}px` : "min(15vw, 13rem)" }}
       >
-        {[...shown].map((c, i) =>
-          c === "Ó" ? (
-            <span key={i} className="hero-word relative inline-block">
-              O<span aria-hidden="true" className="hero-acute" />
-            </span>
-          ) : (
-            c
-          ),
-        )}
+        {shown.normalize("NFC")}
       </p>
     </div>
   );

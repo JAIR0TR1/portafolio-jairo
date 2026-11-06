@@ -31,7 +31,7 @@ npm run check:content -- --write
 | --- | --- | --- |
 | `components/About.tsx` | 18 | confirmar |
 | `components/Contact.tsx` | 13 | crear en formspree.io y ponerlo en Vercel |
-| `components/Hero.tsx` | 12 | confirmar las cifras |
+| `components/Hero.tsx` | 14 | confirmar las cifras |
 | `components/ui/AvatarBot.tsx` | 15 | reemplazar por los PNG de /public/avatar (dev.png, design.png, ai.png). |
 | `components/ui/TechBackdrop.tsx` | 8 | confirmar que usas cada tecnología (VS Code no está en simple-icons: se usa JavaScript) |
 | `data/experience.ts` | 12 | confirmar fechas, nombres y logros de cada ítem. |
