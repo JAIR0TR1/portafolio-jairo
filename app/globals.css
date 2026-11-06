@@ -28,8 +28,8 @@
   --container-site: 1200px;
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --font-display: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
 
   --animate-spin-slow: spin 24s linear infinite;
@@ -136,11 +136,13 @@ footer[id] {
   @media (width >= 48rem) { padding-block: 8rem; }
 }
 
-/* Títulos: Syne 500, una sola tipografía display en todo el sitio */
+/* Títulos: Archivo 600 algo condensado (una sola familia en todo el sitio) */
 @utility text-display {
   font-family: var(--font-display);
-  font-weight: 500;
-  letter-spacing: -0.035em;
+  font-weight: 600;
+  font-stretch: 88%;
+  font-variation-settings: "wdth" 88;
+  letter-spacing: -0.03em;
   line-height: 0.98;
 }
 
@@ -156,7 +158,25 @@ footer[id] {
   position: relative;
   border-radius: var(--radius-card);
   border: 1px solid var(--color-line);
-  background: var(--color-card);
+  --c: #5a5a5a;
+  background:
+    /* esquinas tipo corchete [ ] */
+    linear-gradient(var(--c), var(--c)) left top / var(--k) 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) left top / 1px var(--k) no-repeat,
+    linear-gradient(var(--c), var(--c)) right top / var(--k) 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) right top / 1px var(--k) no-repeat,
+    linear-gradient(var(--c), var(--c)) left bottom / var(--k) 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) left bottom / 1px var(--k) no-repeat,
+    linear-gradient(var(--c), var(--c)) right bottom / var(--k) 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) right bottom / 1px var(--k) no-repeat,
+    /* borde superior que se traza */
+    linear-gradient(#3a3a3a, #3a3a3a) left top / var(--t) 1px no-repeat,
+    var(--color-card);
+  @supports (animation-timeline: view()) {
+    animation: card-draw linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 70%;
+  }
 }
 
 /* Spotlight neutro que sigue al cursor (--mx/--my los pone SpotlightTracker). Sin color. */
@@ -188,6 +208,16 @@ footer[id] {
     &:hover::after { opacity: 1; }
   }
 }
+
+/* Dibujo de las tarjetas (esquinas y borde superior) */
+@property --k { syntax: "<length>"; inherits: false; initial-value: 12px; }
+@property --t { syntax: "<percentage>"; inherits: false; initial-value: 100%; }
+@keyframes card-draw {
+  from { --k: 0px; --t: 0%; }
+  to { --k: 12px; --t: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .glass { animation: none !important; } }
+:root[data-effects="reduced"] .glass { animation: none !important; }
 
 /* ───────────────────────── botones (un solo sistema) ───────────────────────── */
 
@@ -294,27 +324,103 @@ footer[id] {
   }
 }
 
-/* ───────────── Hero «ficha técnica» ───────────── */
-/* --f: tamaño base del título gigante (≈20vw), limitado por la altura de la ventana */
-.hero-f { --f: min(20vw, calc((100svh - 22rem) / 2.05), 19rem); }
-@media (max-width: 767px) { .hero-f { --f: 22vw; } }
+/* ───────────── Hero «Jairo y su robot» ───────────── */
+/* --sh: alto del escenario (palabra gigante + personaje) */
+.hero-s { --sh: clamp(26rem, 70svh, 47rem); }
+@media (max-width: 1023px) { .hero-s { --sh: clamp(22rem, 58svh, 34rem); } }
+@media (max-width: 639px) { .hero-s { --sh: clamp(19rem, 48svh, 26rem); } }
 
-/* Anotaciones del avatar: flotan suave, con desfase */
+/* Anotaciones: flotan suave, con desfase */
 @keyframes note-float {
   0%, 100% { transform: translate3d(0, 0, 0); }
   50% { transform: translate3d(0, -6px, 0); }
 }
 .note-float { animation: note-float 5.5s ease-in-out infinite; }
 
-/* ───────────── Storytelling Hero → Sobre mí (avatar viajero) ───────────── */
-.hero-fade { opacity: calc(1 - var(--hero-p, 0) * 4); }
-[data-avatar-source] { transition: opacity 0.2s; }
-:root[data-avatar="traveling"] [data-avatar-source],
-:root[data-avatar="landed"] [data-avatar-source] { opacity: 0; }
-.avatar-landing { opacity: 0; transition: opacity 0.25s; }
-.avatar-initials { transition: opacity 0.25s; }
-:root[data-avatar="landed"] .avatar-landing { opacity: 1; }
-:root[data-avatar="landed"] .avatar-initials { opacity: 0; }
+/* Riel izquierdo: punto que baja por la línea de scroll */
+@keyframes rail-dot { from { transform: translateY(-100%); } to { transform: translateY(600%); } }
+.rail-dot { animation: rail-dot 2.6s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+
+/* ───────────── Ojos del robot (por código) ───────────── */
+.robot-eyes svg { fill: currentColor; filter: drop-shadow(0 0 3px var(--accent)); transition: scale 0.3s; }
+.robot-eyes .eyes-look {
+  transform: translate(calc(var(--lx, 0) * 22%), calc(var(--ly, 0) * 20%));
+  transition: transform 0.16s ease-out;
+}
+.robot-eyes .eye-open,
+.robot-eyes .eye-happy { transition: opacity 0.2s, transform 0.12s; transform-box: fill-box; transform-origin: center; }
+.robot-eyes .eye-happy { opacity: 0; }
+.robot-eyes[data-blink="true"] .eye-open { transform: scaleY(0.08); }
+.robot-eyes[data-expr="happy"] .eye-open,
+.group:hover .robot-eyes .eye-open { opacity: 0; }
+.robot-eyes[data-expr="happy"] .eye-happy,
+.group:hover .robot-eyes .eye-happy { opacity: 1; }
+/* curioso: un ojo más alto que el otro */
+.robot-eyes[data-expr="curious"] .eye-near { translate: 0 -14%; }
+.robot-eyes[data-expr="curious"] .eye-far { translate: 0 6%; }
+
+/* ───────────── Híbrido (modo IA) ───────────── */
+.hybrid { --split: 50%; }
+.hybrid-robot {
+  -webkit-mask-image: linear-gradient(90deg, transparent calc(var(--split) - 0.4%), #000 calc(var(--split) + 0.4%));
+  mask-image: linear-gradient(90deg, transparent calc(var(--split) - 0.4%), #000 calc(var(--split) + 0.4%));
+}
+/* La costura solo se ve sobre la silueta */
+.hybrid-seam {
+  -webkit-mask: url("/avatar/robot.webp") center / 100% 100% no-repeat;
+  mask: url("/avatar/robot.webp") center / 100% 100% no-repeat;
+}
+.hybrid-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--split);
+  width: 2px;
+  translate: -50% 0;
+  background: color-mix(in oklab, var(--accent) 80%, white);
+  box-shadow: 0 0 6px var(--accent), 0 0 18px var(--accent);
+}
+@keyframes spark {
+  0%, 100% { opacity: 0; }
+  10%, 30% { opacity: 1; }
+  45% { opacity: 0.2; }
+}
+.hybrid-spark {
+  position: absolute;
+  left: var(--split);
+  width: 9px;
+  height: 2px;
+  translate: calc(var(--dir) * 6px - 50%) 0;
+  background: color-mix(in oklab, var(--accent) 70%, white);
+  box-shadow: 0 0 6px var(--accent);
+  animation: spark 2.2s steps(1, end) infinite;
+}
+.hybrid-spark::after {
+  content: "";
+  position: absolute;
+  top: -1.5px;
+  left: calc(50% + var(--dir) * 5px);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: inherit;
+}
+
+/* ───────────── Robot acompañante ───────────── */
+:root { --cw: clamp(17.5rem, 30vw, 27.5rem); }
+.companion-tilt { transform: perspective(900px) rotateY(calc(var(--tilt, 0) * 7deg)); transition: transform 0.4s var(--ease-out-expo); }
+@keyframes minibot-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
+.minibot-bob { animation: minibot-bob 0.6s ease-in-out 2; }
+
+/* Escritorio: el contenido de las secciones deja libre la columna del robot (nunca lo tapa) */
+@media (min-width: 1024px) {
+  main > section:not(#inicio) .container-x {
+    width: auto;
+    max-width: none;
+    margin-left: max(0px, calc((100vw - var(--container-site)) / 2));
+    margin-right: var(--cw);
+  }
+}
 
 /* Anillo de logos en 3D (Habilidades) */
 @keyframes ring-spin { to { transform: rotateY(360deg); } }

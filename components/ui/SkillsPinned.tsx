@@ -5,6 +5,7 @@ import { useRef, useState, type ReactNode } from "react";
 import { skillCategories } from "@/data/skills";
 import { EASE, useMediaQuery, useReducedEffects } from "@/lib/effects";
 import { LogoRing } from "./LogoRing";
+import { DecodeText, SectionTab } from "./SectionTab";
 import { SkillMeter } from "./SkillMeter";
 import { cn } from "@/lib/cn";
 
@@ -37,13 +38,9 @@ function Pinned() {
         <div className="container-x flex min-h-0 flex-1 flex-col">
           <header className="mb-8 flex items-end justify-between gap-8">
             <div>
-              <p className="text-eyebrow flex items-center gap-3 text-muted">
-                <span className="text-ink">07</span> / 07
-                <span aria-hidden="true" className="h-px w-8 bg-line" />
-                Habilidades
-              </p>
-              <h2 id="habilidades-title" className="text-display mt-4 text-[clamp(2.25rem,1.2rem+3.6vw,4rem)]">
-                Mi stack, por capas.
+              <SectionTab index="07" label="Habilidades" />
+              <h2 id="habilidades-title" className="text-display mt-4 text-[clamp(2.25rem,1.2rem+3.2vw,3.5rem)]">
+                <DecodeText text="Mi stack, por capas." />
               </h2>
             </div>
             <p className="max-w-xs text-pretty text-muted">

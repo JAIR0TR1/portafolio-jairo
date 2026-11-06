@@ -13,7 +13,8 @@ npm run check:content -- --write
 3. **3 testimonios reales con permiso** → `data/testimonials.ts` (hoy dicen `[PENDIENTE: testimonio real]`).
 4. **Links de GitHub y demo de cada proyecto** → `data/projects.ts`. La guía exige ambos: si un proyecto no tiene web, usa un video (YouTube/Drive) o una landing en Vercel.
 5. **Foto** → guárdala en `public/images/jairo.webp` y pon `photo: "/images/jairo.webp"` en `data/profile.ts`.
-6. **Imágenes del avatar** (PNG con fondo transparente) → `public/avatar/jairo.png` (modo Jairo), `robot.png` (Desarrollador) e `hibrido.png` (IA). Se detectan solas al compilar; si falta alguna, ese modo usa el robot SVG provisional.
+6. **Imágenes del avatar**: listas (`assets/avatar/*.png` → `npm run avatars`). Si cambias alguna, vuelve a correr ese script; si cambia la pose de la cabeza, ajusta la caja de los ojos (`Eyes`) en `data/avatar.ts`. El híbrido se alinea con `HYBRID` en el mismo archivo.
+6b. **Cifras del Hero** (`components/Hero.tsx`): 6 proyectos · 4 plataformas · 1 emprendimiento · 3 IAs. Confírmalas.
 7. **Formulario**: crea un formulario gratis en formspree.io y en Vercel agrega la variable `NEXT_PUBLIC_FORMSPREE_ID`. Sin ella, el formulario abre la app de correo (mailto).
 8. **Experiencia**: nombre del emprendimiento, años, semestre, cursos.
 9. **Habilidades y niveles**: confirma que sean honestos (`data/skills.ts`) y revisa los logos de fondo (`components/ui/TechBackdrop.tsx`). VS Code no existe en simple-icons, así que se usó JavaScript.
@@ -30,7 +31,7 @@ npm run check:content -- --write
 | --- | --- | --- |
 | `components/About.tsx` | 18 | confirmar |
 | `components/Contact.tsx` | 13 | crear en formspree.io y ponerlo en Vercel |
-| `components/Hero.tsx` | 10 | confirmar las cifras |
+| `components/Hero.tsx` | 12 | confirmar las cifras |
 | `components/ui/AvatarBot.tsx` | 15 | reemplazar por los PNG de /public/avatar (dev.png, design.png, ai.png). |
 | `components/ui/TechBackdrop.tsx` | 8 | confirmar que usas cada tecnología (VS Code no está en simple-icons: se usa JavaScript) |
 | `data/experience.ts` | 12 | confirmar fechas, nombres y logros de cada ítem. |

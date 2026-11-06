@@ -158,7 +158,7 @@ export default function Projects() {
         </div>
 
         {list.length ? (
-          <motion.ul layout className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <motion.ul layout className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <AnimatePresence mode="popLayout" initial={false}>
               {list.map((p, i) => (
                 <motion.li

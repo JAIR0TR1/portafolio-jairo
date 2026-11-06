@@ -7,7 +7,7 @@ import { cn } from "@/lib/cn";
 
 // TODO(Jairo): confirmar que usas cada tecnología (VS Code no está en simple-icons: se usa JavaScript)
 const LOGOS = [
-  { icon: "typescript", section: "inicio", x: 5, y: 24, size: 60, depth: 1.3 },
+  { icon: "typescript", section: "inicio", x: 94, y: 13, size: 60, depth: 1.3 },
   { icon: "react", section: "inicio", x: 94, y: 78, size: 84, depth: 0.7 },
   { icon: "nextdotjs", section: "inicio", x: 95, y: 52, size: 52, depth: 1.7 },
   { icon: "git", section: "sobre-mi", x: 95, y: 16, size: 58, depth: 1.2 },

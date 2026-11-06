@@ -6,7 +6,7 @@ import { aboutTech } from "@/data/skills";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { TechIcon, tagToIcon } from "@/components/ui/TechIcon";
-import { ModeAvatar } from "@/components/ui/ModeAvatar";
+import { JAIRO_SRC } from "@/data/avatar";
 
 const facts = [
   { icon: MapPin, label: "Ubicación", value: profile.location },
@@ -34,12 +34,9 @@ export default function About() {
         />
 
         <Reveal stagger className="grid gap-4 md:grid-cols-2 lg:grid-cols-12">
-          {/* Foto / ilustración — destino del avatar viajero (F3) */}
+          {/* Foto o ilustración 3D de Jairo */}
           <RevealItem className="lg:col-span-5 lg:row-span-2">
             <figure
-              data-avatar-target
-              data-has-photo={profile.photo ? "true" : "false"}
-              style={{ containerType: "size" }}
               className="glass spotlight relative h-full min-h-[360px] overflow-hidden md:min-h-[440px]"
             >
               {profile.photo ? (
@@ -51,16 +48,19 @@ export default function About() {
                   className="object-cover"
                 />
               ) : (
-                <div aria-hidden="true" className="absolute inset-0">
-                  <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_110%,#1c1c1c,transparent_60%)]" />
-                  <span className="avatar-initials absolute inset-0 grid place-items-center font-display text-[clamp(7rem,14vw,11rem)] font-medium leading-none tracking-[-0.06em] text-[#2a2a2a]">
+                <>
+                  <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(90%_60%_at_50%_100%,#1a1a1a,transparent_70%)]" />
+                  <span aria-hidden="true" className="absolute inset-x-0 top-6 text-center font-display text-[clamp(6rem,12vw,9rem)] font-extrabold uppercase leading-none tracking-[-0.02em] text-[#161616] [font-stretch:70%]">
                     {profile.initials}
                   </span>
-                  {/* Aquí "aterriza" el avatar viajero del Hero (solo escritorio con efectos) */}
-                  <div className="avatar-landing absolute left-1/2 top-[44%] aspect-[400/460] w-[min(78cqw,69.5cqh)] -translate-x-1/2 -translate-y-1/2">
-                    <ModeAvatar uid="about" className="h-full w-full" />
-                  </div>
-                </div>
+                  <Image
+                    src={JAIRO_SRC}
+                    alt={`Ilustración 3D de ${profile.name}`}
+                    fill
+                    sizes="(min-width: 1024px) 380px, (min-width: 768px) 50vw, 100vw"
+                    className="object-contain object-bottom pt-6"
+                  />
+                </>
               )}
               <figcaption className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 rounded-[6px] border border-line bg-bg/90 px-4 py-3">
                 <span>

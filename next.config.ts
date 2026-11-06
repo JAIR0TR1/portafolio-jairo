@@ -2,9 +2,17 @@ import type { NextConfig } from "next";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 
-// Imágenes del avatar por modo (public/avatar/jairo.png, robot.png, hibrido.png).
-// Se detectan al compilar: las que existan se usan; si falta alguna, ese modo usa el robot SVG.
-const avatarImages = ["jairo.png", "robot.png", "hibrido.png"].filter((f) =>
+// Imágenes del avatar (public/avatar/*.webp, generadas con `npm run avatars`).
+// Se detectan al compilar: si falta alguna, ese personaje usa el robot SVG de respaldo.
+const avatarImages = [
+  "jairo.webp",
+  "robot.webp",
+  "robot-saludo.webp",
+  "robot-senala.webp",
+  "robot-laptop.webp",
+  "robot-pulgar.webp",
+  "robot-cabeza.webp",
+].filter((f) =>
   existsSync(join(process.cwd(), "public", "avatar", f)),
 );
 

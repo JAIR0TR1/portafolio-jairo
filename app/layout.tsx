@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { JetBrains_Mono, Manrope, Syne } from "next/font/google";
+import { Archivo, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { profile } from "@/data/profile";
 import { Providers } from "@/components/ui/Providers";
@@ -9,9 +9,8 @@ import { SpotlightTracker } from "@/components/ui/SpotlightTracker";
 import { TechBackdrop } from "@/components/ui/TechBackdrop";
 import { bootScript } from "@/lib/keys";
 
-// Tipografía C "Geométrica": Syne (títulos) · Manrope (texto) · JetBrains Mono (etiquetas)
-const syne = Syne({ variable: "--font-syne", subsets: ["latin"], weight: ["500", "600"] });
-const manrope = Manrope({ variable: "--font-manrope", subsets: ["latin"], weight: ["400", "500", "600"] });
+// Archivo (variable, eje de ancho 62–125) para todo el sitio · JetBrains Mono para etiquetas
+const archivo = Archivo({ variable: "--font-archivo", subsets: ["latin"], axes: ["wdth"] });
 const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"], weight: ["400", "500"] });
 
 const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
@@ -61,7 +60,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
       lang="es"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`scroll-smooth ${syne.variable} ${manrope.variable} ${jetbrains.variable} antialiased`}
+      className={`scroll-smooth ${archivo.variable} ${jetbrains.variable} antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />

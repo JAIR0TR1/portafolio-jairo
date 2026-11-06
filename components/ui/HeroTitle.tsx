@@ -4,137 +4,108 @@ import { useEffect, useRef, useState } from "react";
 import { avatarModes } from "@/data/avatar";
 import { MODES, useModeIndex } from "@/lib/mode";
 import { useReducedEffects } from "@/lib/effects";
-import { cn } from "@/lib/cn";
 
-const GLYPHS = "abcdefghijklmnopqrstuvwxyz+·";
+const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ+";
 const SCRAMBLE_MS = 600;
-/** Tracking permitido (em) para que cada línea llene el ancho sin deformarse. */
-const LS_MIN = -0.06;
-const LS_MAX = 0.3;
-/** Una palabra corta puede crecer un poco para igualar el ancho de la otra línea. */
-const SCALE_MAX = 1.2;
+/** Ancho condensado permitido (eje wdth de Archivo). Palabras cortas más anchas, largas más estrechas. */
+const WDTH_MAX = 75;
+const WDTH_MIN = 62;
 
-type Fit = { scale: number; ls: number };
-const NO_FIT: Fit = { scale: 1, ls: 0 };
-
-let canvas: HTMLCanvasElement | null = null;
-
-/** Calcula tracking (y si hace falta, escala) para que `text` mida `target` px a tamaño base `F`. */
-function fitLine(ctx: CanvasRenderingContext2D, text: string, F: number, target: number): Fit {
-  const n = [...text].length || 1;
-  const w100 = ctx.measureText(text).width; // ancho a 100px, sin tracking
-  const natural = (w100 * F) / 100;
-  const lsPx = (target - natural) / n;
-  if (lsPx > LS_MAX * F) {
-    const up = Math.min(SCALE_MAX, target / (F * (w100 / 100 + n * LS_MAX)));
-    return { scale: up, ls: LS_MAX };
-  }
-  if (lsPx >= LS_MIN * F) return { scale: 1, ls: lsPx / F };
-  // Demasiado larga incluso con el tracking mínimo: se reduce el tamaño de esa línea.
-  const scale = Math.min(1, target / (F * (w100 / 100 + n * LS_MIN)));
-  return { scale, ls: LS_MIN };
+function wdthFor(word: string) {
+  return Math.max(WDTH_MIN, Math.min(WDTH_MAX, WDTH_MAX - ([...word].length - 5) * 3.5));
 }
 
+type Fit = { size: number; wdth: number } | null;
+
 /**
- * Título gigante detrás del avatar. Cada línea ocupa casi todo el ancho del contenedor;
- * al cambiar de modo las letras se mezclan (scramble) hasta formar el nuevo texto.
- * Es decorativo (aria-hidden): el h1 real es el nombre completo.
+ * Palabra gigante detrás del personaje (JAIRO / CÓDIGO / HUMANO+IA). Se mide con la fuente
+ * real y se escala para ocupar EXACTAMENTE el ancho del contenedor. Al cambiar de modo, las
+ * letras se mezclan (~600 ms). Decorativa: el h1 real es «Jairo Vallejo Burbano».
  */
 export function HeroTitle() {
   const reduced = useReducedEffects();
   const index = useModeIndex();
-  const target = avatarModes[MODES[index].id].title;
+  const word = avatarModes[MODES[index].id].word.toUpperCase();
 
   const wrapRef = useRef<HTMLDivElement>(null);
-  const prev = useRef(target);
-  const [shown, setShown] = useState<string[]>(() => [...target]);
-  const [fits, setFits] = useState<Fit[]>([NO_FIT, NO_FIT]);
+  const probeRef = useRef<HTMLSpanElement>(null);
+  const prev = useRef(word);
+  const [shown, setShown] = useState(word);
+  const [fit, setFit] = useState<Fit>(null);
 
-  // Ajuste al ancho: al montar, al cargar la fuente, al cambiar de tamaño y de modo.
+  // Ajuste exacto al ancho: se mide la palabra a 100px con su ancho condensado.
   useEffect(() => {
-    const el = wrapRef.current;
-    if (!el) return;
+    const wrap = wrapRef.current;
+    const probe = probeRef.current;
+    if (!wrap || !probe) return;
     let alive = true;
+    const wdth = wdthFor(word);
     const compute = () => {
       if (!alive) return;
-      const cs = getComputedStyle(el);
-      const F = parseFloat(cs.fontSize);
-      const T = el.clientWidth * 0.985;
-      canvas ??= document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      if (!ctx || !F || !T) return;
-      ctx.font = `500 100px ${cs.fontFamily}`;
-      setFits(target.map((t) => fitLine(ctx, t, F, T)));
+      probe.textContent = word;
+      probe.style.fontStretch = `${wdth}%`;
+      probe.style.fontVariationSettings = `"wdth" ${wdth}`;
+      const natural = probe.getBoundingClientRect().width; // a 100px
+      const T = wrap.clientWidth;
+      if (natural && T) setFit({ size: (100 * T) / natural, wdth });
     };
     document.fonts.ready.then(compute);
     const ro = new ResizeObserver(compute);
-    ro.observe(el);
+    ro.observe(wrap);
     return () => {
       alive = false;
       ro.disconnect();
     };
-  }, [target]);
+  }, [word]);
 
-  // Scramble de ~600 ms entre el texto anterior y el nuevo.
+  // Letras que se mezclan entre la palabra anterior y la nueva.
   useEffect(() => {
     const from = prev.current;
-    prev.current = target;
-    if (from === target) return;
+    prev.current = word;
+    if (from === word) return;
     let raf = 0;
     if (reduced) {
-      raf = requestAnimationFrame(() => setShown([...target]));
+      raf = requestAnimationFrame(() => setShown(word));
       return () => cancelAnimationFrame(raf);
     }
-    const thresholds = target.map((t, li) => {
-      const len = Math.max(t.length, from[li].length);
-      return Array.from({ length: len }, (_, i) => 0.15 + (i / len) * 0.55 + Math.random() * 0.3);
-    });
+    const len = word.length;
+    const th = Array.from({ length: len }, (_, i) => 0.15 + (i / len) * 0.55 + Math.random() * 0.3);
     const start = performance.now();
     const tick = (now: number) => {
       const p = Math.min(1, (now - start) / SCRAMBLE_MS);
-      setShown(
-        target.map((t, li) => {
-          let out = "";
-          thresholds[li].forEach((th, i) => {
-            const to = t[i] ?? "";
-            if (p >= th) out += to;
-            else if (p >= th * 0.35) out += to === " " ? " " : GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
-            else out += from[li][i] ?? "";
-          });
-          return out;
-        }),
-      );
+      let out = "";
+      for (let i = 0; i < len; i++) {
+        if (p >= th[i]) out += word[i];
+        else if (p >= th[i] * 0.35) out += GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+        else out += from[i] ?? GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+      }
+      setShown(out);
       if (p < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [target, reduced]);
+  }, [word, reduced]);
 
+  const wdth = fit?.wdth ?? wdthFor(word);
   return (
-    <div
-      ref={wrapRef}
-      aria-hidden="true"
-      className="pointer-events-none select-none font-display text-center"
-      style={{ fontSize: "var(--f)", fontWeight: 500, lineHeight: 0.85 }}
-    >
-      {shown.map((line, i) => (
-        <span
-          key={i}
-          className={cn("flex h-[0.85em] items-center justify-center whitespace-nowrap", i === 0 ? "text-ink" : "text-faint")}
-        >
-          <span
-            className="inline-block"
-            style={{
-              fontSize: `${fits[i].scale}em`,
-              letterSpacing: `${fits[i].ls}em`,
-              // compensa el tracking que el navegador agrega tras la última letra
-              marginLeft: `${fits[i].ls}em`,
-            }}
-          >
-            {line || " "}
-          </span>
-        </span>
-      ))}
+    <div ref={wrapRef} aria-hidden="true" className="pointer-events-none relative w-full select-none">
+      {/* sonda invisible para medir */}
+      <span
+        ref={probeRef}
+        className="invisible absolute left-0 top-0 whitespace-nowrap font-display uppercase"
+        style={{ fontSize: 100, fontWeight: 800, lineHeight: 1 }}
+      />
+      <p
+        className="whitespace-nowrap text-center font-display font-extrabold uppercase leading-[0.8] text-[#e6e6e6]"
+        style={{
+          // antes de medir: tamaño aproximado para no saltar
+          fontSize: fit ? `${fit.size}px` : "min(26vw, 22rem)",
+          fontStretch: `${wdth}%`,
+          fontVariationSettings: `"wdth" ${wdth}`,
+        }}
+      >
+        {shown}
+      </p>
     </div>
   );
 }

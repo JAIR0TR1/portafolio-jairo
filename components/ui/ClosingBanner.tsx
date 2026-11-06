@@ -1,5 +1,6 @@
 import { ArrowDown } from "lucide-react";
 import { FocusLink } from "./FocusLink";
+import { DecodeText, SectionTab } from "./SectionTab";
 
 /** Banner de cierre: piso de cuadrícula en perspectiva + orbe con el --accent actual. */
 export function ClosingBanner() {
@@ -11,13 +12,9 @@ export function ClosingBanner() {
       </div>
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-1/2 bg-gradient-to-b from-card to-transparent" />
 
-      <p className="text-eyebrow mb-6 flex items-center justify-center gap-3 text-muted">
-        <span className="text-ink">06</span> / 07
-        <span aria-hidden="true" className="h-px w-8 bg-line" />
-        Contacto
-      </p>
-      <h2 id="contacto-title" className="text-display mx-auto max-w-[14ch] text-[clamp(2.5rem,1.2rem+5vw,5.5rem)] text-balance">
-        ¿Tienes una idea grande? Hablemos.
+      <SectionTab index="06" label="Contacto" className="mb-6" />
+      <h2 id="contacto-title" className="text-display mx-auto max-w-[14ch] text-[clamp(2.5rem,1.2rem+4.4vw,5rem)] text-balance">
+        <DecodeText text="¿Tienes una idea grande? Hablemos." />
       </h2>
       <p className="mx-auto mt-6 max-w-md text-pretty text-lg text-muted">
         Cuéntame qué quieres construir y te respondo por correo.
