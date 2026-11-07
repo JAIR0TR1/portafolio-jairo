@@ -7,6 +7,7 @@ import { Providers } from "@/components/ui/Providers";
 import { ScrollProgress } from "@/components/ui/ScrollProgress";
 import { SpotlightTracker } from "@/components/ui/SpotlightTracker";
 import { TechBackdrop } from "@/components/ui/TechBackdrop";
+import { Aurora } from "@/components/ui/Aurora";
 import { bootScript } from "@/lib/keys";
 
 // Archivo (variable, eje de ancho 62–125) para todo el sitio · JetBrains Mono para etiquetas
@@ -20,7 +21,7 @@ const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
   : "http://localhost:3000";
 
 const description =
-  "Portafolio de Jairo Vallejo Burbano, estudiante de Ingeniería de Software en Pasto, Colombia. Interfaces web, apps móviles y de escritorio, diseño UI e IA aplicada.";
+  "Portafolio de Jairo Andrés Vallejo Burbano, estudiante de Ingeniería de Software en la Universidad Cooperativa de Colombia (Pasto). Interfaces web, diseño UI, backend e IA aplicada; fundador de @jairovende_.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -29,16 +30,16 @@ export const metadata: Metadata = {
     template: `%s · ${profile.name}`,
   },
   description,
-  applicationName: "Portafolio Jairo Vallejo",
+  applicationName: "Portafolio Jairo Andrés Vallejo Burbano",
   authors: [{ name: profile.name }],
   creator: profile.name,
-  keywords: ["Jairo Vallejo Burbano", "portafolio", "ingeniería de software", "diseño UI", "Next.js", "React", "Pasto", "Colombia"],
+  keywords: ["Jairo Andrés Vallejo Burbano", "jairovende", "portafolio", "ingeniería de software", "diseño UI", "Next.js", "React", "Pasto", "Colombia"],
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "es_CO",
     url: "/",
-    siteName: "Jairo Vallejo Burbano",
+    siteName: "Jairo Andrés Vallejo Burbano",
     title: `${profile.name} · Portafolio`,
     description,
   },
@@ -51,7 +52,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A0A0A",
+  themeColor: "#0B1030",
   colorScheme: "dark",
 };
 
@@ -76,6 +77,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         </a>
         <ScrollProgress />
         <SpotlightTracker />
+        <Aurora />
         <TechBackdrop />
         <Providers>{children}</Providers>
       </body>

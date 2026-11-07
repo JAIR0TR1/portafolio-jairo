@@ -10,27 +10,27 @@ function currentYear() {
 export default function Footer() {
   const year = currentYear();
   return (
-    <footer id="footer" className="relative isolate overflow-hidden border-t border-line">
+    <footer id="footer" className="relative isolate overflow-hidden border-t border-line bg-[linear-gradient(180deg,transparent,rgb(8_12_38/.85))]">
       <div className="container-x grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-12">
         <div className="lg:col-span-5">
           <p className="flex items-center gap-3 font-display text-lg font-medium tracking-[-0.02em]">
-            <span className="grid size-10 place-items-center rounded-[6px] bg-ink font-mono text-sm text-bg">{profile.initials}</span>
+            <span className="grid size-10 place-items-center rounded-full bg-[image:var(--grad-soft)] font-mono text-sm font-semibold text-[#0b1030]">{profile.initials}</span>
             {profile.name}
           </p>
           <p className="mt-4 max-w-sm text-pretty text-muted">
-            {profile.role} en {profile.location}. Diseño y programo interfaces.
+            {profile.tagline}
           </p>
           <a href="#inicio" className="btn btn-secondary mt-8">
             <ArrowUp aria-hidden="true" /> Volver arriba
           </a>
         </div>
 
-        <nav aria-label="Enlaces rápidos" className="lg:col-span-3">
+        <nav aria-label="Enlaces rápidos" className="lg:col-span-4">
           <h2 className="text-eyebrow mb-4 text-muted">Enlaces rápidos</h2>
-          <ul className="grid grid-cols-2 gap-x-6 md:grid-cols-1">
+          <ul className="grid grid-cols-2 gap-x-6">
             {sections.map((s) => (
               <li key={s.id}>
-                <a href={`#${s.id}`} className="flex min-h-11 items-center text-[15px] text-ink/85 transition-colors hover:text-muted">
+                <a href={`#${s.id}`} className="flex min-h-10 items-center text-[15px] text-ink/85 transition-colors hover:text-ink hover:underline hover:decoration-accent hover:underline-offset-4">
                   {s.label}
                 </a>
               </li>
@@ -38,7 +38,7 @@ export default function Footer() {
           </ul>
         </nav>
 
-        <div className="md:col-span-2 lg:col-span-4">
+        <div className="md:col-span-2 lg:col-span-3">
           <h2 className="text-eyebrow mb-4 text-muted">Redes</h2>
           <ul className="flex flex-wrap gap-2">
             {socials.map((s) => (
@@ -64,7 +64,7 @@ export default function Footer() {
 
       <div className="container-x flex flex-col gap-2 border-t border-line py-6 text-sm text-muted md:flex-row md:items-center md:justify-between">
         <p>
-          © {year} {profile.name}. Todos los derechos reservados.
+          {profile.name} · © {year}
         </p>
         <p>
           Hecho con <span className="text-ink">Next.js + Tailwind</span>
@@ -73,7 +73,7 @@ export default function Footer() {
 
       <p
         aria-hidden="true"
-        className="pointer-events-none select-none whitespace-nowrap text-center font-display font-medium leading-[0.8] tracking-[-0.05em] text-transparent [-webkit-text-stroke:1px_rgb(255_255_255/.08)] [font-size:clamp(4rem,17vw,15rem)] translate-y-[18%]"
+        className="pointer-events-none select-none whitespace-nowrap text-center font-display font-medium leading-[0.8] tracking-[-0.05em] text-transparent [-webkit-text-stroke:1px_rgb(180_190_255/.12)] [font-size:clamp(4rem,17vw,15rem)] translate-y-[18%]"
       >
         Jairo Vallejo
       </p>

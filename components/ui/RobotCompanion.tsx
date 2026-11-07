@@ -146,7 +146,7 @@ function DesktopCompanion() {
                 on ? "border-ink text-ink" : "border-line text-muted hover:text-ink",
               )}
             >
-              <span className={cn("size-[5px] rounded-full transition-colors", on ? "bg-accent" : "bg-[#3a3a3a]")} />
+              <span className={cn("size-[5px] rounded-full transition-colors", on ? "bg-accent" : "bg-faint")} />
               {String(i + 2).padStart(2, "0")} / {s.label}
             </a>
           );

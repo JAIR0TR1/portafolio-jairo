@@ -20,11 +20,11 @@ export function SectionTab({ index, label, className }: { index: string; label: 
       ref={ref}
       className={cn(
         "inline-flex w-fit items-center gap-2 rounded-[4px] border px-2 py-1 font-mono text-[11px] uppercase tracking-[0.12em] transition-colors duration-500",
-        on ? "border-[#5a5a5a] text-ink" : "border-line-2 text-muted",
+        on ? "border-accent/60 text-ink" : "border-line-2 text-muted",
         className,
       )}
     >
-      <span aria-hidden="true" className={cn("size-[5px] rounded-full transition-colors duration-500", on ? "bg-accent" : "bg-[#3a3a3a]")} />
+      <span aria-hidden="true" className={cn("size-[5px] rounded-full transition-colors duration-500", on ? "bg-accent" : "bg-faint")} />
       {index} / {label}
     </p>
   );

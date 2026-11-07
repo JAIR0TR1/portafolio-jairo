@@ -1,28 +1,28 @@
-import { ArrowDownToLine, ArrowRight } from "lucide-react";
+import { ArrowDownToLine, ArrowRight, CalendarCheck } from "lucide-react";
 import { profile, socials } from "@/data/profile";
 import { projects } from "@/data/projects";
+import { aiTools } from "@/data/skills";
 import { HeroTitle } from "@/components/ui/HeroTitle";
 import { HeroAvatar } from "@/components/ui/HeroAvatar";
 import { HeroBlob } from "@/components/ui/HeroBlob";
 import { HeroAmbient } from "@/components/ui/HeroAmbient";
-import { ModeLine } from "@/components/ui/HeroBits";
 import { ModeSelector, NotesList } from "@/components/ui/ModeSelector";
 import { SocialGlyph } from "@/components/ui/BrandIcons";
 import { IntroGate } from "@/components/three/IntroGate";
 import { RobotCompanion } from "@/components/ui/RobotCompanion";
 
-// TODO(Jairo): confirmar las cifras
+/** Cifras reales: se calculan desde data/. */
 const stats = [
   { value: String(projects.length), label: "Proyectos" },
-  { value: "4", label: "Plataformas" },
+  { value: `Desde ${profile.codingSince}`, label: "Programando" },
   { value: "1", label: "Emprendimiento" },
-  { value: "3", label: "IAs en mi flujo" },
+  { value: String(aiTools.length), label: "IAs en mi flujo" },
 ];
 
 /**
  * Contenido completo del Hero. Se pinta DOS veces, alineado al píxel:
  *  - base (oscura, interactiva, con los ids reales);
- *  - revelada (clara e invertida, dentro de la mancha líquida): sin ids ni h1, aria-hidden e inert.
+ *  - revelada (degradado del modo con textos oscuros, dentro de la mancha líquida): sin ids ni h1, aria-hidden e inert.
  */
 function HeroContent({ revealed = false }: { revealed?: boolean }) {
   const Title = revealed ? "p" : "h1";
@@ -38,7 +38,7 @@ function HeroContent({ revealed = false }: { revealed?: boolean }) {
             rel={s.icon === "mail" ? undefined : "noopener noreferrer"}
             aria-label={s.icon === "mail" ? `Escribir a ${s.handle}` : `${s.label} (abre en otra pestaña)`}
             tabIndex={revealed ? -1 : undefined}
-            className="grid size-9 place-items-center rounded-[6px] border border-line-2 text-muted transition-colors hover:border-[#4a4a4a] hover:text-ink"
+            className="grid size-9 place-items-center rounded-[6px] border border-line-2 text-muted transition-colors hover:border-accent/50 hover:text-ink"
           >
             <SocialGlyph icon={s.icon} className="size-4" />
           </a>
@@ -89,19 +89,22 @@ function HeroContent({ revealed = false }: { revealed?: boolean }) {
             <Title id={revealed ? undefined : "hero-title"} className="text-display mt-3 text-[clamp(1.15rem,0.9rem+0.9vw,1.6rem)] leading-[1.15]">
               {profile.name}
             </Title>
-            <p className="mt-2 max-w-[38ch] text-pretty text-[15px] leading-relaxed text-muted">{profile.role} en {profile.location}.</p>
-            <a href="/cv.pdf" download tabIndex={revealed ? -1 : undefined} className="btn btn-primary mt-5">
-              Descargar CV <ArrowDownToLine aria-hidden="true" />
-            </a>
+            <p className="mt-2 max-w-[44ch] text-pretty text-[15px] leading-relaxed text-muted">{profile.heroRole}</p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <a href="/cv.pdf" download tabIndex={revealed ? -1 : undefined} className="btn btn-primary">
+                Descargar CV <ArrowDownToLine aria-hidden="true" />
+              </a>
+              <a href="#trabaja-conmigo" tabIndex={revealed ? -1 : undefined} className="btn btn-secondary">
+                Agendar trabajo <CalendarCheck aria-hidden="true" />
+              </a>
+            </div>
           </div>
 
           <div aria-hidden="true" className="hidden lg:block" />
 
           <div className="flex flex-col gap-3 lg:items-end lg:text-right">
             <ModeSelector />
-            <p className="max-w-[38ch] text-pretty text-[15px] leading-relaxed text-muted">
-              <ModeLine />
-            </p>
+            <p className="max-w-[34ch] text-pretty text-[17px] font-medium leading-snug text-ink">{profile.tagline}</p>
             <a href="#proyectos" tabIndex={revealed ? -1 : undefined} className="btn btn-secondary w-fit">
               Ver proyectos <ArrowRight aria-hidden="true" />
             </a>
@@ -113,10 +116,10 @@ function HeroContent({ revealed = false }: { revealed?: boolean }) {
           {stats.map((s, i) => (
             <div
               key={s.label}
-              className={`flex items-baseline gap-3 px-5 py-4 ${i % 2 ? "border-l border-line" : ""} ${i > 1 ? "border-t border-line md:border-t-0" : ""} ${i === 2 ? "md:border-l" : ""}`}
+              className={`flex flex-wrap items-baseline gap-x-3 gap-y-1 px-5 py-4 ${i % 2 ? "border-l border-line" : ""} ${i > 1 ? "border-t border-line md:border-t-0" : ""} ${i === 2 ? "md:border-l" : ""}`}
             >
               <dt className="sr-only">{s.label}</dt>
-              <dd className="font-mono text-2xl leading-none text-ink">{s.value}</dd>
+              <dd className="font-mono text-xl leading-none text-ink md:text-2xl">{s.value}</dd>
               <dd className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-muted">{s.label}</dd>
             </div>
           ))}
@@ -135,7 +138,7 @@ export default function Hero() {
       <HeroAmbient />
 
       {/* Tarjeta: capa oscura (base) + capa clara recortada por la mancha líquida */}
-      <div className="hero-card relative overflow-hidden rounded-[22px] border border-white/[0.08] md:rounded-[28px]">
+      <div className="hero-card relative overflow-hidden rounded-[22px] border border-line md:rounded-[28px]">
         {/* isolate: sus z-20/z-30 quedan dentro de esta capa y la revelada (encima) los cubre */}
         <div data-hero-layer className="hero-surface relative isolate">
           <HeroContent />
@@ -145,7 +148,7 @@ export default function Hero() {
           data-hero-revealed
           aria-hidden="true"
           inert
-          className="theme-light hero-surface hero-revealed pointer-events-none absolute inset-0 select-none"
+          className="theme-grad hero-surface hero-revealed pointer-events-none absolute inset-0 select-none"
         >
           <HeroContent revealed />
         </div>

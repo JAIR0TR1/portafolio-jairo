@@ -1,180 +1,119 @@
 "use client";
 
-import { AnimatePresence, motion, type PanInfo } from "motion/react";
-import { ChevronLeft, ChevronRight, Pause, Play, Star } from "lucide-react";
-import { useEffect, useState } from "react";
-import { testimonials } from "@/data/testimonials";
+import { ChevronLeft, ChevronRight, MessageSquareQuote } from "lucide-react";
+import { useRef, useState } from "react";
+import { testimonials, type Testimonial } from "@/data/testimonials";
+import { sectionIndex } from "@/data/profile";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
-import { EASE, useReducedEffects } from "@/lib/effects";
+import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
 
-const DURATION = 7000;
+const TYPE_LABEL: Record<Testimonial["tipo"], string> = { cliente: "Cliente", academico: "Académico" };
 
-function Stars({ rating = 5 }: { rating?: number }) {
+function Card({ t, i }: { t: Testimonial; i: number }) {
   return (
-    <div className="flex gap-1" role="img" aria-label={`${rating} de 5 estrellas`}>
-      {Array.from({ length: 5 }, (_, i) => (
-        <Star
-          key={i}
-          aria-hidden="true"
-          className={cn("size-4", i < rating ? "fill-ink text-ink" : "text-white/20")}
-        />
-      ))}
+    <figure className="glass spotlight flex h-full flex-col justify-between gap-8 p-6 md:p-7">
+      <div className="space-y-5">
+        <span className="chip">
+          <span aria-hidden="true" className="size-[5px] rounded-full bg-accent" />
+          {TYPE_LABEL[t.tipo]}
+        </span>
+        <blockquote className="text-pretty text-[17px] leading-relaxed text-ink">“{t.texto}”</blockquote>
+      </div>
+      <figcaption className="flex items-center gap-3">
+        <InitialsAvatar name={t.nombre} src={t.foto} index={i} className="size-11 text-xs" />
+        <span>
+          <span className="block font-medium">{t.nombre}</span>
+          <span className="block text-sm text-muted">{t.relacion}</span>
+        </span>
+      </figcaption>
+    </figure>
+  );
+}
+
+/** Mientras no haya testimonios reales: 3 tarjetas discretas (solo en la rama de diseño). */
+function Placeholder() {
+  return (
+    <div className="flex h-full flex-col items-start justify-between gap-10 rounded-[12px] border border-dashed border-line-2 p-6 md:p-7">
+      <MessageSquareQuote aria-hidden="true" className="size-6 text-muted" />
+      <div>
+        <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted">Próximamente</p>
+        <p className="mt-2 text-[15px] text-muted">Opiniones de clientes y docentes, publicadas con su permiso.</p>
+      </div>
     </div>
   );
 }
 
 export default function Testimonials() {
-  const reduced = useReducedEffects();
-  const [[index, dir], setState] = useState<[number, number]>([0, 1]);
-  const [userPaused, setUserPaused] = useState(false);
-  const [hoverPaused, setHoverPaused] = useState(false);
-  const paused = userPaused || hoverPaused || reduced;
-  const total = testimonials.length;
+  const trackRef = useRef<HTMLUListElement>(null);
+  const [current, setCurrent] = useState(0);
+  const empty = testimonials.length === 0;
+  const total = empty ? 3 : testimonials.length;
 
-  const go = (next: number, d: number) => setState([(next + total) % total, d]);
-
-  useEffect(() => {
-    if (paused) return;
-    const t = window.setTimeout(() => setState(([i]) => [(i + 1) % total, 1]), DURATION);
-    return () => window.clearTimeout(t);
-  }, [index, paused, total]);
-
-  const onDragEnd = (_: unknown, info: PanInfo) => {
-    if (info.offset.x < -60) go(index + 1, 1);
-    else if (info.offset.x > 60) go(index - 1, -1);
+  // Carrusel (móvil): scroll-snap nativo + botones; el índice sale de la posición del scroll.
+  const go = (n: number) => {
+    const track = trackRef.current;
+    const item = track?.children[(n + total) % total] as HTMLElement | undefined;
+    item?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
   };
-
-  const t = testimonials[index];
+  const onScroll = () => {
+    const track = trackRef.current;
+    if (!track) return;
+    const w = (track.firstElementChild as HTMLElement | null)?.offsetWidth ?? 1;
+    setCurrent(Math.round(track.scrollLeft / (w + 16)));
+  };
 
   return (
     <section id="testimonios" aria-labelledby="testimonios-title" className="section-y relative">
       <div className="container-x">
         <SectionHeading
           id="testimonios-title"
-          index="04"
+          index={sectionIndex("testimonios")}
           eyebrow="Testimonios"
-          title={
-            <>
-              Lo que dicen de trabajar conmigo.
-            </>
-          }
-          description="Opiniones de docentes, compañeros y clientes, publicadas con su permiso."
+          title="Lo que dicen de trabajar conmigo."
+          description="Clientes de @jairovende_ y compañeros o docentes de la universidad."
         />
 
-        <div
-          role="region"
-          aria-roledescription="carrusel"
-          aria-label="Testimonios"
-          onMouseEnter={() => setHoverPaused(true)}
-          onMouseLeave={() => setHoverPaused(false)}
-          onFocusCapture={() => setHoverPaused(true)}
-          onBlurCapture={() => setHoverPaused(false)}
-          className="grid gap-4 lg:grid-cols-12"
-        >
-          {/* Tarjeta destacada */}
-          <div className="glass spotlight relative min-h-[340px] overflow-hidden p-6 md:p-10 lg:col-span-8">
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute right-6 top-2 font-display text-[9rem] leading-[0.8] text-[#2a2a2a] select-none md:right-10 md:text-[12rem]"
-            >
-              ”
-            </span>
-            <AnimatePresence mode="wait" custom={dir} initial={false}>
-              <motion.figure
-                key={index}
-                custom={dir}
-                aria-roledescription="diapositiva"
-                aria-label={`${index + 1} de ${total}`}
-                initial={{ opacity: 0, x: reduced ? 0 : dir * 40, filter: "blur(6px)" }}
-                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, x: reduced ? 0 : dir * -40, filter: "blur(6px)" }}
-                transition={{ duration: 0.45, ease: EASE }}
-                drag={reduced ? false : "x"}
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.18}
-                onDragEnd={onDragEnd}
-                className="relative flex h-full cursor-grab touch-pan-y flex-col justify-between gap-10 active:cursor-grabbing"
+        <Reveal stagger>
+          <ul
+            ref={trackRef}
+            onScroll={onScroll}
+            aria-roledescription="carrusel"
+            aria-label="Testimonios"
+            className="testimonial-track -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3"
+          >
+            {Array.from({ length: total }, (_, i) => (
+              <RevealItem
+                as="li"
+                key={empty ? i : testimonials[i].nombre + i}
+                className="w-[85%] shrink-0 snap-start md:w-auto"
               >
-                <div className="space-y-6">
-                  <Stars rating={t.rating} />
-                  <blockquote className="text-pretty text-[clamp(1.25rem,1rem+1.2vw,1.875rem)] leading-snug tracking-[-0.02em]">
-                    “{t.text}”
-                  </blockquote>
+                <div aria-roledescription="diapositiva" aria-label={`${i + 1} de ${total}`} className="h-full">
+                  {empty ? <Placeholder /> : <Card t={testimonials[i]} i={i} />}
                 </div>
-                <figcaption className="flex items-center gap-4">
-                  <InitialsAvatar name={t.name} src={t.avatar} index={index} />
-                  <span>
-                    <span className="block font-medium">{t.name}</span>
-                    <span className="block text-sm text-muted">{t.role}</span>
-                  </span>
-                </figcaption>
-              </motion.figure>
-            </AnimatePresence>
-          </div>
+              </RevealItem>
+            ))}
+          </ul>
+        </Reveal>
 
-          {/* Lista lateral (funciona como puntos con nombre) */}
-          <div className="flex flex-col gap-3 lg:col-span-4">
-            <ul className="flex gap-2 lg:flex-col lg:gap-3" aria-label="Elegir testimonio">
-              {testimonials.map((item, i) => {
-                const on = i === index;
-                return (
-                  <li key={item.name + i} className="flex-1 lg:flex-none">
-                    <button
-                      type="button"
-                      onClick={() => go(i, i > index ? 1 : -1)}
-                      aria-current={on ? "true" : undefined}
-                      aria-label={`Testimonio ${i + 1}: ${item.name}`}
-                      className={cn(
-                        "relative flex min-h-11 w-full items-center gap-3 overflow-hidden rounded-[6px] border p-2 text-left transition-colors lg:p-4",
-                        on ? "border-white/15 bg-white/[.06]" : "border-line hover:bg-white/[.03]",
-                      )}
-                    >
-                      <InitialsAvatar name={item.name} src={item.avatar} index={i} className="size-9 text-xs lg:size-11" />
-                      <span className="hidden min-w-0 lg:block">
-                        <span className="block truncate text-sm font-medium">{item.name}</span>
-                        <span className="block truncate text-xs text-muted">{item.role}</span>
-                      </span>
-                      {on && (
-                        <span
-                          key={`${index}-${paused}`}
-                          aria-hidden="true"
-                          className="absolute inset-x-0 bottom-0 h-px origin-left bg-ink"
-                          style={{
-                            animation: paused ? "none" : `progress ${DURATION}ms linear forwards`,
-                            transform: paused ? "scaleX(0)" : undefined,
-                          }}
-                        />
-                      )}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-
-            <div className="glass mt-auto flex items-center justify-between gap-2 p-2">
-              <button type="button" onClick={() => go(index - 1, -1)} className="btn btn-ghost size-11 p-0" aria-label="Testimonio anterior">
-                <ChevronLeft aria-hidden="true" />
-              </button>
-              <span className="font-mono text-sm text-muted" aria-live="polite">
-                <span className="text-ink">{String(index + 1).padStart(2, "0")}</span> / {String(total).padStart(2, "0")}
-              </span>
-              <button
-                type="button"
-                onClick={() => setUserPaused((p) => !p)}
-                className="btn btn-ghost size-11 p-0"
-                aria-label={userPaused ? "Reanudar carrusel" : "Pausar carrusel"}
-                aria-pressed={userPaused}
-              >
-                {userPaused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
-              </button>
-              <button type="button" onClick={() => go(index + 1, 1)} className="btn btn-ghost size-11 p-0" aria-label="Testimonio siguiente">
-                <ChevronRight aria-hidden="true" />
-              </button>
-            </div>
+        {/* Controles del carrusel (solo móvil) */}
+        <div className="mt-4 flex items-center justify-between md:hidden">
+          <button type="button" onClick={() => go(current - 1)} className="btn btn-secondary btn-sm size-11 p-0" aria-label="Testimonio anterior">
+            <ChevronLeft aria-hidden="true" />
+          </button>
+          <div className="flex gap-1.5" aria-hidden="true">
+            {Array.from({ length: total }, (_, i) => (
+              <span key={i} className={cn("h-1.5 rounded-full transition-all", i === current ? "w-6 bg-accent" : "w-1.5 bg-line-2")} />
+            ))}
           </div>
+          <button type="button" onClick={() => go(current + 1)} className="btn btn-secondary btn-sm size-11 p-0" aria-label="Testimonio siguiente">
+            <ChevronRight aria-hidden="true" />
+          </button>
         </div>
+        <p className="sr-only" aria-live="polite">
+          Testimonio {current + 1} de {total}
+        </p>
       </div>
     </section>
   );

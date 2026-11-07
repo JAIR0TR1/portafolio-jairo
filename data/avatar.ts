@@ -49,8 +49,10 @@ export type Expression = "neutral" | "happy" | "curious" | "focus";
 export const sectionRobot: Record<string, { pose: PoseId; expression: Expression }> = {
   "sobre-mi": { pose: "saludo", expression: "neutral" },
   proyectos: { pose: "senala", expression: "curious" },
-  testimonios: { pose: "base", expression: "neutral" },
   experiencia: { pose: "laptop", expression: "focus" },
+  emprendimiento: { pose: "pulgar", expression: "happy" },
+  testimonios: { pose: "base", expression: "neutral" },
+  "trabaja-conmigo": { pose: "senala", expression: "happy" },
   contacto: { pose: "pulgar", expression: "happy" },
   habilidades: { pose: "laptop", expression: "focus" },
 };
@@ -58,8 +60,6 @@ export const sectionRobot: Record<string, { pose: PoseId; expression: Expression
 export type AvatarMode = {
   /** Palabra gigante detrás del personaje. */
   word: string;
-  /** Línea de la columna derecha del Hero. */
-  line: string;
   /** Nombre del grupo de anotaciones. */
   group: string;
   notes: string[];
@@ -69,23 +69,20 @@ export type AvatarMode = {
 export const avatarModes: Record<ModeId, AvatarMode> = {
   jairo: {
     word: "Jairo",
-    line: "Fuera del código: fotos, fútbol, anime y videojuegos.",
-    group: "Hobbies",
-    notes: ["Fotografía y video con iPhone", "Fútbol: LaLiga y Champions", "Anime (Naruto)", "Videojuegos (Black Myth: Wukong)"],
+    group: "Cómo trabajo",
+    notes: ["Aprendo rápido", "Pienso como el usuario", "Visión de negocio", "Resuelvo con IA", "Constante hasta terminar"],
     alt: "Ilustración 3D de Jairo con sudadera negra",
   },
   dev: {
     word: "Código",
-    line: "Escribo TypeScript, React, Next.js y Kotlin.",
-    group: "Lenguajes",
-    notes: ["TypeScript", "JavaScript", "React", "Next.js", "Kotlin", "HTML", "CSS", "Tailwind CSS"],
+    group: "Tecnologías principales",
+    notes: ["Java", "TypeScript", "React", "Next.js", "Spring Boot", "Python", "SQL", "Tailwind"],
     alt: "Robot de Jairo con casco y visor",
   },
   ai: {
     word: "Humano+IA",
-    line: "Construyo con Claude y Gemini, sin perder el criterio humano.",
     group: "IAs que uso",
-    notes: ["Claude / Claude Code", "Google Gemini", "Gemini API (AI Studio)"],
+    notes: ["Claude / Claude Code", "Gemini", "Gemini API – AI Studio"],
     alt: "Jairo mitad humano y mitad robot",
   },
 };

@@ -5,7 +5,7 @@ import { useMediaQuery, useReducedEffects } from "@/lib/effects";
 import { TechIcon } from "./TechIcon";
 import { cn } from "@/lib/cn";
 
-// TODO(Jairo): confirmar que usas cada tecnología (VS Code no está en simple-icons: se usa JavaScript)
+// Logos de fondo: tecnologías de data/skills.ts y de los proyectos.
 const LOGOS = [
   { icon: "typescript", section: "inicio", x: 94, y: 13, size: 60, depth: 1.3 },
   { icon: "react", section: "inicio", x: 94, y: 78, size: 84, depth: 0.7 },
@@ -16,9 +16,9 @@ const LOGOS = [
   { icon: "kotlin", section: "proyectos", x: 4, y: 14, size: 56, depth: 1.3 },
   { icon: "electron", section: "proyectos", x: 96, y: 36, size: 74, depth: 0.8 },
   { icon: "expo", section: "proyectos", x: 3, y: 80, size: 52, depth: 1.6 },
-  { icon: "vite", section: "proyectos", x: 94, y: 86, size: 58, depth: 1.1 },
+  { icon: "java", section: "proyectos", x: 94, y: 86, size: 58, depth: 1.1 },
   { icon: "tailwindcss", section: "habilidades", x: 4, y: 30, size: 68, depth: 1 },
-  { icon: "nodedotjs", section: "habilidades", x: 96, y: 20, size: 58, depth: 1.4 },
+  { icon: "python", section: "habilidades", x: 96, y: 20, size: 58, depth: 1.4 },
   { icon: "vercel", section: "habilidades", x: 93, y: 84, size: 50, depth: 0.9 },
   { icon: "figma", section: "habilidades", x: 6, y: 86, size: 46, depth: 1.7 },
 ] as const;

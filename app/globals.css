@@ -1,30 +1,29 @@
 @import "tailwindcss";
 
-/* ───────────────────────── FICHA TÉCNICA · tokens ─────────────────────────
-   Monocromo casi total. El acento (--accent) cambia con el modo del avatar y SOLO
-   aparece en: halo detrás del avatar, punto del modo activo, puntos de las
-   anotaciones, indicador del menú y estados de foco. */
+/* ───────────────────────── MIDNIGHT AURORA · tokens ─────────────────────────
+   Azul noche con auroras. Cada modo del avatar define un degradado (--grad-a → --grad-b)
+   que usan botones, anotaciones, brillos, la mancha del Hero y la línea de tiempo.
+   --accent = --grad-a (puntos, ojos del robot, foco). Todo se anima al cambiar de modo. */
 
-/* --accent registrada para que el cambio de color se anime en CSS (sin JS por frame) */
-@property --accent {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #7c5cff;
-}
+@property --accent { syntax: "<color>"; inherits: true; initial-value: #8b5cf6; }
+@property --grad-a { syntax: "<color>"; inherits: true; initial-value: #8b5cf6; }
+@property --grad-b { syntax: "<color>"; inherits: true; initial-value: #ec4899; }
 
 @theme {
-  --color-bg: #0a0a0a;
-  --color-card: #111111;
-  --color-ink: #ededed;
-  --color-muted: #8a8a8a;
-  --color-faint: #2a2a2a; /* SOLO texto decorativo (título de fondo), nunca texto que haya que leer */
-  --color-line: rgb(255 255 255 / 0.08);
-  --color-line-2: #2e2e2e;
-  --color-blue: #2d7bff;
-  --color-violet: #7c5cff;
-  --color-magenta: #ff3d9a;
+  --color-bg: #0b1030;
+  --color-bg-2: #10173f;
+  --color-card: #151d4a; /* --surface */
+  --color-card-2: #1c2560; /* --surface-2 */
+  --color-ink: #f3f1ff;
+  --color-muted: #a8a6d9;
+  --color-faint: #2a3270; /* SOLO decorativo */
+  --color-line: rgb(180 190 255 / 0.12);
+  --color-line-2: rgb(180 190 255 / 0.22);
+  --color-blue: #3b82f6;
+  --color-violet: #8b5cf6;
+  --color-magenta: #ec4899;
 
-  --radius-card: 8px;
+  --radius-card: 12px;
   --container-site: 1200px;
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -49,22 +48,37 @@
 
 @theme inline {
   --color-accent: var(--accent);
+  --color-grad-a: var(--grad-a);
+  --color-grad-b: var(--grad-b);
 }
 
-/* Modos del avatar → acento: Jairo violeta (por defecto) · Desarrollador azul · IA magenta */
+/* Modos del avatar → degradado: Jairo violeta→rosa · Desarrollador azul→cian · IA rosa→ámbar */
 :root {
-  --accent: #7c5cff;
+  --bg: #0b1030;
+  --bg-2: #10173f;
+  --surface: #151d4a;
+  --surface-2: #1c2560;
+  --border: rgb(180 190 255 / 0.12);
+  --text: #f3f1ff;
+  --muted: #a8a6d9;
+  --grad-a: #8b5cf6;
+  --grad-b: #ec4899;
+  --accent: var(--grad-a);
+  --grad: linear-gradient(120deg, var(--grad-a), var(--grad-b));
+  /* versión clara del degradado para fondos con texto oscuro (contraste AA ≥ 4.5) */
+  --grad-soft: linear-gradient(120deg, color-mix(in oklab, var(--grad-a) 72%, white), color-mix(in oklab, var(--grad-b) 72%, white));
   --header-h: 76px;
-  transition: --accent 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: --grad-a 0.9s cubic-bezier(0.22, 1, 0.36, 1), --grad-b 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
-:root[data-mode="dev"] { --accent: #2d7bff; }
-:root[data-mode="ai"] { --accent: #ff3d9a; }
+:root[data-mode="dev"] { --grad-a: #3b82f6; --grad-b: #22d3ee; }
+:root[data-mode="ai"] { --grad-a: #ec4899; --grad-b: #f59e0b; }
 
 /* ───────────────────────── base ───────────────────────── */
 
 html {
   background: var(--color-bg);
   color-scheme: dark;
+  background-color: #0b1030;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -86,7 +100,7 @@ body::after {
   inset: 0;
   z-index: 90;
   pointer-events: none;
-  opacity: 0.03;
+  opacity: 0.045;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
@@ -96,7 +110,7 @@ footer[id] {
 }
 
 ::selection {
-  background: rgb(237 237 237 / 0.22);
+  background: color-mix(in oklab, var(--grad-a) 45%, transparent);
   color: var(--color-ink);
 }
 
@@ -153,40 +167,23 @@ footer[id] {
   text-transform: uppercase;
 }
 
-/* Tarjeta plana: fondo #0F0F0F + borde de 1px (sustituye al vidrio) */
+/* Tarjeta: --surface + borde --border (el brillo del degradado lo pone .spotlight al hover) */
 @utility glass {
   position: relative;
   border-radius: var(--radius-card);
   border: 1px solid var(--color-line);
-  --c: #5a5a5a;
-  background:
-    /* esquinas tipo corchete [ ] */
-    linear-gradient(var(--c), var(--c)) left top / var(--k) 1px no-repeat,
-    linear-gradient(var(--c), var(--c)) left top / 1px var(--k) no-repeat,
-    linear-gradient(var(--c), var(--c)) right top / var(--k) 1px no-repeat,
-    linear-gradient(var(--c), var(--c)) right top / 1px var(--k) no-repeat,
-    linear-gradient(var(--c), var(--c)) left bottom / var(--k) 1px no-repeat,
-    linear-gradient(var(--c), var(--c)) left bottom / 1px var(--k) no-repeat,
-    linear-gradient(var(--c), var(--c)) right bottom / var(--k) 1px no-repeat,
-    linear-gradient(var(--c), var(--c)) right bottom / 1px var(--k) no-repeat,
-    /* borde superior que se traza */
-    linear-gradient(#3a3a3a, #3a3a3a) left top / var(--t) 1px no-repeat,
-    var(--color-card);
-  @supports (animation-timeline: view()) {
-    animation: card-draw linear both;
-    animation-timeline: view();
-    animation-range: entry 0% entry 70%;
-  }
+  background: linear-gradient(180deg, rgb(28 37 96 / 0.55), rgb(21 29 74 / 0.75));
 }
 
-/* Spotlight neutro que sigue al cursor (--mx/--my los pone SpotlightTracker). Sin color. */
+/* Hover de tarjetas: luz del modo que sigue al cursor + borde con el degradado */
 @utility spotlight {
   isolation: isolate;
+  transition: transform 0.4s var(--ease-out-expo);
   &::before,
   &::after {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: -1px;
     border-radius: inherit;
     pointer-events: none;
     opacity: 0;
@@ -194,11 +191,11 @@ footer[id] {
   }
   &::before {
     z-index: -1;
-    background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%), rgb(255 255 255 / 0.035), transparent 60%);
+    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), color-mix(in oklab, var(--grad-a) 14%, transparent), transparent 65%);
   }
   &::after {
     padding: 1px;
-    background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), rgb(255 255 255 / 0.28), transparent 65%);
+    background: var(--grad);
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -207,17 +204,8 @@ footer[id] {
     &:hover::before,
     &:hover::after { opacity: 1; }
   }
+  &:focus-within::after { opacity: 1; }
 }
-
-/* Dibujo de las tarjetas (esquinas y borde superior) */
-@property --k { syntax: "<length>"; inherits: false; initial-value: 12px; }
-@property --t { syntax: "<percentage>"; inherits: false; initial-value: 100%; }
-@keyframes card-draw {
-  from { --k: 0px; --t: 0%; }
-  to { --k: 12px; --t: 100%; }
-}
-@media (prefers-reduced-motion: reduce) { .glass { animation: none !important; } }
-:root[data-effects="reduced"] .glass { animation: none !important; }
 
 /* ───────────────────────── botones (un solo sistema) ───────────────────────── */
 
@@ -240,24 +228,27 @@ footer[id] {
   .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .btn svg { width: 1.05em; height: 1.05em; flex-shrink: 0; }
 
+  /* Primario: degradado del modo (versión clara) con texto oscuro → contraste AA */
   .btn-primary {
-    background: var(--color-ink);
-    color: var(--color-bg);
+    background: var(--grad-soft);
+    color: #0b1030;
+    font-weight: 600;
+    box-shadow: 0 6px 24px -10px color-mix(in oklab, var(--grad-a) 70%, transparent);
   }
-  .btn-primary:not(:disabled):hover { background: #ffffff; }
+  .btn-primary:not(:disabled):hover { filter: brightness(1.08) saturate(1.1); }
 
   .btn-secondary {
     background: transparent;
     color: var(--color-ink);
     border: 1px solid var(--color-line-2);
   }
-  .btn-secondary:not(:disabled):hover { border-color: #5a5a5a; background: rgb(255 255 255 / 0.03); }
+  .btn-secondary:not(:disabled):hover { border-color: color-mix(in oklab, var(--grad-a) 70%, transparent); background: rgb(180 190 255 / 0.06); }
 
   .btn-ghost {
     color: var(--color-muted);
     padding-inline: 0.75rem;
   }
-  .btn-ghost:not(:disabled):hover { color: var(--color-ink); background: rgb(255 255 255 / 0.04); }
+  .btn-ghost:not(:disabled):hover { color: var(--color-ink); background: rgb(180 190 255 / 0.08); }
 
   .btn-sm { min-height: 40px; padding: 0.5rem 0.875rem; font-size: 0.875rem; }
 
@@ -279,7 +270,7 @@ footer[id] {
 
   .field {
     width: 100%;
-    border-radius: 6px;
+    border-radius: 8px;
     border: 1px solid var(--color-line-2);
     background: var(--color-card);
     padding: 0.8rem 1rem;
@@ -287,25 +278,14 @@ footer[id] {
     font-size: 1rem;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .field::placeholder { color: #6a6a6a; }
-  .field:hover { border-color: #4a4a4a; }
+  .field::placeholder { color: #8583b8; }
+  .field:hover { border-color: rgb(180 190 255 / 0.35); }
   .field:focus-visible {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent);
   }
   .field[aria-invalid="true"] { border-color: #ff6b8b; }
-}
-
-/* Piso de líneas finas en perspectiva (banner de cierre), sin glow */
-@keyframes grid-move { to { background-position: 0 64px, 0 0; } }
-.grid-floor {
-  background-image:
-    linear-gradient(rgb(237 237 237 / 0.16) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(237 237 237 / 0.12) 1px, transparent 1px);
-  background-size: 100% 64px, 64px 100%;
-  mask-image: linear-gradient(to top, black 5%, transparent 80%);
-  animation: grid-move 5s linear infinite;
 }
 
 @keyframes progress {
@@ -345,11 +325,18 @@ footer[id] {
 
 /* Palabra gigante: degradado vertical + contorno de 1 px (Michroma) */
 .hero-word {
-  background: linear-gradient(180deg, #ededed 0%, rgb(237 237 237 / 0.25) 100%);
+  background: linear-gradient(
+    180deg,
+    #f3f1ff 0%,
+    #d9dbff 32%,
+    color-mix(in oklab, var(--grad-a) 35%, #e6e4ff) 50%,
+    color-mix(in oklab, var(--grad-b) 30%, #b9b8e6) 62%,
+    rgb(243 241 255 / 0.22) 100%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  -webkit-text-stroke: 1px rgb(255 255 255 / 0.12);
+  -webkit-text-stroke: 1px rgb(200 205 255 / 0.16);
   /* espacio para la tilde de la Ó: sin esto queda fuera del área del degradado */
   padding-top: 0.22em;
   margin-top: -0.22em;
@@ -386,8 +373,8 @@ footer[id] {
 }
 
 /* ───────────── Tarjeta del Hero + mancha líquida ───────────── */
-/* Capa oscura (base): degradado #0A0A0A→#111, viñeta + retícula de puntos debajo, grano encima */
-.hero-surface { background: linear-gradient(180deg, #0a0a0a 0%, #111111 100%); }
+/* Capa oscura (base): degradado --bg→--bg-2 con luz del modo, viñeta + retícula de puntos debajo, grano encima */
+.hero-surface { background: radial-gradient(ellipse 60% 55% at 50% 38%, color-mix(in oklab, var(--grad-a) 18%, transparent), transparent 70%), linear-gradient(180deg, #0b1030 0%, #10173f 100%); }
 .hero-surface::before,
 .hero-surface::after {
   content: "";
@@ -397,8 +384,8 @@ footer[id] {
 }
 .hero-surface::before {
   background:
-    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 55%, rgb(0 0 0 / 0.55) 100%),
-    radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.04) 1px, transparent 1.5px) 0 0 / 22px 22px;
+    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 55%, rgb(4 6 24 / 0.6) 100%),
+    radial-gradient(circle at 1px 1px, rgb(200 205 255 / 0.05) 1px, transparent 1.5px) 0 0 / 22px 22px;
 }
 .hero-surface::after {
   z-index: 40;
@@ -408,39 +395,40 @@ footer[id] {
 }
 /* Capa clara (revelada): mismo sistema invertido */
 .hero-revealed {
-  background: linear-gradient(180deg, #f2f2f2 0%, #e6e6e6 100%);
+  background: var(--grad);
   visibility: hidden; /* el JS de la mancha la muestra; sin JS / reduced, nunca se ve */
   clip-path: circle(0px at 50% 50%);
   will-change: clip-path;
 }
 .hero-revealed::before {
   background:
-    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 60%, rgb(0 0 0 / 0.1) 100%),
-    radial-gradient(circle at 1px 1px, rgb(0 0 0 / 0.04) 1px, transparent 1.5px) 0 0 / 22px 22px;
+    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 55%, rgb(11 16 48 / 0.28) 100%),
+    radial-gradient(circle at 1px 1px, rgb(11 16 48 / 0.08) 1px, transparent 1.5px) 0 0 / 22px 22px;
 }
-.hero-revealed::after { opacity: 0.08; }
+.hero-revealed::after { display: none; } /* sin mezcla por frame dentro de la mancha (rendimiento) */
 @media (prefers-reduced-motion: reduce) { .hero-revealed { display: none; } }
 :root[data-effects="reduced"] .hero-revealed { display: none; }
 @media (max-width: 767px) { .hero-surface::after { display: none; } }
 
-/* Tema claro por variables: las utilidades de Tailwind leen var(--color-*) y se invierten solas */
-.theme-light {
-  --color-bg: #f2f2f2;
-  --color-card: #e8e8e8;
-  --color-ink: #0a0a0a;
-  --color-muted: #4f4f4f;
-  --color-faint: #c8c8c8;
-  --color-line: rgb(0 0 0 / 0.1);
-  --color-line-2: #c2c2c2;
+/* Capa revelada: fondo con el degradado del modo y textos en --bg (las utilidades leen var(--color-*)) */
+.theme-grad {
+  --color-bg: rgb(255 255 255 / 0.28);
+  --color-card: rgb(255 255 255 / 0.2);
+  --color-ink: #0b1030;
+  --color-muted: rgb(11 16 48 / 0.78);
+  --color-faint: rgb(11 16 48 / 0.3);
+  --color-line: rgb(11 16 48 / 0.18);
+  --color-line-2: rgb(11 16 48 / 0.32);
   color: var(--color-ink);
-  color-scheme: light;
 }
-.theme-light .hero-word {
-  background-image: linear-gradient(180deg, #0a0a0a 0%, rgb(10 10 10 / 0.45) 100%);
-  -webkit-text-stroke-color: rgb(0 0 0 / 0.14);
+.theme-grad .btn-primary { background: #0b1030; color: #f3f1ff; box-shadow: none; }
+.theme-grad .bg-accent { background-color: #0b1030; }
+.theme-grad .hero-word {
+  background-image: linear-gradient(180deg, #0b1030 0%, rgb(11 16 48 / 0.82) 45%, rgb(11 16 48 / 0.4) 100%);
+  -webkit-text-stroke-color: rgb(11 16 48 / 0.2);
 }
-.theme-light .contact-shadow {
-  background: radial-gradient(closest-side, rgb(0 0 0 / 0.32), rgb(0 0 0 / 0.1) 55%, transparent);
+.theme-grad .contact-shadow {
+  background: radial-gradient(closest-side, rgb(11 16 48 / 0.5), rgb(11 16 48 / 0.18) 55%, transparent);
   box-shadow: none;
 }
 /* Al pasar por el personaje base, el robot revelado también sonríe */
@@ -453,7 +441,7 @@ footer[id] {
   transform-origin: 50% 30%;
   filter: blur(40px) brightness(0.35);
 }
-.hero-ambient-tint { background: var(--accent); mix-blend-mode: color; opacity: 0.7; }
+.hero-ambient-tint { background: var(--grad); opacity: 0.3; -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 40%, #000, transparent 75%); mask-image: radial-gradient(ellipse 60% 55% at 50% 40%, #000, transparent 75%); }
 
 /* Robot «circuito» (capa revelada del modo IA): grises + tinte + rejilla 8 px + scanlines */
 .circuit-img { filter: grayscale(1) contrast(1.7) brightness(1.15); }
@@ -477,13 +465,37 @@ footer[id] {
   animation: scan-move 0.6s linear infinite;
 }
 
-/* Secciones: alternan #0A0A0A / #0E0E0E (semitransparente: los logos de fondo siguen viéndose),
-   separador de 1 px y una luz suave arriba, para que nada sea negro plano */
-main > section:not(#inicio) {
-  border-top: 1px solid var(--color-line);
-  background-image: radial-gradient(ellipse 70% 45% at 50% 0%, rgb(255 255 255 / 0.022), transparent 70%);
+/* Secciones: alternan --bg / --bg-2 con transición en degradado (sin cortes duros).
+   Semitransparentes: las auroras y los logos de fondo siguen viéndose. */
+main > section:not(#inicio):nth-of-type(odd) {
+  background: linear-gradient(180deg, transparent, rgb(16 23 63 / 0.72) 14%, rgb(16 23 63 / 0.72) 86%, transparent);
 }
-main > section:not(#inicio):nth-of-type(odd) { background-color: rgb(255 255 255 / 0.016); }
+
+/* ───────────── Fondo del sitio: auroras + rejilla de puntos + viñeta ───────────── */
+.aurora { position: fixed; inset: 0; z-index: -20; overflow: hidden; pointer-events: none; }
+.aurora-blob {
+  position: absolute;
+  width: 60vmax;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  opacity: 0.32;
+  will-change: transform;
+}
+.aurora-blob:nth-child(1) { left: -18vmax; top: -22vmax; background: radial-gradient(closest-side, var(--grad-a), transparent); animation: aurora-1 24s ease-in-out infinite alternate; }
+.aurora-blob:nth-child(2) { right: -20vmax; top: 18vh; background: radial-gradient(closest-side, var(--grad-b), transparent); opacity: 0.22; animation: aurora-2 28s ease-in-out infinite alternate; }
+.aurora-blob:nth-child(3) { left: 18vw; bottom: -30vmax; background: radial-gradient(closest-side, color-mix(in oklab, var(--grad-a) 50%, #3b82f6), transparent); opacity: 0.2; animation: aurora-3 21s ease-in-out infinite alternate; }
+@keyframes aurora-1 { to { transform: translate(18vw, 14vh) scale(1.15); } }
+@keyframes aurora-2 { to { transform: translate(-16vw, 22vh) scale(0.9); } }
+@keyframes aurora-3 { to { transform: translate(14vw, -18vh) scale(1.1); } }
+.aurora-dots {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 1px 1px, rgb(200 205 255 / 0.06) 1px, transparent 1.5px) 0 0 / 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000, transparent);
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000, transparent);
+}
+.aurora-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 90% 80% at 50% 45%, transparent 55%, rgb(4 6 24 / 0.7)); }
+@media (max-width: 767px) { .aurora-blob { animation: none; } }
 
 /* ───────────── Ojos del robot (por código) ───────────── */
 .robot-eyes svg { fill: currentColor; filter: drop-shadow(0 0 3px var(--accent)); transition: scale 0.3s; }
@@ -566,10 +578,6 @@ main > section:not(#inicio):nth-of-type(odd) { background-color: rgb(255 255 255
   }
 }
 
-/* Anillo de logos en 3D (Habilidades) */
-@keyframes ring-spin { to { transform: rotateY(360deg); } }
-.logo-ring { transform-style: preserve-3d; animation: ring-spin 26s linear infinite; }
-
 /* ───────────── Intro (pantalla en la sala oscura) ───────────── */
 :root[data-intro="webgl"],
 :root[data-intro="css"] { overflow: hidden; }
@@ -604,24 +612,88 @@ main > section:not(#inicio):nth-of-type(odd) { background-color: rgb(255 255 255
 .intro-css-scroll { animation: intro-scroll 4.4s cubic-bezier(0.65, 0, 0.35, 1) both; }
 .intro-css-top { animation: intro-top 4.4s ease both; }
 
-/* Medidores de habilidades: se llenan al entrar en pantalla (scroll-driven, sin JS) */
-@keyframes meter-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-.meter-fill { transform-origin: left center; }
-@supports (animation-timeline: view()) {
-  .meter-fill {
-    animation: meter-grow linear both;
-    animation-timeline: view();
-    animation-range: entry 10% cover 35%;
-  }
-}
-
-/* Móvil: sin filtros SVG de brillo en el avatar (el primer pintado era muy costoso) */
-@media (max-width: 767px) {
-  .avatar-glow { filter: none; }
-}
-
 /* Móvil: sin backdrop-filter ni grano (coste alto de GPU en equipos modestos) */
 @media (max-width: 767px) {
-  [class*="backdrop-blur"] { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  [class*="backdrop-blur"], .nav-capsule { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
   body::after { display: none; }
 }
+
+/* ───────────── Navbar: cápsula flotante de vidrio ───────────── */
+.nav-capsule {
+  background: rgb(21 29 74 / 0.7);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  backdrop-filter: blur(16px) saturate(1.3);
+  border: 1px solid var(--color-line);
+  box-shadow: 0 10px 40px -18px rgb(4 6 24 / 0.9), inset 0 1px 0 rgb(255 255 255 / 0.05);
+}
+@media (max-width: 767px) { .nav-capsule { background: rgb(21 29 74 / 0.94); } }
+/* subrayado animado al hover (no en el activo, que ya tiene píldora) */
+.nav-link:not([aria-current]) .nav-label::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1.5px;
+  border-radius: 2px;
+  background: var(--grad);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s var(--ease-out-expo);
+}
+.nav-link:not([aria-current]):hover .nav-label::after,
+.nav-link:not([aria-current]):focus-visible .nav-label::after { transform: scaleX(1); }
+.menu-sheet {
+  background:
+    radial-gradient(ellipse 80% 50% at 100% 0%, color-mix(in oklab, var(--grad-a) 26%, transparent), transparent 70%),
+    radial-gradient(ellipse 70% 50% at 0% 100%, color-mix(in oklab, var(--grad-b) 18%, transparent), transparent 70%),
+    #0b1030;
+}
+/* Texto con el degradado del modo (títulos destacados) */
+.grad-text {
+  background: var(--grad-soft);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Foto de Sobre mí: borde con el degradado + parallax leve con el scroll */
+.photo-frame { padding: 2px; background: var(--grad); }
+.photo-frame img { border-radius: 14px; }
+@supports (animation-timeline: view()) {
+  .photo-parallax { animation: photo-drift linear both; animation-timeline: view(); scale: 1.08; }
+}
+@keyframes photo-drift { from { translate: 0 -3%; } to { translate: 0 3%; } }
+
+/* Modal de la hoja de vida */
+.cv-dialog::backdrop { background: rgb(4 6 24 / 0.78); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.cv-dialog[open] { animation: dialog-in 0.35s var(--ease-out-expo); }
+@keyframes dialog-in { from { opacity: 0; transform: translateY(12px) scale(0.98); } }
+
+/* Emprendimiento: luz del degradado en la tarjeta principal */
+.biz-glow {
+  position: absolute;
+  right: -30%;
+  top: -40%;
+  width: 90%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--grad-b) 30%, transparent), transparent);
+  pointer-events: none;
+}
+
+/* Habilidades: logos en mosaicos que se iluminan al pasar */
+.skill-tile { background: rgb(11 16 48 / 0.35); transition: border-color 0.3s, transform 0.4s var(--ease-out-expo), background-color 0.3s; }
+.skill-tile svg { filter: drop-shadow(0 0 0 transparent); transition: filter 0.3s; }
+@media (hover: hover) and (pointer: fine) {
+  .skill-tile:hover { border-color: color-mix(in oklab, var(--grad-a) 55%, transparent); background: rgb(28 37 96 / 0.6); transform: translateY(-2px); }
+}
+
+/* Banner de cierre (Contacto) */
+.closing-banner {
+  background:
+    radial-gradient(ellipse 60% 80% at 50% 110%, color-mix(in oklab, var(--grad-a) 32%, transparent), transparent 70%),
+    radial-gradient(ellipse 40% 50% at 85% 0%, color-mix(in oklab, var(--grad-b) 20%, transparent), transparent 70%),
+    var(--color-card);
+}
+.nav-dropdown { background: rgb(21 29 74 / 0.96); }

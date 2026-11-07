@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
 import { Briefcase, GraduationCap } from "lucide-react";
 import { useRef, useState } from "react";
 import { sortedExperience, type Item } from "@/data/experience";
+import { sectionIndex } from "@/data/profile";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { EASE, useReducedEffects } from "@/lib/effects";
 import { cn } from "@/lib/cn";
@@ -28,14 +29,14 @@ export default function Experience() {
       <div className="container-x">
         <SectionHeading
           id="experiencia-title"
-          index="05"
+          index={sectionIndex("experiencia")}
           eyebrow="Experiencia"
           title={
             <>
               Lo que he aprendido y hecho.
             </>
           }
-          description="Formación académica y trabajo, de lo más reciente a lo más antiguo."
+          description="Formación académica y emprendimiento, de lo más reciente a lo más antiguo."
         />
 
         <div className="grid gap-10 lg:grid-cols-12">
@@ -44,7 +45,7 @@ export default function Experience() {
               <div
                 role="radiogroup"
                 aria-label="Tipo de experiencia"
-                className="inline-flex rounded-[8px] border border-line p-1"
+                className="inline-flex rounded-full border border-line p-1"
               >
                 {options.map((o) => {
                   const on = filter === o.id;
@@ -56,14 +57,14 @@ export default function Experience() {
                       aria-checked={on}
                       onClick={() => setFilter(o.id)}
                       className={cn(
-                        "relative min-h-11 rounded-[6px] px-4 text-sm transition-colors",
-                        on ? "text-bg" : "text-muted hover:text-ink",
+                        "relative min-h-11 rounded-full px-4 text-sm transition-colors",
+                        on ? "font-medium text-[#0b1030]" : "text-muted hover:text-ink",
                       )}
                     >
                       {on && (
                         <motion.span
                           layoutId="exp-seg"
-                          className="absolute inset-0 rounded-[6px] bg-ink"
+                          className="absolute inset-0 rounded-full bg-[image:var(--grad-soft)]"
                           transition={{ type: "spring", stiffness: 420, damping: 36 }}
                         />
                       )}
@@ -97,7 +98,7 @@ export default function Experience() {
             <motion.span
               aria-hidden="true"
               style={reduced ? undefined : { scaleY }}
-              className="absolute bottom-2 left-[21px] top-2 w-px origin-top bg-gradient-to-b from-ink via-ink to-transparent"
+              className="absolute bottom-2 left-[20px] top-2 w-[3px] origin-top rounded-full bg-gradient-to-b from-grad-a via-grad-b to-transparent"
             />
 
             <ol className="space-y-6">
@@ -115,7 +116,7 @@ export default function Experience() {
                       transition={{ duration: 0.6, ease: EASE }}
                       className="relative pl-16"
                     >
-                      <span className="absolute left-0 top-5 grid size-11 place-items-center rounded-[6px] border border-line-2 bg-bg text-ink shadow-[0_0_0_6px_var(--color-bg)]">
+                      <span className="absolute left-0 top-5 grid size-11 place-items-center rounded-full bg-[image:var(--grad-soft)] text-[#0b1030] shadow-[0_0_0_6px_var(--color-bg)]">
                         <Icon aria-hidden="true" className="size-[18px]" />
                       </span>
                       <article className="glass spotlight p-6">
@@ -124,7 +125,7 @@ export default function Experience() {
                             <time>{item.date}</time>
                           </span>
                           <span className="font-mono text-xs uppercase tracking-[.14em] text-muted">
-                            {item.type === "academica" ? "Académica" : "Laboral"}
+                            {item.type === "academica" ? "Académica" : "Laboral · Emprendimiento"}
                           </span>
                         </div>
                         <h3 className="mt-4 text-xl font-semibold tracking-[-0.02em]">{item.title}</h3>

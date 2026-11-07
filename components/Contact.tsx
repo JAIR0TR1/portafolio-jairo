@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { AlertCircle, Check, Copy, Loader2, Mail, Send } from "lucide-react";
+import { AlertCircle, ArrowUpRight, Check, Copy, Loader2, Mail, Send } from "lucide-react";
 import { useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { profile, socials, type SocialLink } from "@/data/profile";
 import { SocialGlyph } from "@/components/ui/BrandIcons";
@@ -10,7 +10,8 @@ import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { EASE } from "@/lib/effects";
 import { cn } from "@/lib/cn";
 
-const FORMSPREE_ID = process.env.NEXT_PUBLIC_FORMSPREE_ID; // TODO(Jairo): crear en formspree.io y ponerlo en Vercel
+/** Formulario de contacto solo si existe el id de Formspree (si no, se oculta: «Trabaja conmigo» ya tiene formulario). */
+const FORMSPREE_ID = process.env.NEXT_PUBLIC_FORMSPREE_ID;
 const MAX = 1000;
 
 type Fields = { name: string; email: string; message: string };
@@ -28,10 +29,8 @@ function validate(f: Fields): Partial<Record<keyof Fields, string>> {
 }
 
 const contactLinks: SocialLink[] = [
-  ...socials.filter((s) => s.icon === "mail"),
-  ...(profile.whatsapp
-    ? [{ label: "WhatsApp", handle: `+${profile.whatsapp}`, href: `https://wa.me/${profile.whatsapp}`, icon: "whatsapp" as const }]
-    : []),
+  { label: "Correo", handle: profile.email, href: `mailto:${profile.email}`, icon: "mail" },
+  { label: "WhatsApp", handle: "+57 301 391 7671", href: profile.whatsappHref, icon: "whatsapp" },
   ...socials.filter((s) => s.icon !== "mail"),
 ];
 
@@ -119,7 +118,7 @@ export default function Contact() {
 
         <div className="mt-6 grid gap-4 lg:grid-cols-12">
           {/* Tarjetas de contacto */}
-          <Reveal stagger as="ul" className="flex flex-col gap-3 lg:col-span-5">
+          <Reveal stagger as="ul" className={cn("grid gap-3", FORMSPREE_ID ? "lg:col-span-5" : "md:grid-cols-2 lg:col-span-12")}>
             {contactLinks.map((s) => {
               const isMail = s.icon === "mail";
               const copyValue = isMail ? profile.email : s.href;
@@ -141,30 +140,28 @@ export default function Contact() {
                         {!isMail && <span className="sr-only"> (abre en otra pestaña)</span>}
                       </a>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => copy(copyValue, isMail ? "Correo" : `Enlace de ${s.label}`)}
-                      className="btn btn-secondary btn-sm shrink-0"
-                      aria-label={`Copiar ${isMail ? "correo" : `enlace de ${s.label}`}`}
-                    >
-                      <Copy aria-hidden="true" /> Copiar
-                    </button>
+                    {isMail ? (
+                      <button
+                        type="button"
+                        onClick={() => copy(copyValue, "Correo")}
+                        className="btn btn-secondary btn-sm shrink-0"
+                        aria-label="Copiar correo"
+                      >
+                        <Copy aria-hidden="true" /> Copiar
+                      </button>
+                    ) : (
+                      <a href={s.href} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm shrink-0" aria-label={`Abrir ${s.label} (otra pestaña)`}>
+                        Abrir <ArrowUpRight aria-hidden="true" />
+                      </a>
+                    )}
                   </div>
                 </RevealItem>
               );
             })}
-            <RevealItem as="li">
-              <p className="px-2 pt-2 text-sm text-muted">
-                ¿Prefieres tu propia app?{" "}
-                <a href={`mailto:${profile.email}`} className="text-ink underline underline-offset-4 hover:text-muted">
-                  Escríbeme por correo
-                </a>
-                .
-              </p>
-            </RevealItem>
           </Reveal>
 
-          {/* Formulario */}
+          {/* Formulario (solo con Formspree configurado) */}
+          {FORMSPREE_ID && (
           <Reveal className="lg:col-span-7">
             <div id="formulario" className="glass scroll-mt-28 p-6 md:p-8">
               <h3 className="text-2xl font-semibold tracking-[-0.03em]">Envíame un mensaje</h3>
@@ -246,7 +243,7 @@ export default function Contact() {
                       className="md:col-span-2"
                       aside={
                         <span
-                          className={cn("font-mono text-xs", fields.message.length > MAX ? "text-[#ff8fa8]" : "text-muted")}
+                          className={cn("font-mono text-xs", fields.message.length > MAX ? "text-[#ff9fb8]" : "text-muted")}
                           aria-live="polite"
                         >
                           {fields.message.length} / {MAX}
@@ -284,7 +281,7 @@ export default function Contact() {
                         role="alert"
                         className="flex items-start gap-2 rounded-[6px] border border-[#ff6b8b]/40 bg-[#ff6b8b]/[.08] p-3 text-sm md:col-span-2"
                       >
-                        <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-[#ff8fa8]" />
+                        <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-[#ff9fb8]" />
                         No se pudo enviar (puede ser tu conexión). Tu mensaje sigue aquí: inténtalo de nuevo o
                         escríbeme a {profile.email}.
                       </p>
@@ -315,6 +312,7 @@ export default function Contact() {
               </AnimatePresence>
             </div>
           </Reveal>
+          )}
         </div>
       </div>
 
@@ -369,7 +367,7 @@ function Field({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="flex items-center gap-1.5 text-sm text-[#ff8fa8]"
+            className="flex items-center gap-1.5 text-sm text-[#ff9fb8]"
           >
             <AlertCircle aria-hidden="true" className="size-3.5 shrink-0" /> {error}
           </motion.p>

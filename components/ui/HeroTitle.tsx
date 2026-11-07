@@ -16,7 +16,7 @@ const TYPE: CSSProperties = { fontSize: 100, lineHeight: 0.9, letterSpacing: "-0
  * Palabra gigante detrás del personaje (JAIRO / CÓDIGO / HUMANO+IA) en Michroma.
  * Se mide con la fuente real y se escala para ocupar EXACTAMENTE el ancho del contenedor.
  * Al cambiar de modo, las letras se mezclan (~600 ms) sin cambiar de capa.
- * Decorativa: el h1 real es «Jairo Vallejo Burbano».
+ * Decorativa: el h1 real es el nombre completo.
  */
 export function HeroTitle() {
   const reduced = useReducedEffects();

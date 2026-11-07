@@ -4,9 +4,9 @@ import { useSyncExternalStore } from "react";
 
 /** Los 3 modos del avatar. Cada uno cambia el acento (--accent) de toda la página. */
 export const MODES = [
-  { id: "jairo", label: "Jairo", color: "#7C5CFF" },
-  { id: "dev", label: "Desarrollador", color: "#2D7BFF" },
-  { id: "ai", label: "IA", color: "#FF3D9A" },
+  { id: "jairo", label: "Jairo", color: "#8B5CF6" },
+  { id: "dev", label: "Desarrollador", color: "#3B82F6" },
+  { id: "ai", label: "IA", color: "#EC4899" },
 ] as const;
 
 export type ModeId = (typeof MODES)[number]["id"];

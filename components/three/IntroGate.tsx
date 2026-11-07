@@ -148,7 +148,7 @@ export function IntroGate() {
       {/* Controles (heurística 03: control y libertad) */}
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 md:p-8">
         <p className="hidden font-mono text-xs text-muted md:block">
-          Jairo Vallejo Burbano <span className="text-accent">·</span> Portafolio
+          Jairo Andrés Vallejo Burbano <span className="text-accent">·</span> Portafolio
         </p>
         <div className="ml-auto flex items-center gap-2">
           <button
