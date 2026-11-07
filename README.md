@@ -1,6 +1,6 @@
-# Portafolio de Jairo Vallejo Burbano
+# Portafolio de Jairo Andrés Vallejo Burbano
 
-Portafolio personal de **Jairo Vallejo Burbano**, estudiante de Ingeniería de Software en la Universidad Cooperativa de Colombia (Pasto). Es la entrega del curso **Diseño de Interfaces**.
+Portafolio personal de **Jairo Andrés Vallejo Burbano**, estudiante de Ingeniería de Software en la Universidad Cooperativa de Colombia (Pasto). Es la entrega del curso **Diseño de Interfaces**.
 
 > Dirección de arte **"Obsidian Aurora"**: fondo negro obsidiana con azul, violeta y magenta usados como luz (glows, bordes y halos), más vidrio y un 3D sutil.
 

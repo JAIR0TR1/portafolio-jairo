@@ -1,30 +1,13 @@
 export type Testimonial = {
-  name: string;
-  role: string;
-  text: string;
-  avatar?: string;
-  rating?: number;
+  nombre: string;
+  /** Relación con Jairo, p. ej. «Cliente de @jairovende_» o «Docente de Diseño de Interfaces». */
+  relacion: string;
+  texto: string;
+  tipo: "cliente" | "academico";
+  /** Foto opcional en public/images/testimonios/. Sin foto se muestran iniciales. */
+  foto?: string;
 };
 
-// TODO(Jairo): reemplazar los 3 por testimonios REALES con permiso de cada persona.
-// No se inventan opiniones: el texto queda marcado como pendiente a propósito.
-export const testimonials: Testimonial[] = [
-  {
-    name: "Nombre del docente", // TODO(Jairo)
-    role: "Docente · Universidad Cooperativa de Colombia", // TODO(Jairo)
-    text: "[PENDIENTE: testimonio real] Aquí irá la opinión de un docente sobre un proyecto o entrega de Jairo.",
-    rating: 5,
-  },
-  {
-    name: "Nombre de compañero/a", // TODO(Jairo)
-    role: "Compañero/a de proyecto", // TODO(Jairo)
-    text: "[PENDIENTE: testimonio real] Aquí irá la experiencia de alguien que trabajó con Jairo en equipo.",
-    rating: 5,
-  },
-  {
-    name: "Nombre de cliente", // TODO(Jairo)
-    role: "Cliente · Emprendimiento de celulares", // TODO(Jairo)
-    text: "[PENDIENTE: testimonio real] Aquí irá la opinión de un cliente sobre la atención y el servicio de Jairo.",
-    rating: 5,
-  },
-];
+// TODO(Jairo): agregar mínimo 3 testimonios REALES con permiso de cada persona (la guía lo exige).
+// Mientras la lista esté vacía, la sección muestra 3 tarjetas «Próximamente».
+export const testimonials: Testimonial[] = [];

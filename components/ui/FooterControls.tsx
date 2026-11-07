@@ -18,7 +18,7 @@ export function ReduceEffectsToggle() {
     >
       <span
         aria-hidden="true"
-        className={`relative h-6 w-10 rounded-full border transition-colors ${on ? "border-accent bg-accent/30" : "border-line bg-white/5"}`}
+        className={`relative h-6 w-10 rounded-full border transition-colors ${on ? "border-ink bg-ink/20" : "border-line bg-white/5"}`}
       >
         <span
           className={`absolute left-0 top-0.5 size-[18px] rounded-full bg-ink transition-transform duration-300 ${on ? "translate-x-[18px]" : "translate-x-0.5"}`}

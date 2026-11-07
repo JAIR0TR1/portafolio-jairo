@@ -1,172 +1,104 @@
 "use client";
 
-import Image from "next/image";
-import {
-  AnimatePresence,
-  motion,
-  useAnimate,
-  useMotionValue,
-  useSpring,
-  useTransform,
-  type MotionValue,
-} from "motion/react";
-import { MapPin, Pause, Play } from "lucide-react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { profile, socials } from "@/data/profile";
-import { projects } from "@/data/projects";
-import { MODES, setModeIndex, useModeIndex } from "@/lib/mode";
+import { AnimatePresence, animate, motion, useSpring, useTransform } from "motion/react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { avatarModes } from "@/data/avatar";
+import { MODES, holdCycle, useModeState, type ModeId } from "@/lib/mode";
 import { EASE, useMediaQuery, useReducedEffects } from "@/lib/effects";
-import { AvatarBot } from "./AvatarBot";
-import { SocialGlyph } from "./BrandIcons";
-import { TechIcon } from "./TechIcon";
+import { heroJump, heroPointer } from "@/lib/heroMotion";
+import { createTask } from "@/lib/ticker";
+import { CircuitFigure, JairoAligned, ModeFigure, RobotAligned } from "./ModeAvatar";
+import { HeroOrbit } from "./HeroOrbit";
 import { cn } from "@/lib/cn";
 
-const CYCLE_MS = 6000;
-const tools = [
-  { name: "Next.js", icon: "nextdotjs" },
-  { name: "Figma", icon: "figma" },
-  { name: "Gemini", icon: "googlegemini" },
-];
-const tips = ["Next.js", "Figma", "Gemini"];
+const TILT = 6; // grados máximos de inclinación
+const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
-/** Elemento con parallax según el puntero (depth = cuánto se mueve). */
-function Depth({
-  x,
-  y,
-  depth,
-  className,
-  children,
-}: {
-  x: MotionValue<number>;
-  y: MotionValue<number>;
-  depth: number;
-  className?: string;
-  children: ReactNode;
-}) {
-  const tx = useTransform(x, (v) => v * depth * 18);
-  const ty = useTransform(y, (v) => v * depth * 14);
-  return (
-    <motion.div style={{ x: tx, y: ty }} className={cn("hero-fade", className)}>
-      {children}
-    </motion.div>
-  );
+export type HeroVariant = "base" | "revealed";
+
+/** Personaje de cada capa: A (base) por modo; B (dentro de la mancha) es «lo que hay detrás». */
+function LayerFigure({ id, variant, priority }: { id: ModeId; variant: HeroVariant; priority?: boolean }) {
+  if (variant === "base") return <ModeFigure id={id} priority={priority} className="h-full" />;
+  if (id === "jairo") return <RobotAligned className="h-full" />; // Jairo → su robot
+  if (id === "dev") return <JairoAligned className="h-full" />; // detrás del código, la persona
+  return <CircuitFigure className="h-full" />; // el interior del híbrido
 }
 
-function Tooltip({ x, y, label, i }: { x: MotionValue<number>; y: MotionValue<number>; label: string; i: number }) {
-  const sx = useSpring(x, { stiffness: 260 - i * 70, damping: 24 });
-  const oy = useTransform(y, (v) => v + i * 30);
-  const sy = useSpring(oy, { stiffness: 260 - i * 70, damping: 24 });
-  return (
-    <motion.span
-      style={{ x: sx, y: sy }}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1, transition: { delay: i * 0.06 } }}
-      exit={{ opacity: 0, scale: 0.8 }}
-      className="pointer-events-none absolute left-0 top-0 z-30 whitespace-nowrap rounded-lg border border-white/10 bg-[#0c0c12]/90 px-2 py-1 font-mono text-[11px] text-ink shadow-lg"
-    >
-      <span className="mr-1.5 inline-block size-1.5 rounded-full bg-accent align-middle" />
-      {label}
-    </motion.span>
-  );
-}
-
-export function HeroAvatar() {
+/**
+ * Personaje del Hero DELANTE de la palabra gigante. Se renderiza dos veces:
+ *  - variant="base": capa interactiva (ciclo de modos, puntero, saludo, costura del híbrido).
+ *  - variant="revealed": capa clara dentro de la mancha líquida (pasiva, aria-hidden).
+ * Ambas leen heroPointer/heroJump → misma inclinación, parallax y salto en cada frame.
+ */
+export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
+  const isBase = variant === "base";
   const reduced = useReducedEffects();
   const finePointer = useMediaQuery("(hover: hover) and (pointer: fine)");
-  const index = useModeIndex();
+  const { index, transitionId } = useModeState();
   const mode = MODES[index];
+  const data = avatarModes[mode.id];
+  const isHybrid = mode.id === "ai";
 
-  const [transitionId, setTransitionId] = useState(0);
-  const [deferTick, setDeferTick] = useState(0);
-  const [userPaused, setUserPaused] = useState(false);
-  const [hoverPaused, setHoverPaused] = useState(false);
-  const [inView, setInView] = useState(true);
-  const [hovering, setHovering] = useState(false);
+  const [nearTop, setNearTop] = useState(true);
   const [greeting, setGreeting] = useState(false);
-  const [blink, setBlink] = useState(false);
 
-  const rootRef = useRef<HTMLDivElement>(null);
-  const visualRef = useRef<HTMLDivElement>(null);
+  const figRef = useRef<HTMLDivElement>(null);
   const greetTimer = useRef<number | undefined>(undefined);
-  const [jumpScope, animateJump] = useAnimate();
+  const hovering = useRef(false);
+  const split = useRef({ target: 0.5, current: 0.5, lastInput: 0, dragging: false });
 
-  // Puntero normalizado (-1..1) → inclinación 3D y parallax
-  const px = useMotionValue(0);
-  const py = useMotionValue(0);
-  const sx = useSpring(px, { stiffness: 90, damping: 16 });
-  const sy = useSpring(py, { stiffness: 90, damping: 16 });
-  const rotateY = useTransform(sx, (v) => v * 14);
-  const rotateX = useTransform(sy, (v) => v * -10);
-  // Posición del puntero dentro del avatar (tooltips)
-  const tx = useMotionValue(0);
-  const ty = useMotionValue(0);
+  // Puntero compartido → inclinación con resorte (mismos parámetros en ambas capas)
+  const sx = useSpring(heroPointer.x, { stiffness: 120, damping: 20 });
+  const sy = useSpring(heroPointer.y, { stiffness: 120, damping: 20 });
+  const rotateY = useTransform(sx, (v) => v * TILT);
+  const rotateX = useTransform(sy, (v) => v * -TILT);
 
-  const changeMode = (i: number) => {
-    if (i === index) return;
-    setModeIndex(i);
-    setTransitionId((t) => t + 1);
+  /** Publica el puntero en las dos capas (motion values) y en la sección (CSS vars). */
+  const setParallax = (nx: number, ny: number) => {
+    heroPointer.x.set(nx);
+    heroPointer.y.set(ny);
+    const sec = figRef.current?.closest<HTMLElement>("#inicio");
+    sec?.style.setProperty("--px", nx.toFixed(3));
+    sec?.style.setProperty("--py", ny.toFixed(3));
   };
 
-  // Cambio automático cada 6 s (solo si se ve el Hero y no está en pausa).
-  const paused = userPaused || hoverPaused || reduced || !inView;
-  useEffect(() => {
-    if (paused) return;
-    const t = window.setTimeout(() => {
-      // Mientras se ve la intro, no cambia (el Hero está tapado): se reprograma.
-      if (document.documentElement.dataset.intro) return setDeferTick((n) => n + 1);
-      setModeIndex(index + 1);
-      setTransitionId((n) => n + 1);
-    }, CYCLE_MS);
-    return () => window.clearTimeout(t);
-  }, [index, paused, deferTick]);
+  // El modo solo cambia cuando el usuario pulsa Jairo / Desarrollador / IA (sin ciclo automático).
 
-  // Solo cicla cerca del inicio de la página (no durante el viaje del avatar ni más abajo).
   useEffect(() => {
-    const check = () => setInView(window.scrollY < window.innerHeight * 0.15);
+    if (!isBase) return;
+    const check = () => setNearTop(window.scrollY < window.innerHeight * 0.3);
     check();
     window.addEventListener("scroll", check, { passive: true });
     return () => window.removeEventListener("scroll", check);
-  }, []);
+  }, [isBase]);
 
-  // Parpadeo aleatorio
-  useEffect(() => {
-    if (reduced) return;
-    let t: number;
-    let t2: number;
-    const loop = () => {
-      t = window.setTimeout(() => {
-        setBlink(true);
-        t2 = window.setTimeout(() => setBlink(false), 140);
-        loop();
-      }, 2600 + Math.random() * 2600);
-    };
-    loop();
-    return () => {
-      window.clearTimeout(t);
-      window.clearTimeout(t2);
-    };
-  }, [reduced]);
+  useEffect(
+    () => () => {
+      if (hovering.current) holdCycle(false);
+    },
+    [],
+  );
 
-  // Ojos que siguen al cursor + inclinación (un listener, sin re-render).
+
+  // Mouse: ojos, inclinación, parallax y costura (solo escucha la capa base; un listener).
   useEffect(() => {
-    if (reduced || !finePointer || !inView) return;
+    if (!isBase || reduced || !finePointer || !nearTop) return;
+    const fig = figRef.current;
+    const sec = fig?.closest<HTMLElement>("#inicio");
+    if (!fig || !sec) return;
     let frame = 0;
     let last: PointerEvent | null = null;
     const apply = () => {
       frame = 0;
-      const el = visualRef.current;
-      if (!el || !last) return;
-      const r = el.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height * 0.45;
-      const dx = last.clientX - cx;
-      const dy = last.clientY - cy;
-      el.style.setProperty("--lx", String(Math.max(-12, Math.min(12, dx / 28))));
-      el.style.setProperty("--ly", String(Math.max(-8, Math.min(8, dy / 36))));
-      px.set(Math.max(-1, Math.min(1, dx / (window.innerWidth / 2))));
-      py.set(Math.max(-1, Math.min(1, dy / (window.innerHeight / 2))));
-      tx.set(last.clientX - r.left + 16);
-      ty.set(last.clientY - r.top + 12);
+      if (!last) return;
+      const r = fig.getBoundingClientRect();
+      const dx = last.clientX - (r.left + r.width / 2);
+      const dy = last.clientY - (r.top + r.height * 0.2);
+      sec.style.setProperty("--lx", clamp(dx / (r.width * 1.4), -1, 1).toFixed(3));
+      sec.style.setProperty("--ly", clamp(dy / (r.height * 0.6), -1, 1).toFixed(3));
+      setParallax(clamp(dx / (window.innerWidth / 2), -1, 1), clamp(dy / (window.innerHeight / 2), -1, 1));
+      split.current.target = clamp((last.clientX - r.left) / r.width, 0.18, 0.82);
+      split.current.lastInput = performance.now();
     };
     const onMove = (e: PointerEvent) => {
       last = e;
@@ -177,240 +109,188 @@ export function HeroAvatar() {
       window.removeEventListener("pointermove", onMove);
       cancelAnimationFrame(frame);
     };
-  }, [reduced, finePointer, inView, px, py, tx, ty]);
+    // setParallax solo usa refs y motion values estables
+     
+  }, [isBase, reduced, finePointer, nearTop]);
+
+  // Móvil: parallax con el giroscopio si está disponible (si no, solo idle).
+  useEffect(() => {
+    if (!isBase || reduced || finePointer || !nearTop) return;
+    const onTilt = (e: DeviceOrientationEvent) => {
+      if (e.gamma == null || e.beta == null) return;
+      setParallax(clamp(e.gamma / 30, -1, 1), clamp((e.beta - 45) / 30, -1, 1));
+    };
+    window.addEventListener("deviceorientation", onTilt);
+    return () => window.removeEventListener("deviceorientation", onTilt);
+     
+  }, [isBase, reduced, finePointer, nearTop]);
+
+  // Costura del híbrido (capa base): suavizado hacia el objetivo; sin interacción, oscila lento.
+  useEffect(() => {
+    const el = figRef.current;
+    if (!isBase || !isHybrid || !el) return;
+    if (reduced) {
+      el.style.setProperty("--split", "50%");
+      return;
+    }
+    const s = split.current;
+    const loop = (now: number) => {
+      const idle = !s.dragging && now - s.lastInput > 1800;
+      const paused = document.documentElement.dataset.anim === "paused";
+      const target = idle ? (paused ? s.current : 0.5 + Math.sin(now / 1500) * 0.12) : s.target;
+      s.current += (target - s.current) * (idle ? 0.04 : 0.12);
+      el.style.setProperty("--split", `${(s.current * 100).toFixed(2)}%`);
+    };
+    // rAF compartido; pausado cuando el personaje sale de pantalla o la pestaña se oculta
+    const task = createTask(loop);
+    const io = new IntersectionObserver(([e]) => (e.isIntersecting && !document.hidden ? task.start() : task.stop()));
+    io.observe(el);
+    const onVis = () => (document.hidden ? task.stop() : task.start());
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      task.stop();
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [isBase, isHybrid, reduced]);
+
+  // Táctil: arrastrar sobre el personaje mueve la costura del híbrido.
+  const touchAt = (e: ReactPointerEvent) => {
+    const el = figRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    split.current.target = clamp((e.clientX - r.left) / r.width, 0.18, 0.82);
+    split.current.lastInput = performance.now();
+  };
+  const onPointerDown = (e: ReactPointerEvent) => {
+    if (e.pointerType === "mouse" || reduced) return;
+    split.current.dragging = true;
+    touchAt(e);
+  };
+  const onPointerMove = (e: ReactPointerEvent) => {
+    if (split.current.dragging) touchAt(e);
+  };
+  const endDrag = (e: ReactPointerEvent) => {
+    if (e.pointerType === "mouse") return;
+    split.current.dragging = false;
+    split.current.lastInput = performance.now();
+  };
 
   const greet = () => {
     setGreeting(true);
     window.clearTimeout(greetTimer.current);
     greetTimer.current = window.setTimeout(() => setGreeting(false), 2600);
-    if (!reduced && jumpScope.current) {
-      animateJump(jumpScope.current, { y: [0, -18, 0], rotate: [0, -4, 3, 0] }, { duration: 0.6, ease: EASE });
-    }
+    if (!reduced) animate(heroJump, [0, -14, 0], { duration: 0.5, ease: EASE });
   };
 
-  const avatarSrc = profile.avatars[mode.id];
-  const showExtras = !reduced;
+
+  const handlers = isBase
+    ? {
+        onPointerEnter: (e: ReactPointerEvent) => {
+          if (e.pointerType !== "mouse") return;
+          hovering.current = true;
+          holdCycle(true);
+        },
+        onPointerLeave: (e: ReactPointerEvent) => {
+          if (e.pointerType !== "mouse") return;
+          hovering.current = false;
+          holdCycle(false);
+        },
+        onPointerDown,
+        onPointerMove,
+        onPointerUp: endDrag,
+        onPointerCancel: endDrag,
+      }
+    : {};
 
   return (
-    <div ref={rootRef} className="relative mx-auto flex w-full max-w-[460px] flex-col items-center">
+    <div
+      ref={figRef}
+      data-hero-figure={isBase ? "" : undefined}
+      className="group relative aspect-[765/1024] h-full"
+      style={{ touchAction: "pan-y" }}
+      {...handlers}
+    >
+      {/* Luz del acento detrás del personaje */}
       <div
-        data-avatar-source
-        className="relative w-[min(64vw,250px)] md:w-[320px] lg:w-full"
-        onPointerEnter={() => {
-          setHovering(true);
-          setHoverPaused(true);
-        }}
-        onPointerLeave={() => {
-          setHovering(false);
-          setHoverPaused(false);
-        }}
-      >
-        {/* Tarjetas y chips flotantes (escritorio) */}
-        {showExtras && (
-          <>
-            <Depth x={sx} y={sy} depth={1.4} className="absolute -left-16 bottom-[2%] z-20 hidden xl:-left-24 lg:block">
-              <div className="w-44 rounded-2xl border border-white/10 bg-[#0d0d14]/80 p-3 shadow-[0_20px_40px_-20px_rgb(0_0_0/.9)] backdrop-blur-md">
-                <p className="mb-2 font-mono text-[10px] uppercase tracking-[.16em] text-muted">Herramientas</p>
-                <ul className="space-y-1.5">
-                  {tools.map((t) => (
-                    <li key={t.name} className="flex items-center gap-2 text-[13px]">
-                      <span className="grid size-6 place-items-center rounded-md bg-white/[.06]">
-                        <TechIcon name={t.icon} className="size-3.5" />
-                      </span>
-                      {t.name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </Depth>
-            <Depth x={sx} y={sy} depth={1.8} className="absolute -right-10 bottom-[18%] z-20 hidden xl:-right-16 lg:block">
-              <div className="w-44 rounded-2xl border border-white/10 bg-[#0d0d14]/80 p-3 shadow-[0_20px_40px_-20px_rgb(0_0_0/.9)] backdrop-blur-md">
-                <p className="mb-2 font-mono text-[10px] uppercase tracking-[.16em] text-muted">Redes</p>
-                <ul className="space-y-0.5">
-                  {socials.map((s) => (
-                    <li key={s.label}>
-                      <a
-                        href={s.href}
-                        target={s.icon === "mail" ? undefined : "_blank"}
-                        rel={s.icon === "mail" ? undefined : "noopener noreferrer"}
-                        className="-mx-1 flex min-h-8 items-center gap-2 rounded-md px-1 text-[13px] transition-colors hover:bg-white/[.06]"
-                      >
-                        <SocialGlyph icon={s.icon} className="size-3.5 text-accent" />
-                        {s.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </Depth>
-            <Depth x={sx} y={sy} depth={0.8} className="absolute right-0 top-[6%] z-20 hidden md:block">
-              <span className="chip border-white/15 bg-[#0d0d14]/80 backdrop-blur-md">
-                <span className="text-accent">●</span> {projects.length}+ proyectos
-              </span>
-            </Depth>
-            <Depth x={sx} y={sy} depth={1.1} className="absolute left-0 top-[24%] z-20 hidden md:block">
-              <span className="chip border-white/15 bg-[#0d0d14]/80 backdrop-blur-md">
-                <MapPin aria-hidden="true" className="size-3 text-accent" /> Pasto, CO
-              </span>
-            </Depth>
-          </>
-        )}
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-[30%] -z-10 aspect-square w-[130%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--accent)_18%,transparent),transparent)]"
+      />
 
-        {/* Globo de saludo */}
-        <AnimatePresence>
-          {greeting && (
-            <motion.p
-              role="status"
-              initial={{ opacity: 0, y: 10, scale: 0.8 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 6, scale: 0.9 }}
-              transition={{ type: "spring", stiffness: 420, damping: 24 }}
-              className="absolute right-[54%] top-[3%] z-30 origin-bottom-right whitespace-nowrap rounded-2xl rounded-br-sm bg-ink px-4 py-2 text-sm font-semibold text-bg shadow-[0_10px_30px_-8px_var(--accent)]"
-            >
-              ¡Hola! Soy Jairo
-            </motion.p>
-          )}
-        </AnimatePresence>
+      {/* Anotaciones en órbita alrededor del personaje (detrás: z-5 · delante: z-20) */}
+      <HeroOrbit notes={data.notes} modeId={mode.id} isBase={isBase} />
 
-        {/* Visual: flota, se inclina y cambia de personaje a través del orbe */}
-        <div className={cn(!reduced && "md:animate-float")}>
-          <motion.div
-            ref={visualRef}
-            style={reduced ? undefined : { rotateX, rotateY, transformPerspective: 900 }}
-            className="relative aspect-[400/460] w-full"
+      {/* Globo de saludo (solo la capa base) */}
+      <AnimatePresence>
+        {isBase && greeting && (
+          <motion.p
+            role="status"
+            initial={{ opacity: 0, y: 10, scale: 0.85 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 420, damping: 24 }}
+            className="absolute left-[58%] top-[3%] z-30 origin-bottom-left whitespace-nowrap rounded-[6px] rounded-bl-none bg-ink px-3 py-1.5 text-[13px] font-semibold text-bg"
           >
-            <div
-              ref={jumpScope}
-              role="img"
-              aria-label={`Avatar de Jairo en modo ${mode.label}: un personaje con casco y ojos de luz`}
-              className="absolute inset-0"
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={mode.id}
-                  className="absolute inset-0 origin-[50%_45%]"
-                  initial={reduced ? { opacity: 0 } : { scale: 0.2, opacity: 0, filter: "blur(10px) brightness(3)" }}
-                  animate={
-                    reduced
-                      ? { opacity: 1, transition: { duration: 0.3 } }
-                      : {
-                          scale: 1,
-                          opacity: 1,
-                          filter: "blur(0px) brightness(1)",
-                          transition: {
-                            delay: 0.12,
-                            scale: { type: "spring", stiffness: 240, damping: 15, mass: 0.9 },
-                            default: { duration: 0.4, ease: EASE },
-                          },
-                        }
-                  }
-                  exit={
-                    reduced
-                      ? { opacity: 0, transition: { duration: 0.2 } }
-                      : {
-                          scale: 0.2,
-                          opacity: 0,
-                          filter: "blur(10px) brightness(3)",
-                          transition: { duration: 0.34, ease: [0.55, 0, 0.75, 0] },
-                        }
-                  }
-                >
-                  {avatarSrc ? (
-                    <Image src={avatarSrc} alt="" fill sizes="(min-width: 1024px) 440px, 320px" className="object-contain" />
-                  ) : (
-                    <AvatarBot uid={`hero-${mode.id}`} color={mode.color} blinking={blink} className="h-full w-full" />
-                  )}
-                </motion.div>
-              </AnimatePresence>
+            ¡Hola! Soy Jairo
+          </motion.p>
+        )}
+      </AnimatePresence>
 
-              {/* Orbe de luz blanca entre personajes */}
-              {!reduced && transitionId > 0 && (
-                <motion.span
-                  key={transitionId}
-                  aria-hidden="true"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: [0.1, 0.8, 0.95, 0.6, 0], opacity: [0, 1, 1, 0.9, 0] }}
-                  transition={{ duration: 0.95, times: [0, 0.3, 0.5, 0.7, 1], ease: "easeInOut" }}
-                  className="pointer-events-none absolute left-1/2 top-[45%] size-[46%] -translate-x-1/2 -translate-y-1/2 rounded-full"
-                  style={{
-                    background: `radial-gradient(closest-side, #fff 0%, #fff 22%, color-mix(in oklab, ${mode.color} 70%, white) 45%, transparent 75%)`,
-                    boxShadow: `0 0 80px 30px color-mix(in oklab, ${mode.color} 45%, transparent)`,
-                  }}
-                />
-              )}
-            </div>
-
-            {/* Clic = saludar (botón real, accesible con teclado) */}
-            <button
-              type="button"
-              onClick={greet}
-              aria-label="Saludar a Jairo"
-              className="absolute inset-[12%] z-10 cursor-pointer rounded-full"
-            />
-
-            {/* Mini‑etiquetas que siguen al cursor */}
-            <AnimatePresence>
-              {hovering && finePointer && !reduced
-                ? tips.map((t, i) => <Tooltip key={t} label={t} i={i} x={tx} y={ty} />)
-                : null}
-            </AnimatePresence>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Selector de modo (visible: heurísticas 3 y 6) */}
-      <div className="hero-fade relative z-20 mt-5 flex flex-col items-center gap-3">
-        <div
-          role="group"
-          aria-label="Elige un modo"
-          className="flex items-center gap-1 rounded-full border border-line bg-[#0c0c12]/80 p-1 backdrop-blur-md"
-          onFocusCapture={() => setHoverPaused(true)}
-          onBlurCapture={() => setHoverPaused(false)}
-        >
-          {MODES.map((m, i) => {
-            const on = i === index;
-            return (
-              <button
-                key={m.id}
-                type="button"
-                aria-pressed={on}
-                onClick={() => changeMode(i)}
-                className={cn(
-                  "relative flex min-h-10 items-center gap-1.5 rounded-full px-3 text-[13px] transition-colors",
-                  on ? "text-ink" : "text-muted hover:text-ink",
-                )}
+      {/* Personaje: idle continuo (flota, respira, se balancea) + inclinación con resorte */}
+      <div className={cn("relative z-10 h-full", !reduced && "idle-float")}>
+        <div className={cn("h-full", !reduced && "idle-breathe")}>
+          <div className={cn("h-full", !reduced && "idle-sway")}>
+            <motion.div style={reduced ? undefined : { rotateX, rotateY, transformPerspective: 1100 }} className="relative h-full">
+              <motion.div
+                style={{ y: heroJump }}
+                role={isBase ? "img" : undefined}
+                aria-label={isBase ? data.alt : undefined}
+                className="absolute inset-0"
               >
-                {on && (
+                {/* Cambio de modo: crossfade de 400 ms (solo opacidad y escala, sin filtros) */}
+                <AnimatePresence initial={false}>
+                  <motion.div
+                    key={mode.id}
+                    className="absolute inset-0 origin-[50%_60%]"
+                    initial={{ opacity: 0, scale: reduced ? 1 : 0.97 }}
+                    animate={{ opacity: 1, scale: 1, transition: { duration: reduced ? 0.2 : 0.4, ease: EASE } }}
+                    exit={{ opacity: 0, scale: reduced ? 1 : 1.02, transition: { duration: reduced ? 0.2 : 0.4, ease: EASE } }}
+                  >
+                    <LayerFigure id={mode.id} variant={variant} priority={isBase && index === 0} />
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Orbe de luz blanca entre personajes */}
+                {!reduced && transitionId > 0 && (
                   <motion.span
-                    layoutId="mode-pill"
-                    className="absolute inset-0 rounded-full border border-white/10 bg-white/[.08]"
-                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                    key={transitionId}
+                    aria-hidden="true"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: [0.1, 0.8, 0.95, 0.6, 0], opacity: [0, 1, 1, 0.9, 0] }}
+                    transition={{ duration: 0.95, times: [0, 0.3, 0.5, 0.7, 1], ease: "easeInOut" }}
+                    className="pointer-events-none absolute left-1/2 top-[22%] aspect-square w-[46%] -translate-x-1/2 -translate-y-1/2 rounded-full"
+                    style={{
+                      background: `radial-gradient(closest-side, #fff 0%, #fff 22%, color-mix(in oklab, ${mode.color} 70%, white) 45%, transparent 75%)`,
+                      boxShadow: `0 0 80px 30px color-mix(in oklab, ${mode.color} 45%, transparent)`,
+                    }}
                   />
                 )}
-                <span
-                  aria-hidden="true"
-                  className="relative size-2 rounded-full"
-                  style={{ background: m.color, boxShadow: on ? `0 0 10px ${m.color}` : undefined }}
+              </motion.div>
+
+              {/* Clic en la cabeza = saludar (botón real, accesible con teclado; solo capa base) */}
+              {isBase && (
+                <button
+                  type="button"
+                  onClick={greet}
+                  aria-label="Saludar a Jairo"
+                  className="absolute left-[37%] top-[5%] z-10 h-[23%] w-[26%] cursor-pointer rounded-full"
                 />
-                <span className="relative">{m.label}</span>
-              </button>
-            );
-          })}
-          <button
-            type="button"
-            onClick={() => setUserPaused((p) => !p)}
-            aria-pressed={userPaused}
-            aria-label={userPaused ? "Reanudar cambio automático de modo" : "Pausar cambio automático de modo"}
-            className="grid size-10 place-items-center rounded-full text-muted transition-colors hover:bg-white/5 hover:text-ink"
-          >
-            {userPaused ? <Play aria-hidden="true" className="size-3.5" /> : <Pause aria-hidden="true" className="size-3.5" />}
-          </button>
+              )}
+            </motion.div>
+          </div>
         </div>
-        <p className="font-mono text-[11px] text-muted">
-          {finePointer ? "Mueve el mouse · toca para saludar" : "Toca el avatar para saludar"}
-        </p>
       </div>
+
     </div>
   );
 }
-

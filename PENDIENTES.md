@@ -8,75 +8,28 @@ npm run check:content -- --write
 
 ## Lo más importante (antes de entregar)
 
-1. **Correo, GitHub y LinkedIn reales** → `data/profile.ts` (no inventé direcciones).
-2. **CV real** → reemplaza `public/cv.pdf` (el actual dice "CV pendiente").
-3. **3 testimonios reales con permiso** → `data/testimonials.ts` (hoy dicen `[PENDIENTE: testimonio real]`).
-4. **Links de GitHub y demo de cada proyecto** → `data/projects.ts`. La guía exige ambos: si un proyecto no tiene web, usa un video (YouTube/Drive) o una landing en Vercel.
-5. **Foto** → guárdala en `public/images/jairo.webp` y pon `photo: "/images/jairo.webp"` en `data/profile.ts`.
-6. **Avatares PNG** (fondo transparente) → `public/avatar/dev.png`, `design.png`, `ai.png`. Mientras no estén, se usa un avatar SVG provisional original.
-7. **Formulario**: crea un formulario gratis en formspree.io y en Vercel agrega la variable `NEXT_PUBLIC_FORMSPREE_ID`. Sin ella, el formulario abre la app de correo (mailto).
-8. **Experiencia**: nombre del emprendimiento, años, semestre, cursos.
-9. **Habilidades y niveles**: confirma que sean honestos (`data/skills.ts`) y revisa los logos de fondo (`components/ui/TechBackdrop.tsx`). VS Code no existe en simple-icons, así que se usó JavaScript.
-10. **Textura de la intro**: cada vez que cambies contenido visible, ejecuta `npm run build`, luego `npm start` y, en otra terminal, `npm run intro:texture`, para que la pantalla de la intro muestre el sitio actualizado.
-11. **Checklist de 10 preguntas** (`docs/evaluacion-heuristica.md`): ajusta la redacción a la del PDF del curso.
-12. **Rendimiento**: tras publicar en Vercel, mide en https://pagespeed.web.dev (móvil). En local, Lighthouse dio Performance ≈ 60 con mucha variación por la GPU por software del entorno (ver README).
-13. **Publicar**: `git push` a GitHub e importar en Vercel (comandos en el README).
-14. (Opcional, no hecho) Paleta de comandos Ctrl/⌘+K.
+1. **3 testimonios reales con permiso** → `data/testimonials.ts` (campos `nombre`, `relacion`, `texto`, `tipo: "cliente" | "academico"`). La guía exige mínimo 3. Mientras la lista esté vacía, la sección muestra 3 tarjetas «Próximamente» (solo aceptable en la rama `minimal`).
+2. **CV real** → reemplaza `public/cv.pdf` (el actual es de relleno: dice "CV pendiente"). Se usa en «Descargar CV» y en el modal «Ver hoja de vida».
+3. **Proyecto adicional** → agrégalo al final de `projects` en `data/projects.ts` (no se muestran tarjetas vacías).
+4. **Proyectos**:
+   - Capturas en `public/images/proyectos/` y campo `image` en `data/projects.ts` (sin imagen se dibuja una portada por código).
+   - Repositorio y demo de **Cazador de Objetos**, **StudyFlow** y **Library Management System** (no encontré repos con esos nombres en github.com/JAIR0TR1; por ahora no muestran botones). La guía pide GitHub y demo en cada proyecto.
+   - Demos de Escudo Guardián y Brasa (son apps de escritorio y reloj: sirve un video o una landing en Vercel).
+5. **Fotos de clientes** (opcional) → `public/images/clientes/` con permiso de cada cliente. Vacía = el bloque de fotos no se muestra (los 2 videos sí).
+6. **Subtítulos de los videos de clientes** (accesibilidad, opcional) → archivos `.vtt` junto a cada video.
+7. **Más flyers** → `public/images/negocio/`. Para un texto alternativo propio, agrégalo en `alts` de `data/business.ts` (si no, se usa el nombre del archivo).
+8. **Formulario de Contacto (opcional)**: crea un formulario en formspree.io y agrega `NEXT_PUBLIC_FORMSPREE_ID` en Vercel. Sin esa variable, el formulario de Contacto se oculta; el de «Trabaja conmigo» (WhatsApp/correo) siempre está.
+9. **Textura de la intro**: cada vez que cambies contenido visible, ejecuta `npm run build`, luego `npm start` y, en otra terminal, `npm run intro:texture`.
+10. **Rendimiento real**: mide la vista previa de Vercel en https://pagespeed.web.dev (móvil). En local, Lighthouse dio Rendimiento 65–69 y Accesibilidad 100; el entorno local dibuja sin GPU y penaliza el LCP.
+11. **Imagen del robot**: el visor del casco trae un brillo violeta propio de la imagen (no es código; se ve en los 3 modos). Si quieres quitarlo, edítalo en `assets/avatar/*.png` y corre `npm run avatars`.
+12. **Publicar a producción**: la rama `minimal` tiene vista previa en Vercel; se une a `main` solo con tu autorización.
 
 ## Lista automática (archivo y línea)
 
 <!-- AUTO:INICIO -->
 | Archivo | Línea | Qué falta |
 | --- | --- | --- |
-| `components/About.tsx` | 18 | confirmar |
-| `components/Contact.tsx` | 13 | crear en formspree.io y ponerlo en Vercel |
-| `components/ui/AvatarBot.tsx` | 15 | reemplazar por los PNG de /public/avatar (dev.png, design.png, ai.png). |
-| `components/ui/TechBackdrop.tsx` | 8 | confirmar que usas cada tecnología (VS Code no está en simple-icons: se usa JavaScript) |
-| `data/experience.ts` | 12 | confirmar fechas, nombres y logros de cada ítem. |
-| `data/experience.ts` | 18 | meses exactos |
-| `data/experience.ts` | 26 | nombre del emprendimiento |
-| `data/experience.ts` | 27 | año de inicio |
-| `data/experience.ts` | 29 | logros concretos |
-| `data/experience.ts` | 36 | año de inicio y semestre |
-| `data/experience.ts` | 43 | nombre del curso o certificación |
-| `data/experience.ts` | 44 | completar: place: "[Plataforma o institución]", |
-| `data/experience.ts` | 45 | completar: date: "[año]", |
-| `data/experience.ts` | 46 | completar: description: "Describe en una línea qué aprendiste o qué construiste." |
-| `data/profile.ts` | 18 | semestre actual, ej. "7.º semestre" |
-| `data/profile.ts` | 19 | confirmar intereses |
-| `data/profile.ts` | 22 | revisar el párrafo |
-| `data/profile.ts` | 25 | "/avatar/dev.png" |
-| `data/profile.ts` | 26 | "/avatar/design.png" |
-| `data/profile.ts` | 27 | "/avatar/ai.png" |
-| `data/profile.ts` | 29 | foto en /public/images/jairo.webp y poner aquí la ruta |
-| `data/profile.ts` | 31 | correo real |
-| `data/profile.ts` | 33 | número de WhatsApp (opcional) |
-| `data/profile.ts` | 34 | URL de tu GitHub |
-| `data/profile.ts` | 35 | completar: githubHandle: "@TODO-usuario", |
-| `data/profile.ts` | 36 | URL de tu LinkedIn |
-| `data/profile.ts` | 37 | completar: linkedinHandle: "in/TODO-usuario", |
-| `data/projects.ts` | 13 | confirmar descripciones, etiquetas, años, estados y enlaces de cada proyecto. |
-| `data/projects.ts` | 15 | tu usuario de GitHub |
-| `data/projects.ts` | 23 | completar: github: ${GH}/escudo-guardian, |
-| `data/projects.ts` | 24 | demo real o video |
-| `data/projects.ts` | 34 | completar: github: ${GH}/brasa, |
-| `data/projects.ts` | 35 | demo real o video |
-| `data/projects.ts` | 45 | completar: github: ${GH}/cazador-de-objetos, |
-| `data/projects.ts` | 46 | demo real o video |
-| `data/projects.ts` | 56 | completar: github: ${GH}/studyflow, |
-| `data/projects.ts` | 57 | completar: demo: "https://studyflow.vercel.app", |
-| `data/projects.ts` | 67 | completar: github: ${GH}/library-management-system, |
-| `data/projects.ts` | 68 | completar: demo: "https://library-management-system.vercel.app", |
-| `data/projects.ts` | 78 | completar: github: ${GH}/reproductor-musica, |
-| `data/projects.ts` | 79 | completar: demo: "https://reproductor-musica.vercel.app", |
-| `data/skills.ts` | 24 | confirmar tecnologías y niveles honestos de cada una. |
-| `data/skills.ts` | 70 | confirmar. |
-| `data/testimonials.ts` | 9 | reemplazar los 3 por testimonios REALES con permiso de cada persona. |
-| `data/testimonials.ts` | 13 | completar: name: "Nombre del docente", |
-| `data/testimonials.ts` | 14 | completar: role: "Docente · Universidad Cooperativa de Colombia", |
-| `data/testimonials.ts` | 19 | completar: name: "Nombre de compañero/a", |
-| `data/testimonials.ts` | 20 | completar: role: "Compañero/a de proyecto", |
-| `data/testimonials.ts` | 25 | completar: name: "Nombre de cliente", |
-| `data/testimonials.ts` | 26 | completar: role: "Cliente · Emprendimiento de celulares", |
+| `data/projects.ts` | 20 | repositorio y demo de Cazador de Objetos, StudyFlow y Library Management System. |
+| `data/testimonials.ts` | 11 | agregar mínimo 3 testimonios REALES con permiso de cada persona (la guía lo exige). |
 | `scripts/make-cv.mjs` | 1 | reemplazar por tu CV real. |
 <!-- AUTO:FIN -->

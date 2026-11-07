@@ -1,71 +1,69 @@
 export type Skill = {
   name: string;
-  /** 0–100, solo para dibujar el medidor. Se muestra como Aprendiendo / Cómodo / Fuerte. */
-  level: number;
-  /** Clave del logo en components/ui/TechIcon.tsx */
-  icon?: string;
+  /** Clave del logo en components/ui/TechIcon.tsx (simple-icons). */
+  icon: string;
 };
 
-export type SkillCategory = {
+export type SkillGroup = {
   id: string;
   title: string;
-  blurb: string;
   skills: Skill[];
 };
 
-export type Level = "Aprendiendo" | "Cómodo" | "Fuerte";
-
-export function levelLabel(level: number): Level {
-  if (level >= 75) return "Fuerte";
-  if (level >= 45) return "Cómodo";
-  return "Aprendiendo";
-}
-
-// TODO(Jairo): confirmar tecnologías y niveles honestos de cada una.
-export const skillCategories: SkillCategory[] = [
+/** Habilidades por grupo, sin niveles ni porcentajes. */
+export const skillGroups: SkillGroup[] = [
   {
-    id: "frontend",
-    title: "Frontend",
-    blurb: "Interfaces web rápidas, accesibles y con buen movimiento.",
+    id: "lenguajes",
+    title: "Lenguajes",
     skills: [
-      { name: "React", level: 80, icon: "react" },
-      { name: "TypeScript", level: 70, icon: "typescript" },
-      { name: "Next.js", level: 60, icon: "nextdotjs" },
-      { name: "Tailwind CSS", level: 75, icon: "tailwindcss" },
+      { name: "Java", icon: "java" },
+      { name: "TypeScript", icon: "typescript" },
+      { name: "JavaScript", icon: "javascript" },
+      { name: "Python", icon: "python" },
+      { name: "SQL", icon: "sql" },
+      { name: "Kotlin", icon: "kotlin" },
     ],
   },
   {
-    id: "movil",
-    title: "Móvil y escritorio",
-    blurb: "Apps que viven fuera del navegador: teléfono, reloj y PC.",
+    id: "frontend",
+    title: "Frontend",
     skills: [
-      { name: "Expo / React Native", level: 55, icon: "expo" },
-      { name: "Kotlin · Wear OS", level: 50, icon: "kotlin" },
-      { name: "Electron", level: 60, icon: "electron" },
+      { name: "React", icon: "react" },
+      { name: "Next.js", icon: "nextdotjs" },
+      { name: "Tailwind CSS", icon: "tailwindcss" },
+      { name: "HTML", icon: "html5" },
+      { name: "CSS", icon: "css" },
     ],
   },
   {
     id: "backend",
-    title: "Backend e IA",
-    blurb: "Servidores sencillos y modelos de IA conectados a productos reales.",
+    title: "Backend y datos",
     skills: [
-      { name: "Node.js", level: 55, icon: "nodedotjs" },
-      { name: "Gemini API", level: 60, icon: "googlegemini" },
-      { name: "SQL", level: 50, icon: "mysql" },
-      { name: "Vercel", level: 65, icon: "vercel" },
+      { name: "Spring Boot", icon: "springboot" },
+      { name: "PostgreSQL", icon: "postgresql" },
+      { name: "MongoDB", icon: "mongodb" },
     ],
   },
   {
-    id: "diseno",
-    title: "Diseño",
-    blurb: "Del boceto al prototipo, con criterio de usabilidad.",
+    id: "herramientas",
+    title: "Herramientas",
     skills: [
-      { name: "Figma", level: 70, icon: "figma" },
-      { name: "Heurísticas de Nielsen", level: 65 },
-      { name: "Prototipado", level: 60 },
+      { name: "Git", icon: "git" },
+      { name: "GitHub", icon: "github" },
+      { name: "Figma", icon: "figma" },
+      { name: "Jira", icon: "jira" },
+      { name: "Vercel", icon: "vercel" },
+    ],
+  },
+  {
+    id: "ia",
+    title: "IA en mi flujo",
+    skills: [
+      { name: "Claude", icon: "claude" },
+      { name: "Gemini", icon: "googlegemini" },
     ],
   },
 ];
 
-/** Chips de "Con lo que trabajo" en Sobre mí. TODO(Jairo): confirmar. */
-export const aboutTech = ["React", "TypeScript", "Next.js", "Tailwind", "Kotlin", "Electron", "Expo", "Figma", "Git"];
+/** IAs que usa (cuenta real para la barra de cifras del Hero). */
+export const aiTools = skillGroups.find((g) => g.id === "ia")?.skills ?? [];

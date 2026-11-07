@@ -12,7 +12,7 @@ type Props = {
 
 /**
  * Avatar PROVISIONAL original: casco con visor oscuro, dos ojos emisivos y antena que pulsa.
- * TODO(Jairo): reemplazar por los PNG de /public/avatar (dev.png, design.png, ai.png).
+ * Respaldo SVG: solo se usa si falta alguna imagen de public/avatar.
  */
 export function AvatarBot({ color = "var(--accent)", blinking = false, className, style, uid = "a" }: Props) {
   const id = (s: string) => `${uid}-${s}`;

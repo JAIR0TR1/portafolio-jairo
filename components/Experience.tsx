@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
 import { Briefcase, GraduationCap } from "lucide-react";
 import { useRef, useState } from "react";
 import { sortedExperience, type Item } from "@/data/experience";
+import { sectionIndex } from "@/data/profile";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { EASE, useReducedEffects } from "@/lib/effects";
 import { cn } from "@/lib/cn";
@@ -28,14 +29,14 @@ export default function Experience() {
       <div className="container-x">
         <SectionHeading
           id="experiencia-title"
-          index="04"
+          index={sectionIndex("experiencia")}
           eyebrow="Experiencia"
           title={
             <>
-              Lo que he <span className="serif-accent text-accent">aprendido</span> y hecho.
+              Lo que he aprendido y hecho.
             </>
           }
-          description="Formación académica y trabajo, de lo más reciente a lo más antiguo."
+          description="Formación y emprendimiento, de lo más reciente a lo más antiguo."
         />
 
         <div className="grid gap-10 lg:grid-cols-12">
@@ -44,7 +45,7 @@ export default function Experience() {
               <div
                 role="radiogroup"
                 aria-label="Tipo de experiencia"
-                className="inline-flex rounded-full border border-line bg-white/[.03] p-1"
+                className="inline-flex rounded-full border border-line p-1"
               >
                 {options.map((o) => {
                   const on = filter === o.id;
@@ -56,14 +57,14 @@ export default function Experience() {
                       aria-checked={on}
                       onClick={() => setFilter(o.id)}
                       className={cn(
-                        "relative min-h-11 rounded-full px-4 text-sm transition-colors",
-                        on ? "text-bg" : "text-muted hover:text-ink",
+                        "relative min-h-11 rounded-full px-4 text-small transition-colors",
+                        on ? "font-medium text-[var(--btn-fg)]" : "text-muted hover:text-ink",
                       )}
                     >
                       {on && (
                         <motion.span
                           layoutId="exp-seg"
-                          className="absolute inset-0 rounded-full bg-ink"
+                          className="absolute inset-0 rounded-full bg-[image:var(--grad-soft)]"
                           transition={{ type: "spring", stiffness: 420, damping: 36 }}
                         />
                       )}
@@ -78,16 +79,13 @@ export default function Experience() {
                   { icon: Briefcase, label: "Laboral", n: sortedExperience.filter((i) => i.type === "laboral").length },
                 ].map(({ icon: Icon, label, n }) => (
                   <div key={label} className="p-5">
-                    <dt className="flex items-center gap-2 text-sm text-muted">
-                      <Icon aria-hidden="true" className="size-4 text-accent" /> {label}
+                    <dt className="flex items-center gap-2 text-small text-muted">
+                      <Icon aria-hidden="true" className="size-4 text-muted" /> {label}
                     </dt>
                     <dd className="mt-2 font-mono text-3xl tracking-tight">{String(n).padStart(2, "0")}</dd>
                   </div>
                 ))}
               </dl>
-              <p className="mt-4 hidden text-sm text-muted lg:block">
-                Usa los filtros para ver solo un tipo. La línea se dibuja a medida que bajas.
-              </p>
             </div>
           </div>
 
@@ -97,7 +95,7 @@ export default function Experience() {
             <motion.span
               aria-hidden="true"
               style={reduced ? undefined : { scaleY }}
-              className="absolute bottom-2 left-[21px] top-2 w-px origin-top bg-gradient-to-b from-accent via-accent to-transparent shadow-[0_0_10px_var(--accent)]"
+              className="absolute bottom-2 left-[20px] top-2 w-[3px] origin-top rounded-full bg-gradient-to-b from-grad-a via-grad-b to-transparent"
             />
 
             <ol className="space-y-6">
@@ -108,14 +106,14 @@ export default function Experience() {
                     <motion.li
                       key={item.title + item.start}
                       layout
-                      initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
-                      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                      exit={{ opacity: 0, filter: "blur(6px)" }}
+                      initial={{ opacity: 0, y: 16 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
                       viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-                      transition={{ duration: 0.6, ease: EASE }}
+                      transition={{ duration: 0.4, ease: EASE }}
                       className="relative pl-16"
                     >
-                      <span className="absolute left-0 top-5 grid size-11 place-items-center rounded-full border border-white/15 bg-bg text-accent shadow-[0_0_0_6px_var(--color-bg)]">
+                      <span className="absolute left-0 top-5 grid size-11 place-items-center rounded-full bg-[image:var(--grad-soft)] text-[var(--btn-fg)] shadow-[0_0_0_6px_var(--color-bg)]">
                         <Icon aria-hidden="true" className="size-[18px]" />
                       </span>
                       <article className="glass spotlight p-6">
@@ -123,13 +121,13 @@ export default function Experience() {
                           <span className="chip text-muted">
                             <time>{item.date}</time>
                           </span>
-                          <span className="font-mono text-xs uppercase tracking-[.14em] text-accent">
-                            {item.type === "academica" ? "Académica" : "Laboral"}
+                          <span className="text-label text-muted">
+                            {item.type === "academica" ? "Académica" : "Laboral · Emprendimiento"}
                           </span>
                         </div>
-                        <h3 className="mt-4 text-xl font-semibold tracking-[-0.02em]">{item.title}</h3>
-                        <p className="mt-1 text-[15px] text-ink/80">{item.place}</p>
-                        <p className="mt-3 text-pretty text-[15px] leading-relaxed text-muted">{item.description}</p>
+                        <h3 className="mt-4 text-h3">{item.title}</h3>
+                        <p className="mt-1 text-body text-ink/80">{item.place}</p>
+                        <p className="mt-3 text-pretty text-body text-muted">{item.description}</p>
                       </article>
                     </motion.li>
                   );

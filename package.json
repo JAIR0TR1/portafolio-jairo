@@ -11,7 +11,8 @@
     "cv": "node scripts/make-cv.mjs",
     "shots": "node scripts/screenshots.mjs",
     "typecheck": "tsc --noEmit",
-    "intro:texture": "node scripts/make-intro-texture.mjs"
+    "intro:texture": "node scripts/make-intro-texture.mjs",
+    "avatars": "node scripts/prepare-avatars.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

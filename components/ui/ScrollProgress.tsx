@@ -10,7 +10,7 @@ export function ScrollProgress() {
     <motion.div
       aria-hidden="true"
       style={{ scaleX }}
-      className="fixed inset-x-0 top-0 z-[60] h-[2px] origin-left bg-gradient-to-r from-accent via-[color-mix(in_oklab,var(--accent)_60%,white)] to-accent shadow-[0_0_12px_var(--accent)]"
+      className="fixed inset-x-0 top-0 z-[60] h-px origin-left bg-ink"
     />
   );
 }

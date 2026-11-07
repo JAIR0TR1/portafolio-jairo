@@ -2,83 +2,72 @@ export type Project = {
   title: string;
   description: string;
   tags: string[];
-  github: string;
-  demo: string;
+  /** Repositorio en GitHub. Si falta, no se muestra el botón. */
+  github?: string;
+  /** Demo publicada (Vercel). Si falta, no se muestra el botón. */
+  demo?: string;
+  /** Captura en public/images/proyectos/. Sin imagen se dibuja una portada por código. */
   image?: string;
   status?: "publicado" | "en-desarrollo";
   year?: number;
   accent?: string;
 };
 
-// TODO(Jairo): confirmar descripciones, etiquetas, años, estados y enlaces de cada proyecto.
-// La guía exige link de GitHub Y de Vercel/Demo en todos: si no hay web, usa un video o landing.
-const GH = "https://github.com/TODO-usuario"; // TODO(Jairo): tu usuario de GitHub
+const GH = "https://github.com/JAIR0TR1";
 
+// Capturas reales en public/images/proyectos/ (1280×800, webp 85) para los proyectos con demo;
+// los demás muestran una portada ilustrada con su nombre y el ícono de su tecnología.
+// TODO(Jairo): repositorio y demo de Cazador de Objetos, StudyFlow y Library Management System.
+// Proyecto adicional: agrégalo al final de esta lista (se mostrará solo cuando exista).
 export const projects: Project[] = [
   {
     title: "Escudo Guardián",
     description:
-      "App de escritorio con un asistente de IA (Gemini) integrado. Interfaz hecha en React y TypeScript sobre Electron.",
+      "App de escritorio contra el fraude digital: Nilo, una criatura guardiana, analiza mensajes y enlaces y avisa con un semáforo.",
     tags: ["Electron", "React", "TypeScript", "Gemini"],
-    github: `${GH}/escudo-guardian`, // TODO(Jairo)
-    demo: "https://escudo-guardian.vercel.app", // TODO(Jairo): demo real o video
+    github: `${GH}/DDIS-GUARDIAN-SHIELD`,
     status: "publicado",
-    year: 2025,
-    accent: "#2D7BFF",
+    year: 2026,
   },
   {
     title: "Brasa",
     description:
-      "App para smartwatch Wear OS escrita en Kotlin, con un servidor en Vercel que conecta funciones de IA.",
-    tags: ["Kotlin", "Wear OS", "Vercel", "IA"],
-    github: `${GH}/brasa`, // TODO(Jairo)
-    demo: "https://brasa.vercel.app", // TODO(Jairo): demo real o video
+      "Mascota de fuego para Wear OS que lee pasos y pulso para ayudarte a moverte, calmarte o descansar.",
+    tags: ["Kotlin", "Wear OS", "Compose"],
+    github: `${GH}/brasa-wear-os`,
     status: "publicado",
-    year: 2025,
-    accent: "#FF7A3D",
-  },
-  {
-    title: "Cazador de Objetos",
-    description:
-      "App móvil hecha con Expo que convierte la búsqueda de objetos en un juego. Todavía en desarrollo.",
-    tags: ["Expo", "React Native", "TypeScript"],
-    github: `${GH}/cazador-de-objetos`, // TODO(Jairo)
-    demo: "https://cazador-de-objetos.vercel.app", // TODO(Jairo): demo real o video
-    status: "en-desarrollo",
     year: 2026,
-    accent: "#C6FF3D",
-  },
-  {
-    title: "StudyFlow",
-    description:
-      "Organizador de estudio: tareas, sesiones de enfoque y progreso en un solo lugar.",
-    tags: ["React", "TypeScript", "Vite"],
-    github: `${GH}/studyflow`, // TODO(Jairo)
-    demo: "https://studyflow.vercel.app", // TODO(Jairo)
-    status: "publicado",
-    year: 2025,
-    accent: "#7C5CFF",
-  },
-  {
-    title: "Library Management System",
-    description:
-      "Sistema para gestionar una biblioteca: préstamos, inventario de libros y usuarios.",
-    tags: ["Java", "SQL"],
-    github: `${GH}/library-management-system`, // TODO(Jairo)
-    demo: "https://library-management-system.vercel.app", // TODO(Jairo)
-    status: "publicado",
-    year: 2024,
-    accent: "#3DE8FF",
   },
   {
     title: "Reproductor de música",
     description:
-      "Reproductor con lista de canciones, controles y una interfaz pensada para usarse con una mano.",
-    tags: ["React", "JavaScript", "CSS"],
-    github: `${GH}/reproductor-musica`, // TODO(Jairo)
-    demo: "https://reproductor-musica.vercel.app", // TODO(Jairo)
+      "Reproductor interactivo cuya playlist es una lista doblemente enlazada: siguiente, anterior y orden en tiempo real.",
+    tags: ["React", "TypeScript", "Estructuras de datos"],
+    github: `${GH}/TALLER-REPRODUCTOR-DE-MUSICA-`,
+    demo: "https://taller-reproductor-de-musica-psi.vercel.app",
+    image: "/images/proyectos/reproductor-de-musica.webp",
+    status: "publicado",
+    year: 2026,
+  },
+  {
+    title: "Cazador de Objetos",
+    description: "App móvil hecha con Expo que convierte la búsqueda de objetos en un juego.",
+    tags: ["Expo", "React Native", "TypeScript"],
+    status: "en-desarrollo",
+    year: 2026,
+  },
+  {
+    title: "StudyFlow",
+    description: "Organizador de estudio: tareas, sesiones de enfoque y progreso en un solo lugar.",
+    tags: ["React", "TypeScript", "Vite"],
+    status: "publicado",
+    year: 2025,
+  },
+  {
+    title: "Library Management System",
+    description: "Sistema para gestionar una biblioteca: préstamos, inventario de libros y usuarios.",
+    tags: ["Java", "SQL"],
     status: "publicado",
     year: 2024,
-    accent: "#FF3D9A",
   },
 ];

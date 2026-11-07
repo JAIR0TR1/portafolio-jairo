@@ -1,4 +1,4 @@
-# Portafolio — Jairo Vallejo Burbano
+# Portafolio — Jairo Andrés Vallejo Burbano
 
 @AGENTS.md
 
@@ -6,28 +6,43 @@ Entrega del curso "Diseño de Interfaces" (UCC). Límite: 8 nov 2026. Se calific
 
 ## Guía del curso (innegociable)
 - Next.js 16 (App Router) + TypeScript + Tailwind v4 (`@theme` en `app/globals.css`) + Vercel desde repo público.
-- `app/page.tsx` EXACTO: `<Navbar />` + `<main>` con Hero, About, Projects, Testimonials, Experience, Contact, Skills + `<Footer />`.
-- Ids fijos: `inicio, sobre-mi, proyectos, testimonios, experiencia, contacto, habilidades`, footer `footer`. `<html lang="es" className="scroll-smooth" data-scroll-behavior="smooth">`.
-- Componentes en `components/*.tsx` (nombres fijos); extras en `components/ui/` y `components/three/`. Datos tipados en `data/`.
-- Requisitos: Navbar sticky + hamburguesa; Hero con nombre grande, rol, avatar, frase, `<a href="/cv.pdf" download>` + botón secundario; Sobre mí (párrafo 3–5 líneas, foto, tecnologías, datos rápidos); Proyectos con `.map()`, imagen, tags, GitHub y Demo con `target="_blank" rel="noopener noreferrer"`, grid 1→2–3 col; ≥3 testimonios; experiencia académica Y laboral con fechas, línea vertical, reciente→antiguo; contacto con correo, LinkedIn, GitHub, formulario (required, type=email, confirmación, "use client"); footer con nombre, © `new Date().getFullYear()`, redes, enlaces, volver arriba, "Hecho con Next.js + Tailwind"; Habilidades antes del footer.
+- `app/page.tsx` en este orden (decisión de Jairo, nov 2026): `<Navbar />` + `<main>` con Hero, About, Projects, Experience, Emprendimiento, Testimonials, TrabajaConmigo, Contact, Skills + `<Footer />`.
+- Ids fijos: `inicio, sobre-mi, proyectos, experiencia, emprendimiento, testimonios, trabaja-conmigo, contacto, habilidades`, footer `footer`. `<html lang="es" className="scroll-smooth" data-scroll-behavior="smooth">`. El orden y los números «0X» salen de `sections` en `data/profile.ts` (`sectionIndex`).
+- Componentes en `components/*.tsx` (uno por sección); extras en `components/ui/` y `components/three/`. Datos tipados en `data/` (profile, projects, experience, testimonials, skills, business, services, avatar).
+- Requisitos: Navbar sticky + hamburguesa; Hero con nombre grande, rol, avatar, frase, `<a href="/cv.pdf" download>` + botones secundarios; Sobre mí (párrafo, foto real tal cual 3/4, datos clave, intereses, hoja de vida con modal); Proyectos con `.map()`, imagen, tags, GitHub y Demo con `target="_blank" rel="noopener noreferrer"` (botón oculto si falta el enlace); ≥3 testimonios (tipo cliente/académico); experiencia académica Y laboral con fechas, línea vertical; Emprendimiento @jairovende_ (sección extra: flyers con lightbox y videos de clientes 9/16 de `public/videos/clientes/`); Trabaja conmigo (formulario validado → WhatsApp o correo, "use client"); contacto con correo (copiar), WhatsApp, GitHub, Instagram — SIN LinkedIn en todo el sitio; formulario de Contacto solo con `NEXT_PUBLIC_FORMSPREE_ID`; footer con nombre, © `new Date().getFullYear()`, redes, enlaces, volver arriba, "Hecho con Next.js + Tailwind"; Habilidades antes del footer, sin niveles ni porcentajes, con el anillo 3D de logos (`LogoRing`) como protagonista.
 
-## Dirección de arte "Obsidian Aurora"
-- Negro obsidiana `#06060A`; el color es LUZ (glows, bordes, halos), no relleno. Vidrio sin backdrop-blur grande. Grano sutil.
-- Tokens: ink `#F4F3FA`, muted `#9A98AD`, line `rgb(255 255 255/.1)`, blue `#2D7BFF`, violet `#7C5CFF`, magenta `#FF3D9A`. `--accent` (registrada con `@property`) cambia por modo: `html[data-mode=design|ai]`.
-- Tipos: Geist (display, tracking −0.045em), Instrument Serif cursiva solo 1 palabra por título (`serif-accent`), Geist Mono para etiquetas (`text-eyebrow`).
-- Utilidades propias: `container-x`, `section-y`, `glass`, `spotlight` (+ `SpotlightTracker` global), `glow-accent`, `.btn .btn-primary|secondary|ghost`, `.chip`, `.field`.
-- Motion: `motion/react`, easing `[.22,1,.36,1]`, `<Reveal>`/`<RevealItem>` (y24, blur8, 0.6 s, stagger 0.08). Hover lift −4 px + glow.
+## Dirección de arte «Ember & Steel» + «Jairo y su robot» (rama `minimal`)
+- Base negra común: `--bg #0B0B0D · --bg-2 #111114 · --surface #17171C · --surface-2 #1F1F26 · --border rgba(255,255,255,.08) · --text #F5F3F0 · --muted #A3A1A8`. Marca: `--fire-a #FF5A1F → --fire-b #FFB020`, `--steel #2F6BFF`, `--red #E5383B` (Tailwind `fire-a`, `fire-b`, `steel`, `red`).
+- Por modo (variables `@property`, 600 ms): `--accent`/`--accent-2` (dominante: resplandor del Hero, palabra gigante, indicador), `--accent-text` (texto, `text-accent`), `--detail` (`text-detail`), `--btn-a`/`--btn-b`/`--btn-fg` (botón primario y píldoras; usar `text-[var(--btn-fg)]`). Jairo: fuego + detalles azul · Desarrollador: azul + detalles naranja · IA: duotono rojo/azul + detalles ámbar. Contraste AA ≥ 5 en todo. Números de sección alternan dominante/detalle.
+- El modo SOLO cambia cuando el usuario pulsa Jairo / Desarrollador / IA (sin ciclo automático); `chooseMode` lo guarda en localStorage (`MODE_KEY`) y el script de arranque lo aplica antes del primer pintado.
+- Intro: solo 3D (`IntroGate` + `IntroScene`), también en celular (tablet vertical, captura `intro/site-mobile.webp` 390×844@3, cámara cercana, menos luces, 30 fps, dpr ≤ 2). Mientras carga: fondo + nombre en fade (sin «Cargando»). Si WebGL no existe, falla o no está lista en 10 s, se entra directo al sitio. Celular: timeline de 3 s; dpr [1,2] y antialias en ambos. Texturas: `intro/site.webp` (Hero 2880×1800 q90, cierre del zoom) y `intro/site-scroll.webp` (1200×4400, scroll), filtrado lineal + anisotropía máxima, precargadas. Regenerar con `npm run intro:texture` y reiniciar `npm start` (archivos nuevos en public/).
+- Pausa global (WCAG 2.2.2): un solo `PauseButton` junto a los chips de modo + `lib/motion.ts`; `<html data-anim="paused">` detiene órbita, avatar, anillo de logos, chispas y robot flotante en su posición actual. Se guarda en localStorage (`PAUSE_KEY`) e inicia en pausa con «Reducir efectos» o prefers-reduced-motion.
+- Primer render: `.hero-in` solo anima transform; la palabra gigante ya sale ajustada al ancho con unidades de contenedor (`NATURAL` en HeroTitle). La Ó de «CÓDIGO» es O + `.hero-acute` (la tilde nativa de Michroma quedaba alta y suelta).
+- Mancha líquida: dentro todo es claro (`.theme-grad`: fondo #F7F5F0, texto #0B0B0D, palabra en metal oscuro, chips/secundarios oscuros, primario con el acento).
+- Anotaciones en órbita (`HeroOrbit`): 2 elipses inclinadas (~65°) en sentidos opuestos, 55 s por vuelta, hasta 12 etiquetas (6 y una órbita en móvil) que rotan cada 8 s; detrás: escala .85, opacidad .45, z-5, sin blur; cápsula --surface 80 % + --border; repulsión del cursor con resorte; hover (solo mouse) pausa. Móvil: 5 etiquetas a la altura del torso, sin superponerse. Un solo rAF en la capa base mueve las etiquetas de ambas capas.
+- Modo IA: la palabra gigante es «JAIRO.IA».
+- Sistema: espaciado ×8; secciones 72/96/128 px (`section-y`); contenido máx. 1200 px. Escala única: `text-h2` (Michroma 40/48), `text-h3` (24/32), `text-body` (17/28), `text-small` (14/22), `text-label` (mono 12/16, solo etiquetas y cifras); máx. 65–70 caracteres. Radios: 12 (botones, chips, campos) · 20 (tarjetas `.glass`) · 28 (Hero). Botones 48 px (44 móvil). Encabezado idéntico: `SectionHeading` (etiqueta «0X / Sección», H2, subtítulo de una línea).
+- Menos es más: fuera del Hero solo entradas sutiles (`Reveal`: fade + 16 px, 400 ms, stagger 60 ms, una vez); `.spotlight` = borde del acento al hover. Sin logos de fondo, sin títulos que se decodifican, sin textos de instrucción.
+- Fondo: radial del acento detrás del personaje (.22), viñeta, grano .04 y rejilla de puntos tenue (`Aurora` sin auroras).
+- Navbar: cápsula de vidrio (blur 16, surface 70 %), píldora del acento (`layoutId="nav-pill"`), subrayado al hover; <1400 px secundarios en «Más»; móvil a pantalla completa. Riel del Hero: GitHub, Instagram, WhatsApp, correo.
+- Tipos: Michroma (`font-hero`, `text-display`) para la palabra gigante y títulos; Archivo para párrafos; JetBrains Mono en mayúsculas para etiquetas y cifras. La Ó es el glifo nativo de Michroma (NFC) con `padding-top:.22em` en `.hero-word` (relleno metálico con reflejo del degradado).
+- Imágenes: originales en `assets/avatar/*.png` (765×1024) → `npm run avatars` → `public/avatar/*.webp` q90 + `robot-cabeza.webp`. next/image `quality={90}`. Fotos/galerías se leen de `public/images/...` al compilar (`lib/publicImages.ts`, `existsSync`); si faltan, el bloque se oculta.
+- `data/avatar.ts`: poses del robot con ojos en % (`Eyes`), `HYBRID`, textos/anotaciones por modo (Jairo: virtudes; Desarrollador: tecnologías; IA: IAs), pose por sección (`sectionRobot`).
+- Hero en tarjeta (radio 28) en dos capas: (A) ESCENA `[data-hero-stage]` (palabra + personaje + órbita) donde vive la mancha: la copia revelada `.theme-grad` (#F7F5F0, textos #0B0B0D; aria-hidden, inert, pointer-events none en todo) está DENTRO del escenario, así que nunca cubre la interfaz; `HeroBlob` escucha solo el escenario (al pasar a la interfaz se encoge). (B) INTERFAZ (textos, chips, pausa, botones, cifras) por encima con z-30, una sola copia. Personaje B: Jairo→robot, Desarrollador→Jairo, IA→`CircuitFigure`. Cambio de modo: crossfade 400 ms (opacidad/escala). Celular: escena → chips+pausa → saludo, nombre, rol, frase → botones a ancho completo → cifras (orden con `max-lg:contents`/`order`); avatar ≈ 45 % del alto.
+- Animación por JS con un único rAF compartido (`lib/ticker.ts`): órbita, mancha y costura del híbrido; todo pausado fuera de pantalla y con la pestaña oculta.
+- Robot: ≥1024 px columna fija a la derecha (`RobotCompanion`, completo en todas las secciones); <1024 px `SectionRobot` dentro de cada encabezado (pose de `sectionRobot` + burbuja de `sectionBubble`, ~120 px, entrada con rebote, flota; sin robot flotante).
+- Motion: `motion/react`, easing `[.22,1,.36,1]`. Modales con `<dialog>` nativo (`CvViewer`, `Gallery`).
 
 ## Reglas técnicas
-- Orden/nombres de page.tsx intocables · ids fijos · datos en `data/` tipados.
-- Todo efecto con fallback y reduced-motion: usa `useReducedEffects()` de `lib/effects.ts` (sistema + toggle del footer, guardado en localStorage). No `setState` síncrono en efectos (lint de React Compiler): usa `useSyncExternalStore`.
+- ids fijos · datos en `data/` tipados · cifras del Hero calculadas desde los datos.
+- Todo efecto con fallback y reduced-motion: `useReducedEffects()` de `lib/effects.ts`. No `setState` síncrono en efectos: usa `useSyncExternalStore`.
 - 3D con `next/dynamic` `ssr:false`, sin assets 3D externos, dpr [1,1.5].
 - `cacheComponents` APAGADO en next.config (por `new Date()` del footer).
-- Claves compartidas server/client en `lib/keys.ts` (no importar constantes desde archivos "use client" en server components).
-- Sin claves en el repo. `NEXT_PUBLIC_FORMSPREE_ID` opcional (sin él, el form usa mailto).
-- Lo desconocido va como `TODO(Jairo)`; nunca inventar testimonios ni datos de contacto. `npm run check:content -- --write` regenera la tabla de PENDIENTES.md.
+- Claves compartidas server/client en `lib/keys.ts`.
+- Sin claves en el repo. Lo desconocido va como `TODO(Jairo)` y en PENDIENTES.md; nunca inventar testimonios ni datos. `npm run check:content -- --write` regenera la tabla de PENDIENTES.md.
 
 ## Fases
-F1 base ✔ → F2 avatar + modos ✔ → F3 storytelling ✔ → F4 intro 3D ✔ → F5 logos de fondo + auditoría UX + pulido ✔. (P2 paleta Ctrl+K: no hecha.)
+F1–F5 ✔ · mancha líquida ✔ · secciones nuevas ✔ · pulido profesional ✔ · Tres mundos + órbitas ✔ · Ember & Steel + celular ✔.
+Celular: avatar al 70 % del escenario, botones a ancho completo, chips/pausa ≥ 44 px, márgenes de 20 px, zonas seguras (`viewport-fit=cover`), mancha solo mientras el dedo toca (gesto vertical = scroll), galería con swipe.
 Notas: tras cualquier `npm run build`, reinicia `npm start` antes de capturas (hashes de CSS). R3F: regla react-hooks/immutability apagada solo en components/three. Móvil: sin hero-in, backdrop-filter, grano ni TechBackdrop (rendimiento).
-Cada fase: `npm run build`, `npm run lint`, `npx tsc --noEmit`, capturas `npm run shots -- <dir>` (con `npm start` corriendo) en 390/768/1440, 2 rondas, commit convencional en español.
+Verificación: `npm run build`, `npm run lint`, `npx tsc --noEmit`, capturas con Playwright en 390/768/1024/1440, commit convencional en español. Nunca merge a `main` sin OK de Jairo.

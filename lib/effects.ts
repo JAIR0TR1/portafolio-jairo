@@ -35,8 +35,18 @@ export function setReduceEffects(value: boolean) {
   } catch {
     /* modo privado: solo afecta a esta visita */
   }
-  document.documentElement.dataset.effects = value ? "reduced" : "full";
+  const d = document.documentElement.dataset;
+  d.effects = value ? "reduced" : "full";
+  // sincronizado con la pausa de animaciones: reducir efectos = pausar; quitarlo = reanudar
+  if (value) d.anim = "paused";
+  else if (!window.matchMedia(RM_QUERY).matches) delete d.anim;
+  try {
+    localStorage.setItem("jv-pausa", value ? "1" : "0");
+  } catch {
+    /* sin almacenamiento */
+  }
   listeners.forEach((l) => l());
+  window.dispatchEvent(new Event("jv-motion"));
 }
 
 /** Preferencia guardada por el usuario (toggle del footer). */
