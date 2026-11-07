@@ -50,8 +50,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1C0A10",
+  themeColor: "#0B0B0D",
   colorScheme: "dark",
+  viewportFit: "cover", // zonas seguras del iPhone (env(safe-area-inset-*))
 };
 
 

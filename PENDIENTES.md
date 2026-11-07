@@ -29,8 +29,7 @@ npm run check:content -- --write
 <!-- AUTO:INICIO -->
 | Archivo | Línea | Qué falta |
 | --- | --- | --- |
-| `data/projects.ts` | 18 | capturas de cada proyecto en public/images/proyectos/ (campo image). |
-| `data/projects.ts` | 19 | repositorio y demo de Cazador de Objetos, StudyFlow y Library Management System. |
+| `data/projects.ts` | 20 | repositorio y demo de Cazador de Objetos, StudyFlow y Library Management System. |
 | `data/testimonials.ts` | 11 | agregar mínimo 3 testimonios REALES con permiso de cada persona (la guía lo exige). |
 | `scripts/make-cv.mjs` | 1 | reemplazar por tu CV real. |
 <!-- AUTO:FIN -->

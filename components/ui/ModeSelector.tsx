@@ -27,7 +27,7 @@ export function ModeSelector() {
             aria-pressed={on}
             onClick={() => chooseMode(i)}
             className={cn(
-              "flex min-h-10 items-center gap-2 rounded-[6px] border px-3 text-[13px] transition-colors",
+              "flex min-h-11 items-center gap-2 rounded-[12px] border px-3.5 text-small transition-colors md:min-h-10",
               on ? "border-accent/60 text-ink" : "border-line-2 text-muted hover:border-accent/50 hover:text-ink",
             )}
           >

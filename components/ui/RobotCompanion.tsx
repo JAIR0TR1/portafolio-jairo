@@ -138,6 +138,30 @@ function MiniBot() {
   const { afterHero, dir } = useScrollState();
   const btnRef = useRef<HTMLButtonElement>(null);
   const [peek, setPeek] = useState(false);
+  const [fast, setFast] = useState(false);
+
+  // Scroll rápido: el mini robot se esconde un momento (no distrae ni tapa al leer)
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let lastT = performance.now();
+    let timer = 0;
+    const on = () => {
+      const now = performance.now();
+      const v = Math.abs(window.scrollY - lastY) / Math.max(1, now - lastT); // px/ms
+      lastY = window.scrollY;
+      lastT = now;
+      if (v > 1.6) {
+        setFast(true);
+        window.clearTimeout(timer);
+        timer = window.setTimeout(() => setFast(false), 450);
+      }
+    };
+    window.addEventListener("scroll", on, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", on);
+      window.clearTimeout(timer);
+    };
+  }, []);
 
   // Si debajo hay texto o un botón, se esconde casi entero en el margen.
   useEffect(() => {
@@ -157,7 +181,7 @@ function MiniBot() {
       ];
       // Se mide en la posición visible (no en la escondida)
       const hit = pts.some(([x, y]) =>
-        document.elementsFromPoint(x - (peek ? r.width - 12 : 0), y).some((el) => {
+        document.elementsFromPoint(x, y).some((el) => {
           if (btn.contains(el) || el === btn) return false;
           if (el.closest("[aria-hidden='true']")) return false;
           return CONTENT_TAGS.has(el.tagName.toUpperCase());
@@ -185,9 +209,9 @@ function MiniBot() {
       aria-label="Volver arriba"
       onClick={() => window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" })}
       className={cn(
-        "group fixed bottom-4 right-1 z-40 size-14 overflow-hidden rounded-[8px] border border-line-2 bg-bg transition-[translate,opacity] duration-500 ease-[var(--ease-out-expo)] lg:hidden",
-        afterHero ? "opacity-100" : "pointer-events-none translate-y-6 opacity-0",
-        peek && "translate-x-[calc(100%-12px)]",
+        "group fixed bottom-[calc(16px+env(safe-area-inset-bottom))] right-[calc(12px+env(safe-area-inset-right))] z-40 size-14 overflow-hidden rounded-[12px] border border-line-2 bg-bg transition-[translate,opacity] duration-500 ease-[var(--ease-out-expo)] lg:hidden",
+        // nunca cortado en el borde: si tapa texto/botones o hay scroll rápido, se oculta completo
+        afterHero && !peek && !fast ? "opacity-100" : "pointer-events-none translate-y-6 opacity-0",
       )}
       style={{ ["--ly" as string]: reduced ? 0 : dir * 0.7 }}
     >

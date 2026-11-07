@@ -144,14 +144,11 @@ export function IntroGate() {
         </SceneBoundary>
       </div>
 
-      {/* Indicador discreto mientras carga la escena */}
+      {/* Mientras carga la escena: solo el fondo con el nombre haciendo fade */}
       {!ready && (
-        <div role="status" className="absolute inset-0 grid place-items-center">
-          <span className="flex items-center gap-3 text-label text-muted">
-            <span aria-hidden="true" className="intro-loader" />
-            Cargando
-          </span>
-        </div>
+        <p aria-hidden="true" className="intro-name absolute inset-0 grid place-items-center px-6 text-center font-hero text-[clamp(14px,2.2vw,22px)] uppercase tracking-[0.18em] text-ink">
+          Jairo Andrés Vallejo Burbano
+        </p>
       )}
 
       {/* Controles (heurística 03: control y libertad) */}

@@ -153,7 +153,7 @@ export default function Projects() {
                 className={cn(
                   "relative min-h-11 rounded-full border px-4 text-small transition-colors",
                   on
-                    ? "border-transparent font-medium text-white"
+                    ? "border-transparent font-medium text-[var(--btn-fg)]"
                     : "border-line text-muted hover:border-accent/50 hover:text-ink",
                 )}
               >
@@ -169,7 +169,7 @@ export default function Projects() {
             );
           })}
           <p
-            className="ml-auto self-center text-label text-muted"
+            className="w-full self-center text-label text-muted sm:ml-auto sm:w-auto"
             aria-live="polite"
           >
             Mostrando <span className="text-ink">{list.length}</span> de{" "}

@@ -2,7 +2,6 @@ import { ArrowUp } from "lucide-react";
 import { profile, sections, socials } from "@/data/profile";
 import { SocialGlyph } from "@/components/ui/BrandIcons";
 import { ReduceEffectsToggle, ReplayIntroButton } from "@/components/ui/FooterControls";
-import { PauseButton } from "@/components/ui/PauseButton";
 
 function currentYear() {
   return new Date().getFullYear();
@@ -15,7 +14,7 @@ export default function Footer() {
       <div className="container-x grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-12">
         <div className="lg:col-span-5">
           <p className="flex items-center gap-3 font-display text-lg font-medium tracking-[-0.02em]">
-            <span className="grid size-10 place-items-center rounded-full bg-[image:var(--grad-soft)] font-mono text-small font-semibold text-white">{profile.initials}</span>
+            <span className="grid size-10 place-items-center rounded-full bg-[image:var(--grad-soft)] font-mono text-small font-semibold text-[var(--btn-fg)]">{profile.initials}</span>
             {profile.name}
           </p>
           <p className="mt-4 max-w-sm text-pretty text-muted">
@@ -58,7 +57,6 @@ export default function Footer() {
           <h2 className="text-label mb-2 mt-8 text-muted">Preferencias</h2>
           <div className="flex flex-col">
             <ReduceEffectsToggle />
-            <PauseButton withLabel className="mt-1 w-fit" />
             <ReplayIntroButton />
           </div>
         </div>

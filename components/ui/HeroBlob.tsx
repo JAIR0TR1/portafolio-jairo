@@ -182,13 +182,31 @@ export function HeroBlob() {
       if (e.pointerType === "mouse") end();
     };
     // Táctil (eventos touch: siguen llegando aunque la página haga scroll)
+    // Táctil: aparece solo mientras el dedo toca/arrastra; si el gesto es vertical, gana el scroll.
+    const touch0 = { x: 0, y: 0, decided: false };
     const onTouchStart = (e: TouchEvent) => {
       const t = e.touches[0];
-      if (t) start(t.clientX, t.clientY);
+      if (!t) return;
+      touch0.x = t.clientX;
+      touch0.y = t.clientY;
+      touch0.decided = false;
+      start(t.clientX, t.clientY);
     };
     const onTouchMove = (e: TouchEvent) => {
       const t = e.touches[0];
       if (!t) return;
+      if (!touch0.decided) {
+        const dx = Math.abs(t.clientX - touch0.x);
+        const dy = Math.abs(t.clientY - touch0.y);
+        if (dx > 8 || dy > 8) {
+          touch0.decided = true;
+          if (dy > dx) {
+            end(); // desplazamiento vertical: la mancha se retira y la página hace scroll
+            return;
+          }
+        }
+      }
+      if (!st.active) return;
       st.cx = t.clientX;
       st.cy = t.clientY;
     };

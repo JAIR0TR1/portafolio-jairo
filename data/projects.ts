@@ -15,7 +15,8 @@ export type Project = {
 
 const GH = "https://github.com/JAIR0TR1";
 
-// TODO(Jairo): capturas de cada proyecto en public/images/proyectos/ (campo image).
+// Capturas reales en public/images/proyectos/ (1280×800, webp 85) para los proyectos con demo;
+// los demás muestran una portada ilustrada con su nombre y el ícono de su tecnología.
 // TODO(Jairo): repositorio y demo de Cazador de Objetos, StudyFlow y Library Management System.
 // Proyecto adicional: agrégalo al final de esta lista (se mostrará solo cuando exista).
 export const projects: Project[] = [
@@ -44,6 +45,7 @@ export const projects: Project[] = [
     tags: ["React", "TypeScript", "Estructuras de datos"],
     github: `${GH}/TALLER-REPRODUCTOR-DE-MUSICA-`,
     demo: "https://taller-reproductor-de-musica-psi.vercel.app",
+    image: "/images/proyectos/reproductor-de-musica.webp",
     status: "publicado",
     year: 2026,
   },

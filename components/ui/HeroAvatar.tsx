@@ -199,7 +199,7 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
     <div
       ref={figRef}
       data-hero-figure={isBase ? "" : undefined}
-      className="group relative aspect-[765/1024] h-full"
+      className="group relative aspect-[765/1024] h-[70%] md:h-full"
       style={{ touchAction: "pan-y" }}
       {...handlers}
     >

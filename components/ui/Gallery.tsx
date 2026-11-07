@@ -28,6 +28,7 @@ export function Gallery({
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const [i, setI] = useState(0);
+  const swipe = useRef({ x: 0, y: 0 });
   const go = (n: number) => setI((n + images.length) % images.length);
   const current = images[i];
 
@@ -62,10 +63,21 @@ export function Gallery({
           if (e.key === "ArrowRight") go(i + 1);
           if (e.key === "ArrowLeft") go(i - 1);
         }}
+        // táctil: deslizar a los lados cambia de imagen; hacia abajo cierra
+        onTouchStart={(e) => {
+          swipe.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }}
+        onTouchEnd={(e) => {
+          const t = e.changedTouches[0];
+          const dx = t.clientX - swipe.current.x;
+          const dy = t.clientY - swipe.current.y;
+          if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) go(i + (dx < 0 ? 1 : -1));
+          else if (dy > 80 && Math.abs(dy) > Math.abs(dx)) ref.current?.close();
+        }}
       >
         {current && (
           <figure>
-            <div className="relative h-[min(72vh,760px)] w-full bg-bg">
+            <div className="relative h-[min(72dvh,760px)] w-full bg-bg">
               <Image src={current.src} alt={current.alt} fill sizes="1000px" className="object-contain" />
             </div>
             <figcaption className="flex items-center justify-between gap-3 border-t border-line px-4 py-3">

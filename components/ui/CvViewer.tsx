@@ -45,7 +45,7 @@ export function CvViewer() {
             </button>
           </div>
         </div>
-        <iframe src="/cv.pdf#view=FitH" title={`Hoja de vida de ${profile.name} (PDF)`} className="block h-[min(78vh,900px)] w-full bg-white" />
+        <iframe src="/cv.pdf#view=FitH" title={`Hoja de vida de ${profile.name} (PDF)`} className="block h-[min(78dvh,900px)] w-full bg-white" />
       </dialog>
     </>
   );

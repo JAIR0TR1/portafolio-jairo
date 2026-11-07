@@ -16,8 +16,8 @@ export function PauseButton({ className, withLabel = false }: { className?: stri
       aria-label={withLabel ? undefined : label}
       title={label}
       className={cn(
-        "inline-flex min-h-10 items-center justify-center gap-2 rounded-[12px] border border-line-2 text-muted transition-colors hover:border-accent/60 hover:text-ink",
-        withLabel ? "px-3 text-small" : "size-10",
+        "inline-flex min-h-11 items-center justify-center gap-2 rounded-[12px] border border-line-2 text-muted transition-colors hover:border-accent/60 hover:text-ink md:min-h-10",
+        withLabel ? "px-3 text-small" : "size-11 md:size-10",
         className,
       )}
     >

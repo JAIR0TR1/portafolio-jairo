@@ -49,7 +49,7 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
   const mobile = useMediaQuery("(max-width: 767px)");
   const finePointer = useMediaQuery("(hover: hover) and (pointer: fine)");
   const tick = useRotationTick(!reduced);
-  const max = mobile ? 6 : 12;
+  const max = mobile ? 5 : 12;
   const shown = visibleNotes(notes, max, tick);
   const rootRef = useRef<HTMLDivElement>(null);
   const hot = useRef({ index: -1 });
@@ -80,11 +80,12 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
       geo.off = (geo.SW - geo.W) / 2;
       geo.cx = geo.W / 2;
       // móvil: órbita pequeña a la altura de las piernas (debajo de la palabra gigante)
-      geo.cy = geo.H * (mobile ? 0.66 : 0.42);
-      const outer = Math.max(70, Math.min(geo.W * (mobile ? 0.62 : 1.02), geo.SW / 2 - (mobile ? 70 : 70)));
+      // móvil: una elipse más amplia que el avatar, a la altura del torso y las piernas (debajo de la palabra)
+      geo.cy = geo.H * (mobile ? 0.62 : 0.42);
+      const outer = Math.max(70, mobile ? geo.SW / 2 - 40 : Math.min(geo.W * 1.02, geo.SW / 2 - 70));
       geo.rx = rings === 1 ? [outer, outer] : [outer * 0.64, outer];
       // la elipse nunca baja hasta el nombre y los botones (escritorio: hasta el 64 % del escenario)
-      const maxRy = geo.H * (mobile ? 0.13 : 0.22);
+      const maxRy = geo.H * (mobile ? 0.2 : 0.22);
       geo.ry = geo.rx.map((r) => Math.min(r * (mobile ? 0.75 : TILT), maxRy * (r / geo.rx[1])));
       // líneas de órbita (en ambas capas)
       hero.querySelectorAll<HTMLElement>("[data-orbit-line]").forEach((el) => {
@@ -109,6 +110,7 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
       });
       const r = fig.getBoundingClientRect();
       const omega = (2 * Math.PI) / PERIOD;
+      const P: { x: number; y: number; sin: number; w: number; h: number }[] = [];
       for (let i = 0; i < n; i++) {
         const ring = i < inner ? 0 : 1;
         const count = ring === 0 ? inner : n - inner;
@@ -118,11 +120,37 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
         const sin = Math.sin(theta);
         let x = geo.cx + geo.rx[ring] * Math.cos(theta);
         const y = geo.cy + geo.ry[ring] * sin;
+        const h = groups[i][0]?.offsetHeight ?? 0;
         // que la etiqueta quepa completa en el escenario
         const w = groups[i][0]?.offsetWidth ?? 0;
         const minX = -geo.off + w / 2 + 4;
         const maxX = geo.SW - geo.off - w / 2 - 4;
         x = Math.min(maxX, Math.max(minX, x));
+        P.push({ x, y, sin, w, h });
+      }
+      // móvil: ninguna etiqueta se monta sobre otra (se separan en vertical)
+      if (mobile) {
+        for (let pass = 0; pass < 3; pass++)
+          for (let a = 0; a < n; a++)
+            for (let b = a + 1; b < n; b++) {
+              const A = P[a];
+              const B = P[b];
+              const ox = (A.w + B.w) / 2 + 6 - Math.abs(A.x - B.x);
+              const oy = (A.h + B.h) / 2 + 4 - Math.abs(A.y - B.y);
+              if (ox > 0 && oy > 0) {
+                const push = oy / 2;
+                if (A.y <= B.y) {
+                  A.y -= push;
+                  B.y += push;
+                } else {
+                  A.y += push;
+                  B.y -= push;
+                }
+              }
+            }
+      }
+      for (let i = 0; i < n; i++) {
+        const { x, y, sin } = P[i];
         // repulsión del cursor (resorte)
         const s = springs[i];
         let tx = 0;
@@ -225,7 +253,8 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
           key={`${modeId}-${text}`}
           data-orbit-i={i}
           className={cn("orbit-label", isBase && "pointer-events-auto")}
-          onPointerEnter={isBase ? () => (hot.current.index = i) : undefined}
+          // hover solo con mouse: un toque no debe congelar la órbita
+          onPointerEnter={isBase ? (e) => e.pointerType === "mouse" && (hot.current.index = i) : undefined}
           onPointerLeave={isBase ? () => (hot.current.index = -1) : undefined}
         >
           {text}

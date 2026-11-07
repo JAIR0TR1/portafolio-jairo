@@ -1,25 +1,31 @@
 @import "tailwindcss";
 
-/* ───────────────────────── TRES MUNDOS · tokens ─────────────────────────
-   El modo del avatar define el color de todo el sitio (fondo, superficies y acento):
-   Jairo rojo · Desarrollador azul · IA verde. Las variables están registradas con
-   @property y se animan en 600 ms al cambiar de modo.
-   --accent: acento puro (fondos, bordes, puntos) · --accent-strong: botones con texto
-   blanco (AA ≥ 4.6) · --accent-text: acento para texto sobre fondos oscuros (AA ≥ 6.5). */
+/* ───────────────────────── EMBER & STEEL · tokens ─────────────────────────
+   Base negra común + colores de marca: fuego (--fire-a → --fire-b), azul eléctrico (--steel)
+   y rojo (--red). Cada modo elige un color DOMINANTE (resplandor del Hero, palabra gigante,
+   botón primario, indicador del menú) y uno de DETALLE (etiquetas y números alternos).
+   Las variables del modo están registradas con @property y se animan en 600 ms.
+   Contraste AA: --accent-text y --detail sobre --bg/--surface ≥ 5.6 · botón: --btn-fg sobre
+   --btn-a/--btn-b ≥ 5.0 · texto sobre la mancha ≥ 18. */
 
-@property --bg { syntax: "<color>"; inherits: true; initial-value: #1c0a10; }
-@property --bg-2 { syntax: "<color>"; inherits: true; initial-value: #24101a; }
-@property --surface { syntax: "<color>"; inherits: true; initial-value: #2e1520; }
-@property --accent { syntax: "<color>"; inherits: true; initial-value: #e5383b; }
-@property --accent-strong { syntax: "<color>"; inherits: true; initial-value: #da3538; }
-@property --accent-text { syntax: "<color>"; inherits: true; initial-value: #ff8587; }
+@property --accent { syntax: "<color>"; inherits: true; initial-value: #ff5a1f; }
+@property --accent-2 { syntax: "<color>"; inherits: true; initial-value: #ffb020; }
+@property --accent-text { syntax: "<color>"; inherits: true; initial-value: #ff5a1f; }
+@property --detail { syntax: "<color>"; inherits: true; initial-value: #5b8cff; }
+@property --btn-a { syntax: "<color>"; inherits: true; initial-value: #ff5a1f; }
+@property --btn-b { syntax: "<color>"; inherits: true; initial-value: #ffb020; }
+@property --btn-fg { syntax: "<color>"; inherits: true; initial-value: #0b0b0d; }
 
 @theme {
-  --color-ink: #f5f2ee;
-  --color-muted: rgb(245 242 238 / 0.68);
-  --color-faint: rgb(245 242 238 / 0.16); /* SOLO decorativo */
-  --color-line: rgb(255 255 255 / 0.1);
-  --color-line-2: rgb(255 255 255 / 0.18);
+  --color-ink: #f5f3f0;
+  --color-muted: #a3a1a8;
+  --color-faint: rgb(245 243 240 / 0.14); /* SOLO decorativo */
+  --color-line: rgb(255 255 255 / 0.08);
+  --color-line-2: rgb(255 255 255 / 0.16);
+  --color-fire-a: #ff5a1f;
+  --color-fire-b: #ffb020;
+  --color-steel: #2f6bff;
+  --color-red: #e5383b;
 
   --radius-card: 20px;
   --radius-ui: 12px;
@@ -52,49 +58,62 @@
   --color-card: var(--surface);
   --color-card-2: var(--surface-2);
   --color-accent: var(--accent-text);
+  --color-detail: var(--detail);
   --color-grad-a: var(--accent);
-  --color-grad-b: var(--accent-text);
+  --color-grad-b: var(--accent-2);
 }
 
-/* Modos: Jairo rojo (defecto) · Desarrollador azul · IA verde */
+/* Modos: Jairo fuego (defecto, detalles azul) · Desarrollador azul (detalles naranja) ·
+   IA duotono rojo + azul (detalles ámbar) */
 :root {
-  --bg: #1c0a10;
-  --bg-2: #24101a;
-  --surface: #2e1520;
-  --accent: #e5383b;
-  --accent-strong: #da3538;
-  --accent-text: #ff8587;
-  --surface-2: color-mix(in srgb, var(--surface) 82%, white);
+  --bg: #0b0b0d;
+  --bg-2: #111114;
+  --surface: #17171c;
+  --surface-2: #1f1f26;
+  --border: rgb(255 255 255 / 0.08);
+  --text: #f5f3f0;
+  --muted: #a3a1a8;
+  --fire-a: #ff5a1f;
+  --fire-b: #ffb020;
+  --steel: #2f6bff;
+  --red: #e5383b;
+
+  --accent: #ff5a1f;
+  --accent-2: #ffb020;
+  --accent-text: #ff5a1f;
+  --detail: #5b8cff;
+  --btn-a: #ff5a1f;
+  --btn-b: #ffb020;
+  --btn-fg: #0b0b0d;
+
   --accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
-  --text: #f5f2ee;
-  --muted: rgb(245 242 238 / 0.68);
-  --border: rgb(255 255 255 / 0.1);
-  /* compatibilidad: el «degradado» del modo ahora es el acento sólido */
   --grad-a: var(--accent);
-  --grad-b: var(--accent-text);
-  --grad: linear-gradient(var(--accent-strong), var(--accent-strong));
+  --grad-b: var(--accent-2);
+  --grad: linear-gradient(120deg, var(--btn-a), var(--btn-b));
   --grad-soft: var(--grad);
-  --shadow: 0 12px 32px -16px rgb(0 0 0 / 0.6);
+  --shadow: 0 12px 32px -16px rgb(0 0 0 / 0.7);
   --header-h: 76px;
   --t-mode: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  transition: --bg var(--t-mode), --bg-2 var(--t-mode), --surface var(--t-mode), --accent var(--t-mode),
-    --accent-strong var(--t-mode), --accent-text var(--t-mode);
+  transition: --accent var(--t-mode), --accent-2 var(--t-mode), --accent-text var(--t-mode), --detail var(--t-mode),
+    --btn-a var(--t-mode), --btn-b var(--t-mode), --btn-fg var(--t-mode);
 }
 :root[data-mode="dev"] {
-  --bg: #0a1430;
-  --bg-2: #0f1b3d;
-  --surface: #15244d;
   --accent: #2f6bff;
-  --accent-strong: #2b63f0;
-  --accent-text: #86a8ff;
+  --accent-2: #5b8cff;
+  --accent-text: #6e9bff;
+  --detail: #ff5a1f;
+  --btn-a: #2b63f0;
+  --btn-b: #2b63f0;
+  --btn-fg: #ffffff;
 }
 :root[data-mode="ai"] {
-  --bg: #04221b;
-  --bg-2: #072d24;
-  --surface: #0b3a2f;
-  --accent: #10b981;
-  --accent-strong: #0c855d;
-  --accent-text: #34d399;
+  --accent: #e5383b;
+  --accent-2: #2f6bff;
+  --accent-text: #ff6b6e;
+  --detail: #ffb020;
+  --btn-a: #c92e31;
+  --btn-b: #2b63f0;
+  --btn-fg: #ffffff;
 }
 
 /* ───────────────────────── base ───────────────────────── */
@@ -166,7 +185,8 @@ footer[id] {
   width: 100%;
   max-width: var(--container-site);
   margin-inline: auto;
-  padding-inline: 1rem;
+  /* móvil: 20 px de margen lateral (y nunca menos que la zona segura del iPhone) */
+  padding-inline: max(1.25rem, env(safe-area-inset-left), env(safe-area-inset-right));
   @media (width >= 48rem) { padding-inline: 2rem; }
 }
 
@@ -280,8 +300,8 @@ footer[id] {
 
   /* Primario: pastel del modo con texto --bg (contraste AA ≥ 8) */
   .btn-primary {
-    background: var(--accent-strong);
-    color: #fff;
+    background: var(--grad);
+    color: var(--btn-fg);
     font-weight: 600;
   }
   .btn-primary:not(:disabled):hover { filter: brightness(1.06); }
@@ -381,7 +401,8 @@ footer[id] {
     180deg,
     #f7f7f8 0%,
     #d9dde3 34%,
-    color-mix(in srgb, var(--accent) 28%, #e3e6ea) 52%,
+    color-mix(in srgb, var(--accent) 34%, #e3e6ea) 52%,
+    color-mix(in srgb, var(--accent-2) 22%, #c4c9d1) 60%,
     #aab1bb 66%,
     rgb(245 246 248 / 0.2) 100%
   );
@@ -407,7 +428,7 @@ footer[id] {
   border-radius: 0.012em;
   pointer-events: none;
 }
-.theme-grad .hero-acute { background: #12161c; }
+.theme-grad .hero-acute { background: #0b0b0d; }
 /* Profundidad: la palabra se mueve un poco al revés del personaje */
 .hero-word-parallax {
   transform: translate3d(calc(var(--px, 0) * -14px), calc(var(--py, 0) * -6px), 0);
@@ -441,7 +462,12 @@ footer[id] {
 
 /* ───────────── Tarjeta del Hero + mancha líquida ───────────── */
 /* Capa oscura (base): degradado --bg→--bg-2 con luz del modo, viñeta + retícula de puntos debajo, grano encima */
-.hero-surface { background: radial-gradient(ellipse 55% 55% at 50% 40%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%), linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%); }
+.hero-surface {
+  background:
+    radial-gradient(ellipse 40% 55% at 40% 42%, color-mix(in srgb, var(--accent) 42%, transparent), transparent 70%),
+    radial-gradient(ellipse 40% 55% at 60% 42%, color-mix(in srgb, var(--accent-2) 36%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+}
 .hero-surface::before,
 .hero-surface::after {
   content: "";
@@ -468,8 +494,8 @@ footer[id] {
 }
 .hero-revealed::before {
   background:
-    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 60%, rgb(18 22 28 / 0.1) 100%),
-    radial-gradient(circle at 1px 1px, rgb(18 22 28 / 0.08) 1px, transparent 1.5px) 0 0 / 22px 22px;
+    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 60%, rgb(11 11 13 / 0.1) 100%),
+    radial-gradient(circle at 1px 1px, rgb(11 11 13 / 0.08) 1px, transparent 1.5px) 0 0 / 22px 22px;
 }
 .hero-revealed::after { display: none; } /* sin mezcla por frame dentro de la mancha (rendimiento) */
 @media (prefers-reduced-motion: reduce) { .hero-revealed { display: none; } }
@@ -478,24 +504,24 @@ footer[id] {
 
 /* Capa revelada (dentro de la mancha): fondo blanco cálido, textos oscuros, chips y botones invertidos */
 .theme-grad {
-  --color-bg: #12161c;
-  --color-card: #12161c;
-  --color-ink: #12161c;
-  --color-muted: rgb(18 22 28 / 0.72);
-  --color-faint: rgb(18 22 28 / 0.2);
-  --color-line: rgb(18 22 28 / 0.14);
-  --color-line-2: rgb(18 22 28 / 0.28);
+  --color-bg: #0b0b0d;
+  --color-card: #0b0b0d;
+  --color-ink: #0b0b0d;
+  --color-muted: rgb(11 11 13 / 0.72);
+  --color-faint: rgb(11 11 13 / 0.2);
+  --color-line: rgb(11 11 13 / 0.14);
+  --color-line-2: rgb(11 11 13 / 0.28);
   color: var(--color-ink);
 }
-.theme-grad .btn-secondary { background: #12161c; border-color: #12161c; color: #f5f2ee; }
-.theme-grad .orbit-label { background: #12161c; border-color: #12161c; color: #f5f2ee; }
-.theme-grad .orbit-line { border-color: rgb(18 22 28 / 0.1); }
+.theme-grad .btn-secondary { background: #0b0b0d; border-color: #0b0b0d; color: #f5f3f0; }
+.theme-grad .orbit-label { background: #0b0b0d; border-color: #0b0b0d; color: #f5f3f0; }
+.theme-grad .orbit-line { border-color: rgb(11 11 13 / 0.1); }
 .theme-grad .hero-word {
-  background-image: linear-gradient(180deg, #12161c 0%, #2c3440 45%, #4a5563 100%);
-  -webkit-text-stroke-color: rgb(18 22 28 / 0.18);
+  background-image: linear-gradient(180deg, #0b0b0d 0%, #2c3440 45%, #4a5563 100%);
+  -webkit-text-stroke-color: rgb(11 11 13 / 0.18);
 }
 .theme-grad .contact-shadow {
-  background: radial-gradient(closest-side, rgb(18 22 28 / 0.4), rgb(18 22 28 / 0.14) 55%, transparent);
+  background: radial-gradient(closest-side, rgb(11 11 13 / 0.4), rgb(11 11 13 / 0.14) 55%, transparent);
   box-shadow: none;
 }
 /* Al pasar por el personaje base, el robot revelado también sonríe */
@@ -748,14 +774,26 @@ body, section, footer, .glass, .btn, .chip, .field, .nav-capsule {
   animation: orbit-in 0.6s ease both;
 }
 .orbit-label[data-hot] { border-color: var(--accent); color: var(--accent-text); background: color-mix(in srgb, var(--surface) 70%, var(--accent)); }
-.theme-grad .orbit-label[data-hot] { color: #f5f2ee; border-color: var(--accent); }
+.theme-grad .orbit-label[data-hot] { color: #f5f3f0; border-color: var(--accent); }
 @media (max-width: 767px) { .orbit-label { font-size: 10px; line-height: 12px; padding: 4px 8px; } }
 
-/* Indicador de carga de la intro (discreto) */
-.intro-loader { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgb(255 255 255 / 0.18); border-top-color: var(--accent); animation: intro-spin 0.8s linear infinite; }
-@keyframes intro-spin { to { transform: rotate(360deg); } }
+/* Intro: mientras carga la escena, el nombre hace fade sobre el fondo */
+@keyframes intro-name { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.9; } }
+.intro-name { animation: intro-name 2.4s ease-in-out infinite; }
 
 /* Pausa global (WCAG 2.2.2): el movimiento automático queda quieto donde está */
-:root[data-anim="paused"] :is(.idle-float, .idle-breathe, .idle-sway, .animate-float, .logo-ring, .hybrid-spark, .circuit-scan, .minibot-bob, .intro-loader) {
+:root[data-anim="paused"] :is(.idle-float, .idle-breathe, .idle-sway, .animate-float, .logo-ring, .hybrid-spark, .circuit-scan, .minibot-bob) {
   animation-play-state: paused !important;
 }
+
+/* ───────────── Celular ───────────── */
+@media (max-width: 767px) {
+  /* anillo de logos más pequeño: cabe completo en el ancho */
+  .logo-ring-stage { --ring-r: 132px; height: 220px; }
+  .logo-ring-item { width: 44px; height: 44px; left: -22px; top: -22px; border-radius: 10px; }
+  .logo-ring-item svg { width: 22px; height: 22px; }
+}
+/* nada sobrepasa el ancho del viewport */
+main, footer, main > section { overflow-x: clip; }
+footer { padding-bottom: env(safe-area-inset-bottom); }
+.menu-sheet { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }

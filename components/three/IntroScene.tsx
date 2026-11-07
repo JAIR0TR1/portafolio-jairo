@@ -2,15 +2,16 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, PerformanceMonitor, RoundedBox, useTexture } from "@react-three/drei";
-import { Suspense, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 /* Línea de tiempo (s) */
 const T = { fadeIn: 0.8, drift: 3.2, zoom: 4.4 };
-const SCREEN_W = 3.2;
-const SCREEN_H = 2.0;
 const FOV = 35;
-const DEVICE_Y = 0.3;
+/** Geometría por formato: escritorio = tablet horizontal; celular = tablet vertical, cámara más cerca. */
+type Geo = { W: number; H: number; Y: number; r0: number; r1: number; y0: number; y1: number };
+const DESKTOP: Geo = { W: 3.2, H: 2.0, Y: 0.3, r0: 8.6, r1: 7.0, y0: 2.5, y1: 1.6 };
+const MOBILE: Geo = { W: 1.48, H: 3.2, Y: 0.62, r0: 7.4, r1: 6.4, y0: 2.1, y1: 1.4 };
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -87,9 +88,16 @@ const shadowFragment = /* glsl */ `
   }
 `;
 
-function World({ onTick, onReady }: { onTick: (t: number) => void; onReady?: () => void }) {
-  // A: página completa (scroll dentro de la pantalla) · B: Hero a 2880×1800 para el cierre nítido
-  const [scrollTex, heroTex] = useTexture(["/intro/site-scroll.webp", "/intro/site.webp"]);
+function World({ onTick, onReady, mobile }: { onTick: (t: number) => void; onReady?: () => void; mobile: boolean }) {
+  const G = mobile ? MOBILE : DESKTOP;
+  const SCREEN_W = G.W;
+  const SCREEN_H = G.H;
+  const DEVICE_Y = G.Y;
+  // A: página completa (scroll dentro de la pantalla) · B: Hero nítido para el cierre del zoom.
+  // Celular: captura móvil del Hero (390×844 a 3×) en ambas.
+  const [scrollTex, heroTex] = useTexture(
+    mobile ? ["/intro/site-mobile.webp", "/intro/site-mobile.webp"] : ["/intro/site-scroll.webp", "/intro/site.webp"],
+  );
   const maxAniso = useThree((st) => st.gl.capabilities.getMaxAnisotropy());
 
   const { texA, texB, ry } = useMemo(() => {
@@ -111,8 +119,9 @@ function World({ onTick, onReady }: { onTick: (t: number) => void; onReady?: () 
       return t;
     };
     const ra = fit(scrollTex);
-    return { texA: setup(scrollTex, ra), texB: setup(heroTex, fit(heroTex)), ry: Math.min(1, ra) };
-  }, [scrollTex, heroTex, maxAniso]);
+    const b = heroTex === scrollTex ? heroTex.clone() : heroTex;
+    return { texA: setup(scrollTex, ra), texB: setup(b, fit(b)), ry: Math.min(1, ra) };
+  }, [scrollTex, heroTex, maxAniso, SCREEN_H, SCREEN_W]);
 
   const floorMat = useMemo(
     () =>
@@ -175,8 +184,8 @@ function World({ onTick, onReady }: { onTick: (t: number) => void; onReady?: () 
     // 0.8–3.2 s: cámara a la deriva (órbita suave + leve dolly)
     const k = easeInOut(clamp(t / T.drift));
     const a = lerp(-0.42, 0.24, k);
-    const r = lerp(8.6, 7.0, k);
-    tmp.drift.set(Math.sin(a) * r, lerp(2.5, 1.6, k), Math.cos(a) * r);
+    const r = lerp(G.r0, G.r1, k);
+    tmp.drift.set(Math.sin(a) * r, lerp(G.y0, G.y1, k), Math.cos(a) * r);
 
     // 3.2–4.4 s: la pantalla gira a frontal y la cámara entra hasta llenar el viewport
     const z = easeInOut(clamp((t - T.drift) / (T.zoom - T.drift)));
@@ -200,7 +209,7 @@ function World({ onTick, onReady }: { onTick: (t: number) => void; onReady?: () 
 
     // El sitio hace scroll solo dentro de la pantalla; al final se ve el inicio (= Hero real)
     const sc = easeInOut(clamp((t - 0.5) / 2.9));
-    texA.offset.y = 1 - ry - sc * (1 - ry) * 0.5;
+    texA.offset.y = 1 - ry - sc * (1 - ry); // la textura ya está recortada a la parte que se recorre
     if (matA.current) matA.current.color.setScalar(0.25 + 0.75 * f);
     if (matB.current) matB.current.opacity = easeInOut(clamp((t - 3.25) / 0.7));
   });
@@ -209,12 +218,12 @@ function World({ onTick, onReady }: { onTick: (t: number) => void; onReady?: () 
     <>
       <ambientLight intensity={0.04} />
       {/* rim light blanco‑rosado en el bisel */}
-      <pointLight position={[0.6, 2.6, -1.8]} color="#ffe0e0" intensity={28} distance={9} />
+      {!mobile && <pointLight position={[0.6, 2.6, -1.8]} color="#ffe0e0" intensity={28} distance={9} />}
       {/* luz dura del rayo */}
       <spotLight position={[-7, 7.5, -4.5]} angle={0.14} penumbra={0.25} intensity={420} color="#f4f6ff" distance={20} />
-      <Environment resolution={256} frames={1}>
+      <Environment resolution={mobile ? 64 : 256} frames={1}>
         <Lightformer form="rect" intensity={2.4} color="#ffffff" position={[0, 5, -4]} scale={[10, 1.2, 1]} />
-        <Lightformer form="rect" intensity={1.6} color="#e5383b" position={[-5, 1, 2]} rotation-y={Math.PI / 2} scale={[4, 1, 1]} />
+        <Lightformer form="rect" intensity={1.6} color="#ff5a1f" position={[-5, 1, 2]} rotation-y={Math.PI / 2} scale={[4, 1, 1]} />
         <Lightformer form="rect" intensity={1.6} color="#2f6bff" position={[5, 1, 2]} rotation-y={-Math.PI / 2} scale={[4, 1, 1]} />
       </Environment>
 
@@ -245,6 +254,16 @@ function World({ onTick, onReady }: { onTick: (t: number) => void; onReady?: () 
   );
 }
 
+/** Celular: como máximo 30 fps (pide un frame cada ~33 ms en vez de cada refresco). */
+function Throttle30() {
+  const invalidate = useThree((st) => st.invalidate);
+  useEffect(() => {
+    const id = window.setInterval(() => invalidate(), 1000 / 30);
+    return () => window.clearInterval(id);
+  }, [invalidate]);
+  return null;
+}
+
 export default function IntroScene({
   onTick,
   onFail,
@@ -254,16 +273,20 @@ export default function IntroScene({
   onFail: () => void;
   onReady?: () => void;
 }) {
+  const mobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const G = mobile ? MOBILE : DESKTOP;
   return (
     <Canvas
-      dpr={[1, 1.5]}
-      camera={{ fov: FOV, position: [0, 2.5, 8.6], near: 0.1, far: 60 }}
-      gl={{ antialias: true, powerPreference: "high-performance" }}
-      onCreated={({ gl }) => gl.setClearColor("#0b0b0f")}
+      dpr={mobile ? [1, 2] : [1, 1.5]}
+      frameloop={mobile ? "demand" : "always"}
+      camera={{ fov: FOV, position: [0, G.y0, G.r0], near: 0.1, far: 60 }}
+      gl={{ antialias: !mobile, powerPreference: "high-performance" }}
+      onCreated={({ gl }) => gl.setClearColor("#0b0b0d")}
     >
+      {mobile && <Throttle30 />}
       <PerformanceMonitor onDecline={onFail} />
       <Suspense fallback={null}>
-        <World onTick={onTick} onReady={onReady} />
+        <World onTick={onTick} onReady={onReady} mobile={mobile} />
       </Suspense>
     </Canvas>
   );

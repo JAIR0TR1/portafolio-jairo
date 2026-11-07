@@ -50,7 +50,7 @@ function Monogram({ className }: { className?: string }) {
     <span
       aria-hidden="true"
       className={cn(
-        "grid size-9 place-items-center rounded-full bg-[image:var(--grad-soft)] font-mono text-[13px] font-semibold tracking-tight text-white",
+        "grid size-9 place-items-center rounded-full bg-[image:var(--grad-soft)] font-mono text-[13px] font-semibold tracking-tight text-[var(--btn-fg)]",
         className,
       )}
     >
@@ -68,7 +68,7 @@ function NavLink({ id, label, active, className, onClick }: { id: string; label:
       aria-current={active ? "true" : undefined}
       className={cn(
         "nav-link relative flex min-h-10 items-center whitespace-nowrap rounded-full px-3 text-[13.5px] font-medium transition-colors",
-        active ? "text-white" : "text-muted hover:text-ink",
+        active ? "text-[var(--btn-fg)]" : "text-muted hover:text-ink",
         className,
       )}
     >
@@ -162,7 +162,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="pointer-events-none sticky top-0 z-50 flex h-[var(--header-h)] items-center">
+      <header className="pointer-events-none sticky top-0 z-50 flex h-[calc(var(--header-h)+env(safe-area-inset-top))] items-center pt-[env(safe-area-inset-top)]">
         <div className="container-x flex justify-center">
           <nav
             aria-label="Principal"
@@ -190,7 +190,7 @@ export default function Navbar() {
                     onClick={() => setMore((m) => !m)}
                     className={cn(
                       "nav-link relative flex min-h-10 items-center gap-1 rounded-full px-3 text-[13.5px] font-medium transition-colors",
-                      moreActive ? "text-white" : "text-muted hover:text-ink",
+                      moreActive ? "text-[var(--btn-fg)]" : "text-muted hover:text-ink",
                     )}
                   >
                     {moreActive && (
@@ -221,7 +221,7 @@ export default function Navbar() {
                               aria-current={active === s.id ? "true" : undefined}
                               className={cn(
                                 "flex min-h-10 items-center rounded-[10px] px-3 text-[14px] transition-colors",
-                                active === s.id ? "bg-[image:var(--grad-soft)] font-medium text-white" : "text-muted hover:bg-white/[.06] hover:text-ink",
+                                active === s.id ? "bg-[image:var(--grad-soft)] font-medium text-[var(--btn-fg)]" : "text-muted hover:bg-white/[.06] hover:text-ink",
                               )}
                             >
                               {s.label}

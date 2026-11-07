@@ -64,7 +64,8 @@ function HeroContent({ revealed = false }: { revealed?: boolean }) {
               <HeroTitle />
             </div>
           </div>
-          <div className="hero-in absolute inset-0 z-10 flex justify-center" style={{ ["--i" as string]: 2 }}>
+          {/* móvil: el avatar ocupa ~70 % del escenario, apoyado abajo (la palabra gigante queda legible) */}
+          <div className="hero-in absolute inset-0 z-10 flex items-end justify-center md:items-stretch" style={{ ["--i" as string]: 2 }}>
             <HeroAvatar variant={revealed ? "revealed" : "base"} />
           </div>
         </div>
@@ -81,7 +82,7 @@ function HeroContent({ revealed = false }: { revealed?: boolean }) {
               {profile.name}
             </Title>
             <p className="mt-2 max-w-[44ch] text-pretty text-small text-muted md:text-body">{profile.heroRole}</p>
-            <div className="mt-5 flex flex-wrap gap-2">
+            <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap">
               <a href="/cv.pdf" download tabIndex={revealed ? -1 : undefined} className="btn btn-primary">
                 Descargar CV <ArrowDownToLine aria-hidden="true" />
               </a>
@@ -96,7 +97,7 @@ function HeroContent({ revealed = false }: { revealed?: boolean }) {
           <div className="flex flex-col gap-3 lg:items-end lg:text-right">
             <ModeSelector />
             <p className="max-w-[34ch] text-pretty text-body font-medium text-ink">{profile.tagline}</p>
-            <a href="#proyectos" tabIndex={revealed ? -1 : undefined} className="btn btn-secondary w-fit">
+            <a href="#proyectos" tabIndex={revealed ? -1 : undefined} className="btn btn-secondary w-full sm:w-fit">
               Ver proyectos <ArrowRight aria-hidden="true" />
             </a>
           </div>

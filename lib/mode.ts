@@ -5,9 +5,9 @@ import { MODE_KEY } from "./keys";
 
 /** Los 3 modos del avatar. Cada uno cambia el acento (--accent) de toda la página. */
 export const MODES = [
-  { id: "jairo", label: "Jairo", color: "#E5383B" },
+  { id: "jairo", label: "Jairo", color: "#FF5A1F" },
   { id: "dev", label: "Desarrollador", color: "#2F6BFF" },
-  { id: "ai", label: "IA", color: "#10B981" },
+  { id: "ai", label: "IA", color: "#E5383B" },
 ] as const;
 
 export type ModeId = (typeof MODES)[number]["id"];

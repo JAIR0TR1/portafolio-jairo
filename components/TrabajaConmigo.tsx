@@ -133,7 +133,7 @@ export default function TrabajaConmigo() {
                     transition={{ duration: 0.4, ease: EASE }}
                     className="flex flex-col items-start gap-4"
                   >
-                    <span className="grid size-12 place-items-center rounded-full bg-[image:var(--grad-soft)] text-white">
+                    <span className="grid size-12 place-items-center rounded-full bg-[image:var(--grad-soft)] text-[var(--btn-fg)]">
                       <Check aria-hidden="true" />
                     </span>
                     <p className="text-xl font-semibold">¡Listo! Tu solicitud está escrita.</p>
