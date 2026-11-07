@@ -37,20 +37,20 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         <ProjectCover project={project} priority={index < 2} />
         <span
           className={cn(
-            "chip absolute left-3 top-3 bg-[#1e1c1a]/70 backdrop-blur-sm",
+            "chip absolute left-3 top-3 bg-black/50 backdrop-blur-sm",
             published ? "text-ink" : "text-muted",
           )}
         >
           <span
             className={cn(
               "size-1.5 rounded-full",
-              published ? "bg-[#4ade80]" : "border border-muted",
+              published ? "bg-accent" : "border border-muted",
             )}
           />
           {published ? "Publicado" : "En desarrollo"}
         </span>
         {project.year ? (
-          <span className="chip absolute right-3 top-3 bg-[#1e1c1a]/70 text-muted backdrop-blur-sm">
+          <span className="chip absolute right-3 top-3 bg-black/50 text-muted backdrop-blur-sm">
             {project.year}
           </span>
         ) : null}
@@ -153,7 +153,7 @@ export default function Projects() {
                 className={cn(
                   "relative min-h-11 rounded-full border px-4 text-small transition-colors",
                   on
-                    ? "border-transparent font-medium text-[#1e1c1a]"
+                    ? "border-transparent font-medium text-white"
                     : "border-line text-muted hover:border-accent/50 hover:text-ink",
                 )}
               >

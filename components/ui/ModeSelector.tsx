@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { Pause, Play } from "lucide-react";
 import { avatarModes } from "@/data/avatar";
-import { MODES, holdCycle, setModeIndex, toggleUserPause, useModeState } from "@/lib/mode";
+import { MODES, chooseMode, holdCycle, toggleUserPause, useModeState } from "@/lib/mode";
 import { EASE } from "@/lib/effects";
 import { cn } from "@/lib/cn";
 
@@ -25,7 +25,7 @@ export function ModeSelector() {
             key={m.id}
             type="button"
             aria-pressed={on}
-            onClick={() => setModeIndex(i)}
+            onClick={() => chooseMode(i)}
             className={cn(
               "flex min-h-10 items-center gap-2 rounded-[6px] border px-3 text-[13px] transition-colors",
               on ? "border-accent/60 text-ink" : "border-line-2 text-muted hover:border-accent/50 hover:text-ink",

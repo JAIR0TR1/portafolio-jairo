@@ -58,7 +58,7 @@ export default function Experience() {
                       onClick={() => setFilter(o.id)}
                       className={cn(
                         "relative min-h-11 rounded-full px-4 text-small transition-colors",
-                        on ? "font-medium text-[#1e1c1a]" : "text-muted hover:text-ink",
+                        on ? "font-medium text-white" : "text-muted hover:text-ink",
                       )}
                     >
                       {on && (
@@ -113,7 +113,7 @@ export default function Experience() {
                       transition={{ duration: 0.4, ease: EASE }}
                       className="relative pl-16"
                     >
-                      <span className="absolute left-0 top-5 grid size-11 place-items-center rounded-full bg-[image:var(--grad-soft)] text-[#1e1c1a] shadow-[0_0_0_6px_var(--color-bg)]">
+                      <span className="absolute left-0 top-5 grid size-11 place-items-center rounded-full bg-[image:var(--grad-soft)] text-white shadow-[0_0_0_6px_var(--color-bg)]">
                         <Icon aria-hidden="true" className="size-[18px]" />
                       </span>
                       <article className="glass spotlight p-6">

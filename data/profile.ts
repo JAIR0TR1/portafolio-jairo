@@ -22,7 +22,7 @@ export const profile = {
   heroRole: "Estudiante de Ingeniería de Software · Universidad Cooperativa de Colombia, Pasto",
   tagline: "Código limpio. Interfaces claras. Ideas que se venden.",
   about:
-    "Estudio Ingeniería de Software en Pasto y vendo iPhone por mi cuenta. Lo segundo me enseñó lo que lo primero no: que nadie lee el manual. Por eso diseño interfaces que se entienden solas y escribo código que no hay que explicar dos veces.",
+    "Estudiante de Ingeniería de Software en la Universidad Cooperativa de Colombia, enfocado en desarrollo frontend y diseño de interfaces. Combino bases sólidas de arquitectura y backend con una visión de producto que viene de dirigir mi propio emprendimiento: entiendo al usuario, priorizo lo que aporta valor y entrego soluciones claras, funcionales y bien construidas.",
   interests: ["Videojuegos", "Emprendimiento", "Fútbol", "Programar"],
   /** Año en que empezó a programar (Ingeniería de Software). */
   codingSince: 2024,

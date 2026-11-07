@@ -247,7 +247,7 @@ export default function Contact() {
                       className="md:col-span-2"
                       aside={
                         <span
-                          className={cn("text-label", fields.message.length > MAX ? "text-[#f0b0a8]" : "text-muted")}
+                          className={cn("text-label", fields.message.length > MAX ? "text-[#fca5a5]" : "text-muted")}
                           aria-live="polite"
                         >
                           {fields.message.length} / {MAX}
@@ -283,9 +283,9 @@ export default function Contact() {
                       <p
                         id={`${uid}-err`}
                         role="alert"
-                        className="flex items-start gap-2 rounded-[12px] border border-[#e8a0a0]/40 bg-[#e8a0a0]/[.08] p-3 text-small md:col-span-2"
+                        className="flex items-start gap-2 rounded-[12px] border border-[#fca5a5]/40 bg-[#fca5a5]/[.08] p-3 text-small md:col-span-2"
                       >
-                        <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-[#f0b0a8]" />
+                        <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-[#fca5a5]" />
                         No se pudo enviar (puede ser tu conexión). Tu mensaje sigue aquí: inténtalo de nuevo o
                         escríbeme a {profile.email}.
                       </p>
@@ -371,7 +371,7 @@ function Field({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="flex items-center gap-1.5 text-small text-[#f0b0a8]"
+            className="flex items-center gap-1.5 text-small text-[#fca5a5]"
           >
             <AlertCircle aria-hidden="true" className="size-3.5 shrink-0" /> {error}
           </motion.p>

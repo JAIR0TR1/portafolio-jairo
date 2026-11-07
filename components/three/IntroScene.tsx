@@ -198,13 +198,13 @@ function World({ onTick }: { onTick: (t: number) => void }) {
     <>
       <ambientLight intensity={0.04} />
       {/* rim light blanco‑rosado en el bisel */}
-      <pointLight position={[0.6, 2.6, -1.8]} color="#ffe2d4" intensity={28} distance={9} />
+      <pointLight position={[0.6, 2.6, -1.8]} color="#ffe0e0" intensity={28} distance={9} />
       {/* luz dura del rayo */}
-      <spotLight position={[-7, 7.5, -4.5]} angle={0.14} penumbra={0.25} intensity={420} color="#fbf3e8" distance={20} />
+      <spotLight position={[-7, 7.5, -4.5]} angle={0.14} penumbra={0.25} intensity={420} color="#f4f6ff" distance={20} />
       <Environment resolution={256} frames={1}>
         <Lightformer form="rect" intensity={2.4} color="#ffffff" position={[0, 5, -4]} scale={[10, 1.2, 1]} />
-        <Lightformer form="rect" intensity={1.6} color="#f2b8a0" position={[-5, 1, 2]} rotation-y={Math.PI / 2} scale={[4, 1, 1]} />
-        <Lightformer form="rect" intensity={1.6} color="#9db4c8" position={[5, 1, 2]} rotation-y={-Math.PI / 2} scale={[4, 1, 1]} />
+        <Lightformer form="rect" intensity={1.6} color="#e5383b" position={[-5, 1, 2]} rotation-y={Math.PI / 2} scale={[4, 1, 1]} />
+        <Lightformer form="rect" intensity={1.6} color="#2f6bff" position={[5, 1, 2]} rotation-y={-Math.PI / 2} scale={[4, 1, 1]} />
       </Environment>
 
       <mesh rotation-x={-Math.PI / 2} position={[0, -1.1, 0]} material={floorMat}>
@@ -219,7 +219,7 @@ function World({ onTick }: { onTick: (t: number) => void }) {
 
       <group ref={device} position={[0, DEVICE_Y, 0]}>
         <RoundedBox args={[SCREEN_W + 0.22, SCREEN_H + 0.22, 0.12]} radius={0.1} smoothness={5}>
-          <meshStandardMaterial color="#15130f" metalness={0.85} roughness={0.26} envMapIntensity={1.2} />
+          <meshStandardMaterial color="#101116" metalness={0.85} roughness={0.26} envMapIntensity={1.2} />
         </RoundedBox>
         <mesh position={[0, 0, 0.062]}>
           <planeGeometry args={[SCREEN_W, SCREEN_H]} />
@@ -240,7 +240,7 @@ export default function IntroScene({ onTick, onFail }: { onTick: (t: number) => 
       dpr={[1, 1.5]}
       camera={{ fov: FOV, position: [0, 2.5, 8.6], near: 0.1, far: 60 }}
       gl={{ antialias: true, powerPreference: "high-performance" }}
-      onCreated={({ gl }) => gl.setClearColor("#141210")}
+      onCreated={({ gl }) => gl.setClearColor("#0b0b0f")}
     >
       <PerformanceMonitor onDecline={onFail} />
       <Suspense fallback={null}>

@@ -1,105 +1,20 @@
 "use client";
 
-import { AnimatePresence, animate, motion, useSpring, useTransform, type MotionValue } from "motion/react";
+import { AnimatePresence, animate, motion, useSpring, useTransform } from "motion/react";
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { avatarModes } from "@/data/avatar";
 import { MODES, holdCycle, nextMode, useModeState, type ModeId } from "@/lib/mode";
 import { EASE, useMediaQuery, useReducedEffects } from "@/lib/effects";
 import { heroJump, heroPointer } from "@/lib/heroMotion";
 import { CircuitFigure, JairoAligned, ModeFigure, RobotAligned } from "./ModeAvatar";
+import { HeroOrbit } from "./HeroOrbit";
 import { cn } from "@/lib/cn";
 
 const CYCLE_MS = 6000;
-const NOTES_MS = 4000; // las anotaciones rotan en grupos de 4
-const PER_GROUP = 4;
-
-/** Grupo de anotaciones visible: reloj compartido (mismo grupo en ambas capas del Hero). */
-function useNotesTick(active: boolean) {
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    if (!active) return;
-    let t = 0;
-    const loop = () => {
-      t = window.setTimeout(() => {
-        setTick(Math.floor(Date.now() / NOTES_MS));
-        loop();
-      }, NOTES_MS - (Date.now() % NOTES_MS) + 20);
-    };
-    loop();
-    return () => window.clearTimeout(t);
-  }, [active]);
-  return tick;
-}
 const TILT = 6; // grados máximos de inclinación
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
 export type HeroVariant = "base" | "revealed";
-
-type Slot = { side: "left" | "right"; y: number }; // y en % del personaje
-type Band = { top: number; bottom: number; limit: number; h: number }; // px dentro del personaje
-
-/**
- * Huecos libres para las anotaciones: SOLO en la franja de arriba y la de abajo de la
- * palabra gigante (nunca encima de las letras). Si no caben, no se muestran.
- */
-function freeSlots(band: Band | null): Slot[] {
-  if (!band) return [];
-  const ROW = 30;
-  const rows: number[] = [];
-  for (let k = 0; k < 2; k++) {
-    const yt = band.top - 18 - k * ROW;
-    if (yt >= 14) rows.push(yt);
-    const yb = band.bottom + 18 + k * ROW;
-    if (yb <= band.limit) rows.push(yb);
-  }
-  return rows.flatMap((y) => [
-    { side: "left" as const, y: (y / band.h) * 100 },
-    { side: "right" as const, y: (y / band.h) * 100 },
-  ]);
-}
-
-/** Borde del personaje a una altura dada (cabeza / torso / piernas), en % del ancho. */
-function edgeAt(y: number) {
-  if (y < 27) return 38;
-  if (y < 60) return 29;
-  return 36;
-}
-
-/** Anotación tipo medida de Figma: punto de acento + línea guía de 1px + etiqueta mono. */
-function Note({ text, i, slot, sx, sy }: { text: string; i: number; slot: Slot; sx: MotionValue<number>; sy: MotionValue<number> }) {
-  const x = slot.side === "left" ? edgeAt(slot.y) : 100 - edgeAt(slot.y);
-  const depth = 0.6 + (i % 3) * 0.35;
-  const px = useTransform(sx, (v) => v * depth * 10);
-  const py = useTransform(sy, (v) => v * depth * 4);
-  const left = slot.side === "left";
-  return (
-    <motion.div
-      className="absolute"
-      style={{ left: `${x}%`, top: `${slot.y}%`, x: px, y: py }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1, transition: { delay: 0.25 + i * 0.07, duration: 0.35 } }}
-      exit={{ opacity: 0, transition: { duration: 0.15 } }}
-    >
-      <div className="note-float" style={{ animationDelay: `${-i * 0.8}s` }}>
-        <div className={cn("flex -translate-y-1/2 items-center", left ? "-translate-x-full flex-row-reverse" : "")}>
-          <span className={cn("size-[7px] shrink-0 rounded-full bg-accent", left ? "translate-x-1/2" : "-translate-x-1/2")} />
-          <motion.span
-            className={cn("h-px w-12 bg-line-2 xl:w-20", left ? "origin-right" : "origin-left")}
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1, transition: { delay: 0.3 + i * 0.07, duration: 0.45, ease: EASE } }}
-          />
-          <motion.span
-            className="whitespace-nowrap rounded-[4px] border border-line-2 bg-bg px-2 py-1 font-mono text-[11px] uppercase leading-none tracking-[0.12em] text-ink"
-            initial={{ opacity: 0, x: left ? 8 : -8 }}
-            animate={{ opacity: 1, x: 0, transition: { delay: 0.4 + i * 0.07, duration: 0.4, ease: EASE } }}
-          >
-            {text}
-          </motion.span>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
 
 /** Personaje de cada capa: A (base) por modo; B (dentro de la mancha) es «lo que hay detrás». */
 function LayerFigure({ id, variant, priority }: { id: ModeId; variant: HeroVariant; priority?: boolean }) {
@@ -127,8 +42,6 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
   const [deferTick, setDeferTick] = useState(0);
   const [nearTop, setNearTop] = useState(true);
   const [greeting, setGreeting] = useState(false);
-  const [band, setBand] = useState<Band | null>(null);
-  const notesTick = useNotesTick(!reduced);
 
   const figRef = useRef<HTMLDivElement>(null);
   const greetTimer = useRef<number | undefined>(undefined);
@@ -176,25 +89,6 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
     [],
   );
 
-  // Franjas libres arriba/abajo de la palabra gigante de SU capa (para las anotaciones).
-  useEffect(() => {
-    const fig = figRef.current;
-    const word = fig?.closest("[data-hero-layer]")?.querySelector<HTMLElement>("[data-hero-word]");
-    if (!fig || !word) return;
-    const measure = () => {
-      const f = fig.getBoundingClientRect();
-      const w = word.getBoundingClientRect();
-      if (!f.height) return;
-      // la caja tiene aire arriba para la tilde de la Ó: sin Ó, ese aire no cuenta como letra
-      const pad = word.textContent?.includes("Ó") ? 0 : parseFloat(getComputedStyle(word).paddingTop) || 0;
-      setBand({ top: w.top + pad - f.top, bottom: w.bottom - f.top, limit: f.height * 0.66, h: f.height });
-    };
-    const ro = new ResizeObserver(measure);
-    ro.observe(fig);
-    ro.observe(word);
-    measure();
-    return () => ro.disconnect();
-  }, [index]);
 
   // Mouse: ojos, inclinación, parallax y costura (solo escucha la capa base; un listener).
   useEffect(() => {
@@ -291,11 +185,6 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
     if (!reduced) animate(heroJump, [0, -14, 0], { duration: 0.5, ease: EASE });
   };
 
-  // Hasta 4 anotaciones a la vez; si hay más, rotan por grupos cada 4 s (fade).
-  const slots = freeSlots(band).slice(0, PER_GROUP);
-  const groups = slots.length ? Math.ceil(data.notes.length / slots.length) : 1;
-  const group = groups > 1 ? notesTick % groups : 0;
-  const notes = data.notes.slice(group * slots.length, group * slots.length + slots.length);
 
   const handlers = isBase
     ? {
@@ -330,18 +219,8 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
         className="pointer-events-none absolute left-1/2 top-[30%] -z-10 aspect-square w-[130%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--accent)_18%,transparent),transparent)]"
       />
 
-      {/* Anotaciones (escritorio): solo en las franjas libres, nunca sobre las letras */}
-      {!reduced && (
-        <div className="pointer-events-none absolute inset-0 z-20 hidden lg:block">
-          <AnimatePresence mode="wait">
-            <motion.div key={`${mode.id}-${group}`} className="absolute inset-0" exit={{ opacity: 0, transition: { duration: 0.3 } }}>
-              {notes.map((t, i) => (
-                <Note key={t} text={t} i={i} slot={slots[i]} sx={sx} sy={sy} />
-              ))}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      )}
+      {/* Anotaciones en órbita alrededor del personaje (detrás: z-5 · delante: z-20) */}
+      <HeroOrbit notes={data.notes} modeId={mode.id} isBase={isBase} />
 
       {/* Globo de saludo (solo la capa base) */}
       <AnimatePresence>

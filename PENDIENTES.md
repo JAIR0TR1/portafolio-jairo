@@ -21,7 +21,7 @@ npm run check:content -- --write
 8. **Formulario de Contacto (opcional)**: crea un formulario en formspree.io y agrega `NEXT_PUBLIC_FORMSPREE_ID` en Vercel. Sin esa variable, el formulario de Contacto se oculta; el de «Trabaja conmigo» (WhatsApp/correo) siempre está.
 9. **Textura de la intro**: cada vez que cambies contenido visible, ejecuta `npm run build`, luego `npm start` y, en otra terminal, `npm run intro:texture`.
 10. **Rendimiento real**: mide la vista previa de Vercel en https://pagespeed.web.dev (móvil). En local, Lighthouse dio Rendimiento 65–69 y Accesibilidad 100; el entorno local dibuja sin GPU y penaliza el LCP.
-11. **Imagen del robot**: el visor del casco trae un brillo violeta propio de la imagen (no es código). Si quieres quitarlo, edítalo en `assets/avatar/*.png` y corre `npm run avatars`.
+11. **Imagen del robot**: el visor del casco trae un brillo violeta propio de la imagen (no es código; se ve en los 3 modos). Si quieres quitarlo, edítalo en `assets/avatar/*.png` y corre `npm run avatars`.
 12. **Publicar a producción**: la rama `minimal` tiene vista previa en Vercel; se une a `main` solo con tu autorización.
 
 ## Lista automática (archivo y línea)

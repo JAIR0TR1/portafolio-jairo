@@ -10,7 +10,7 @@ export default function NotFound() {
     <main id="contenido" className="relative isolate grid min-h-dvh place-items-center overflow-hidden px-4 text-center">
       <p
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-1/2 -z-10 -translate-y-1/2 select-none font-display text-[34vw] font-medium leading-none tracking-[-0.06em] text-[#161616]"
+        className="pointer-events-none absolute inset-x-0 top-1/2 -z-10 -translate-y-1/2 select-none font-display text-[34vw] font-medium leading-none tracking-[-0.06em] text-faint"
       >
         404
       </p>

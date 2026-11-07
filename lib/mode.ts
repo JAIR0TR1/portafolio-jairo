@@ -1,12 +1,13 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { MODE_KEY } from "./keys";
 
 /** Los 3 modos del avatar. Cada uno cambia el acento (--accent) de toda la página. */
 export const MODES = [
-  { id: "jairo", label: "Jairo", color: "#F2B8A0" },
-  { id: "dev", label: "Desarrollador", color: "#9DB4C8" },
-  { id: "ai", label: "IA", color: "#A8C3A0" },
+  { id: "jairo", label: "Jairo", color: "#E5383B" },
+  { id: "dev", label: "Desarrollador", color: "#2F6BFF" },
+  { id: "ai", label: "IA", color: "#10B981" },
 ] as const;
 
 export type ModeId = (typeof MODES)[number]["id"];
@@ -22,7 +23,13 @@ type State = {
 };
 
 const INITIAL: State = { index: 0, transitionId: 0, userPaused: false, holds: 0 };
-let state: State = INITIAL;
+/** Modo guardado: el script de arranque ya puso data-mode en <html> antes del primer pintado. */
+function stored(): State {
+  if (typeof document === "undefined") return INITIAL;
+  const i = MODES.findIndex((m) => m.id === document.documentElement.dataset.mode);
+  return i > 0 ? { ...INITIAL, index: i, userPaused: true } : INITIAL;
+}
+let state: State = stored();
 const listeners = new Set<() => void>();
 
 function emit(next: Partial<State>) {
@@ -45,6 +52,17 @@ export function setModeIndex(i: number) {
 }
 
 export const nextMode = () => setModeIndex(state.index + 1);
+
+/** Elección del usuario: cambia el color de todo el sitio, se recuerda y detiene el ciclo automático. */
+export function chooseMode(i: number) {
+  setModeIndex(i);
+  try {
+    localStorage.setItem(MODE_KEY, MODES[state.index].id);
+  } catch {
+    /* almacenamiento bloqueado: solo dura esta visita */
+  }
+  if (!state.userPaused) emit({ userPaused: true });
+}
 export const toggleUserPause = () => emit({ userPaused: !state.userPaused });
 export const holdCycle = (on: boolean) => emit({ holds: Math.max(0, state.holds + (on ? 1 : -1)) });
 

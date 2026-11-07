@@ -1,24 +1,25 @@
 @import "tailwindcss";
 
-/* ───────────────────────── STONE & PASTEL · tokens ─────────────────────────
-   Piedra cálida (ni blanco ni negro puros) con acentos pastel por modo.
-   Cada modo define --grad-a → --grad-b: botones, píldoras, anotaciones, mancha del Hero,
-   línea de tiempo y brillos. --accent = --grad-a. Todo se anima al cambiar de modo. */
+/* ───────────────────────── TRES MUNDOS · tokens ─────────────────────────
+   El modo del avatar define el color de todo el sitio (fondo, superficies y acento):
+   Jairo rojo · Desarrollador azul · IA verde. Las variables están registradas con
+   @property y se animan en 600 ms al cambiar de modo.
+   --accent: acento puro (fondos, bordes, puntos) · --accent-strong: botones con texto
+   blanco (AA ≥ 4.6) · --accent-text: acento para texto sobre fondos oscuros (AA ≥ 6.5). */
 
-@property --accent { syntax: "<color>"; inherits: true; initial-value: #f2b8a0; }
-@property --grad-a { syntax: "<color>"; inherits: true; initial-value: #f2b8a0; }
-@property --grad-b { syntax: "<color>"; inherits: true; initial-value: #e8d5b5; }
+@property --bg { syntax: "<color>"; inherits: true; initial-value: #1c0a10; }
+@property --bg-2 { syntax: "<color>"; inherits: true; initial-value: #24101a; }
+@property --surface { syntax: "<color>"; inherits: true; initial-value: #2e1520; }
+@property --accent { syntax: "<color>"; inherits: true; initial-value: #e5383b; }
+@property --accent-strong { syntax: "<color>"; inherits: true; initial-value: #da3538; }
+@property --accent-text { syntax: "<color>"; inherits: true; initial-value: #ff8587; }
 
 @theme {
-  --color-bg: #1e1c1a;
-  --color-bg-2: #252320;
-  --color-card: #2d2a26; /* --surface */
-  --color-card-2: #36322d; /* --surface-2 */
-  --color-ink: #f3eee6;
-  --color-muted: #b5ac9f;
-  --color-faint: #4a453f; /* SOLO decorativo */
-  --color-line: rgb(232 220 200 / 0.12);
-  --color-line-2: rgb(232 220 200 / 0.2);
+  --color-ink: #f5f2ee;
+  --color-muted: rgb(245 242 238 / 0.68);
+  --color-faint: rgb(245 242 238 / 0.16); /* SOLO decorativo */
+  --color-line: rgb(255 255 255 / 0.1);
+  --color-line-2: rgb(255 255 255 / 0.18);
 
   --radius-card: 20px;
   --radius-ui: 12px;
@@ -46,39 +47,62 @@
 }
 
 @theme inline {
-  --color-accent: var(--accent);
-  --color-grad-a: var(--grad-a);
-  --color-grad-b: var(--grad-b);
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-card: var(--surface);
+  --color-card-2: var(--surface-2);
+  --color-accent: var(--accent-text);
+  --color-grad-a: var(--accent);
+  --color-grad-b: var(--accent-text);
 }
 
-/* Modos del avatar → pastel: Jairo durazno→arena · Desarrollador azul polvo→salvia · IA salvia→durazno */
+/* Modos: Jairo rojo (defecto) · Desarrollador azul · IA verde */
 :root {
-  --bg: #1e1c1a;
-  --bg-2: #252320;
-  --surface: #2d2a26;
-  --surface-2: #36322d;
-  --border: rgb(232 220 200 / 0.12);
-  --text: #f3eee6;
-  --muted: #b5ac9f;
-  --grad-a: #f2b8a0;
-  --grad-b: #e8d5b5;
-  --accent: var(--grad-a);
-  --grad: linear-gradient(120deg, var(--grad-a), var(--grad-b));
-  /* los pastel ya son claros: el texto encima va en --bg (contraste AA ≥ 8) */
+  --bg: #1c0a10;
+  --bg-2: #24101a;
+  --surface: #2e1520;
+  --accent: #e5383b;
+  --accent-strong: #da3538;
+  --accent-text: #ff8587;
+  --surface-2: color-mix(in srgb, var(--surface) 82%, white);
+  --accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
+  --text: #f5f2ee;
+  --muted: rgb(245 242 238 / 0.68);
+  --border: rgb(255 255 255 / 0.1);
+  /* compatibilidad: el «degradado» del modo ahora es el acento sólido */
+  --grad-a: var(--accent);
+  --grad-b: var(--accent-text);
+  --grad: linear-gradient(var(--accent-strong), var(--accent-strong));
   --grad-soft: var(--grad);
-  --shadow: 0 12px 32px -16px rgb(10 9 8 / 0.7);
+  --shadow: 0 12px 32px -16px rgb(0 0 0 / 0.6);
   --header-h: 76px;
-  transition: --grad-a 0.9s cubic-bezier(0.22, 1, 0.36, 1), --grad-b 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  --t-mode: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: --bg var(--t-mode), --bg-2 var(--t-mode), --surface var(--t-mode), --accent var(--t-mode),
+    --accent-strong var(--t-mode), --accent-text var(--t-mode);
 }
-:root[data-mode="dev"] { --grad-a: #9db4c8; --grad-b: #a8c3a0; }
-:root[data-mode="ai"] { --grad-a: #a8c3a0; --grad-b: #f2b8a0; }
+:root[data-mode="dev"] {
+  --bg: #0a1430;
+  --bg-2: #0f1b3d;
+  --surface: #15244d;
+  --accent: #2f6bff;
+  --accent-strong: #2b63f0;
+  --accent-text: #86a8ff;
+}
+:root[data-mode="ai"] {
+  --bg: #04221b;
+  --bg-2: #072d24;
+  --surface: #0b3a2f;
+  --accent: #10b981;
+  --accent-strong: #0c855d;
+  --accent-text: #34d399;
+}
 
 /* ───────────────────────── base ───────────────────────── */
 
 html {
   background: var(--color-bg);
   color-scheme: dark;
-  background-color: #1e1c1a;
+  background-color: var(--bg);
   -webkit-text-size-adjust: 100%;
 }
 
@@ -110,7 +134,7 @@ footer[id] {
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--grad-a) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 45%, transparent);
   color: var(--color-ink);
 }
 
@@ -256,8 +280,8 @@ footer[id] {
 
   /* Primario: pastel del modo con texto --bg (contraste AA ≥ 8) */
   .btn-primary {
-    background: var(--grad);
-    color: var(--bg);
+    background: var(--accent-strong);
+    color: #fff;
     font-weight: 600;
   }
   .btn-primary:not(:disabled):hover { filter: brightness(1.06); }
@@ -267,13 +291,13 @@ footer[id] {
     color: var(--color-ink);
     border: 1px solid var(--color-line-2);
   }
-  .btn-secondary:not(:disabled):hover { border-color: color-mix(in oklab, var(--grad-a) 70%, transparent); background: rgb(232 220 200 / 0.05); }
+  .btn-secondary:not(:disabled):hover { border-color: color-mix(in srgb, var(--accent) 70%, transparent); background: rgb(255 255 255 / 0.05); }
 
   .btn-ghost {
     color: var(--color-muted);
     padding-inline: 0.75rem;
   }
-  .btn-ghost:not(:disabled):hover { color: var(--color-ink); background: rgb(232 220 200 / 0.07); }
+  .btn-ghost:not(:disabled):hover { color: var(--color-ink); background: rgb(255 255 255 / 0.07); }
 
   /* misma altura en todo el sitio: .btn-sm solo existe por compatibilidad */
   .btn-sm { }
@@ -305,14 +329,14 @@ footer[id] {
     font-size: 1rem;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .field::placeholder { color: #9a9185; }
-  .field:hover { border-color: rgb(232 220 200 / 0.35); }
+  .field::placeholder { color: rgb(245 242 238 / 0.5); }
+  .field:hover { border-color: rgb(255 255 255 / 0.35); }
   .field:focus-visible {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent);
   }
-  .field[aria-invalid="true"] { border-color: #e8a0a0; }
+  .field[aria-invalid="true"] { border-color: #fca5a5; }
 }
 
 @keyframes progress {
@@ -354,16 +378,16 @@ footer[id] {
 .hero-word {
   background: linear-gradient(
     180deg,
-    #f3eee6 0%,
-    #e3dacb 32%,
-    color-mix(in oklab, var(--grad-a) 30%, #e6ddd0) 50%,
-    color-mix(in oklab, var(--grad-b) 26%, #bdb3a6) 62%,
-    rgb(243 241 255 / 0.22) 100%
+    #f7f7f8 0%,
+    #d9dde3 34%,
+    color-mix(in srgb, var(--accent) 28%, #e3e6ea) 52%,
+    #aab1bb 66%,
+    rgb(245 246 248 / 0.2) 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  -webkit-text-stroke: 1px rgb(232 220 200 / 0.16);
+  -webkit-text-stroke: 1px rgb(255 255 255 / 0.16);
   /* espacio para la tilde de la Ó: sin esto queda fuera del área del degradado */
   padding-top: 0.22em;
   margin-top: -0.22em;
@@ -401,7 +425,7 @@ footer[id] {
 
 /* ───────────── Tarjeta del Hero + mancha líquida ───────────── */
 /* Capa oscura (base): degradado --bg→--bg-2 con luz del modo, viñeta + retícula de puntos debajo, grano encima */
-.hero-surface { background: radial-gradient(ellipse 60% 55% at 50% 38%, color-mix(in oklab, var(--grad-a) 12%, transparent), transparent 70%), linear-gradient(180deg, #1e1c1a 0%, #252320 100%); }
+.hero-surface { background: radial-gradient(ellipse 55% 55% at 50% 40%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%), linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%); }
 .hero-surface::before,
 .hero-surface::after {
   content: "";
@@ -411,8 +435,8 @@ footer[id] {
 }
 .hero-surface::before {
   background:
-    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 55%, rgb(14 13 12 / 0.6) 100%),
-    radial-gradient(circle at 1px 1px, rgb(232 220 200 / 0.05) 1px, transparent 1.5px) 0 0 / 22px 22px;
+    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 55%, color-mix(in srgb, var(--bg) 55%, black) 100%),
+    radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.05) 1px, transparent 1.5px) 0 0 / 22px 22px;
 }
 .hero-surface::after {
   z-index: 40;
@@ -422,39 +446,40 @@ footer[id] {
 }
 /* Capa clara (revelada): mismo sistema invertido */
 .hero-revealed {
-  background: var(--grad);
+  background: #f7f5f0;
   visibility: hidden; /* el JS de la mancha la muestra; sin JS / reduced, nunca se ve */
   clip-path: circle(0px at 50% 50%);
 }
 .hero-revealed::before {
   background:
-    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 55%, rgb(30 28 26 / 0.28) 100%),
-    radial-gradient(circle at 1px 1px, rgb(30 28 26 / 0.08) 1px, transparent 1.5px) 0 0 / 22px 22px;
+    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 60%, rgb(18 22 28 / 0.1) 100%),
+    radial-gradient(circle at 1px 1px, rgb(18 22 28 / 0.08) 1px, transparent 1.5px) 0 0 / 22px 22px;
 }
 .hero-revealed::after { display: none; } /* sin mezcla por frame dentro de la mancha (rendimiento) */
 @media (prefers-reduced-motion: reduce) { .hero-revealed { display: none; } }
 :root[data-effects="reduced"] .hero-revealed { display: none; }
 @media (max-width: 767px) { .hero-surface::after { display: none; } }
 
-/* Capa revelada: fondo con el degradado del modo y textos en --bg (las utilidades leen var(--color-*)) */
+/* Capa revelada (dentro de la mancha): fondo blanco cálido, textos oscuros, chips y botones invertidos */
 .theme-grad {
-  --color-bg: rgb(255 255 255 / 0.28);
-  --color-card: rgb(255 255 255 / 0.2);
-  --color-ink: #1e1c1a;
-  --color-muted: rgb(30 28 26 / 0.78);
-  --color-faint: rgb(30 28 26 / 0.3);
-  --color-line: rgb(30 28 26 / 0.18);
-  --color-line-2: rgb(30 28 26 / 0.32);
+  --color-bg: #12161c;
+  --color-card: #12161c;
+  --color-ink: #12161c;
+  --color-muted: rgb(18 22 28 / 0.72);
+  --color-faint: rgb(18 22 28 / 0.2);
+  --color-line: rgb(18 22 28 / 0.14);
+  --color-line-2: rgb(18 22 28 / 0.28);
   color: var(--color-ink);
 }
-.theme-grad .btn-primary { background: #1e1c1a; color: #f3eee6; box-shadow: none; }
-.theme-grad .bg-accent { background-color: #1e1c1a; }
+.theme-grad .btn-secondary { background: #12161c; border-color: #12161c; color: #f5f2ee; }
+.theme-grad .orbit-label { background: #12161c; border-color: #12161c; color: #f5f2ee; }
+.theme-grad .orbit-line { border-color: rgb(18 22 28 / 0.1); }
 .theme-grad .hero-word {
-  background-image: linear-gradient(180deg, #1e1c1a 0%, rgb(30 28 26 / 0.82) 45%, rgb(30 28 26 / 0.4) 100%);
-  -webkit-text-stroke-color: rgb(30 28 26 / 0.2);
+  background-image: linear-gradient(180deg, #12161c 0%, #2c3440 45%, #4a5563 100%);
+  -webkit-text-stroke-color: rgb(18 22 28 / 0.18);
 }
 .theme-grad .contact-shadow {
-  background: radial-gradient(closest-side, rgb(30 28 26 / 0.5), rgb(30 28 26 / 0.18) 55%, transparent);
+  background: radial-gradient(closest-side, rgb(18 22 28 / 0.4), rgb(18 22 28 / 0.14) 55%, transparent);
   box-shadow: none;
 }
 /* Al pasar por el personaje base, el robot revelado también sonríe */
@@ -467,7 +492,7 @@ footer[id] {
   transform-origin: 50% 30%;
   filter: blur(40px) brightness(0.35);
 }
-.hero-ambient-tint { background: var(--grad); opacity: 0.3; -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 40%, #000, transparent 75%); mask-image: radial-gradient(ellipse 60% 55% at 50% 40%, #000, transparent 75%); }
+.hero-ambient-tint { background: var(--accent); opacity: 0.3; -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 40%, #000, transparent 75%); mask-image: radial-gradient(ellipse 60% 55% at 50% 40%, #000, transparent 75%); }
 
 /* Robot «circuito» (capa revelada del modo IA): grises + tinte + rejilla 8 px + scanlines */
 .circuit-img { filter: grayscale(1) contrast(1.7) brightness(1.15); }
@@ -494,35 +519,19 @@ footer[id] {
 /* Secciones: alternan --bg / --bg-2 con transición en degradado (sin cortes duros).
    Semitransparentes: las auroras y los logos de fondo siguen viéndose. */
 main > section:not(#inicio):nth-of-type(odd) {
-  background: linear-gradient(180deg, transparent, rgb(37 35 32 / 0.72) 14%, rgb(37 35 32 / 0.72) 86%, transparent);
+  background: linear-gradient(180deg, transparent, var(--bg-2) 14%, var(--bg-2) 86%, transparent);
 }
 
-/* ───────────── Fondo del sitio: auroras + rejilla de puntos + viñeta ───────────── */
+/* ───────────── Fondo del sitio: rejilla de puntos muy tenue + viñeta (sin auroras) ───────────── */
 .aurora { position: fixed; inset: 0; z-index: -20; overflow: hidden; pointer-events: none; }
-.aurora-blob {
-  position: absolute;
-  width: 60vmax;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  opacity: 0.16;
-  will-change: transform;
-}
-.aurora-blob:nth-child(1) { left: -18vmax; top: -22vmax; background: radial-gradient(closest-side, var(--grad-a), transparent); animation: aurora-1 24s ease-in-out infinite alternate; }
-.aurora-blob:nth-child(2) { right: -20vmax; top: 18vh; background: radial-gradient(closest-side, var(--grad-b), transparent); opacity: 0.12; animation: aurora-2 28s ease-in-out infinite alternate; }
-.aurora-blob:nth-child(3) { left: 18vw; bottom: -30vmax; background: radial-gradient(closest-side, color-mix(in oklab, var(--grad-a) 50%, #9db4c8), transparent); opacity: 0.1; animation: aurora-3 21s ease-in-out infinite alternate; }
-@keyframes aurora-1 { to { transform: translate(18vw, 14vh) scale(1.15); } }
-@keyframes aurora-2 { to { transform: translate(-16vw, 22vh) scale(0.9); } }
-@keyframes aurora-3 { to { transform: translate(14vw, -18vh) scale(1.1); } }
 .aurora-dots {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 1px 1px, rgb(232 220 200 / 0.06) 1px, transparent 1.5px) 0 0 / 26px 26px;
+  background: radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.06) 1px, transparent 1.5px) 0 0 / 26px 26px;
   -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000, transparent);
   mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000, transparent);
 }
-.aurora-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 90% 80% at 50% 45%, transparent 55%, rgb(14 13 12 / 0.7)); }
-/* Móvil: sin auroras (pintar 3 gradientes enormes bloqueaba el hilo principal en equipos modestos) */
-@media (max-width: 767px) { .aurora { display: none; } }
+.aurora-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 90% 80% at 50% 45%, transparent 55%, color-mix(in srgb, var(--bg) 50%, black)); }
 
 /* ───────────── Ojos del robot (por código) ───────────── */
 .robot-eyes svg { fill: currentColor; filter: drop-shadow(0 0 3px var(--accent)); transition: scale 0.3s; }
@@ -615,7 +624,7 @@ main > section:not(#inicio):nth-of-type(odd) {
   position: fixed;
   inset: 0;
   z-index: 199;
-  background: #1e1c1a;
+  background: #0b0b0f;
 }
 
 @keyframes intro-fade-in { from { opacity: 0; } to { opacity: 1; } }
@@ -647,13 +656,13 @@ main > section:not(#inicio):nth-of-type(odd) {
 
 /* ───────────── Navbar: cápsula flotante de vidrio ───────────── */
 .nav-capsule {
-  background: rgb(45 42 38 / 0.7);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
   -webkit-backdrop-filter: blur(16px) saturate(1.3);
   backdrop-filter: blur(16px) saturate(1.3);
   border: 1px solid var(--color-line);
-  box-shadow: 0 10px 40px -18px rgb(14 13 12 / 0.9), inset 0 1px 0 rgb(255 255 255 / 0.05);
+  box-shadow: 0 10px 40px -18px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.05);
 }
-@media (max-width: 767px) { .nav-capsule { background: rgb(45 42 38 / 0.94); } }
+@media (max-width: 767px) { .nav-capsule { background: color-mix(in srgb, var(--surface) 95%, transparent); } }
 /* subrayado animado al hover (no en el activo, que ya tiene píldora) */
 .nav-link:not([aria-current]) .nav-label::after {
   content: "";
@@ -672,9 +681,8 @@ main > section:not(#inicio):nth-of-type(odd) {
 .nav-link:not([aria-current]):focus-visible .nav-label::after { transform: scaleX(1); }
 .menu-sheet {
   background:
-    radial-gradient(ellipse 80% 50% at 100% 0%, color-mix(in oklab, var(--grad-a) 26%, transparent), transparent 70%),
-    radial-gradient(ellipse 70% 50% at 0% 100%, color-mix(in oklab, var(--grad-b) 18%, transparent), transparent 70%),
-    #1e1c1a;
+    radial-gradient(ellipse 80% 50% at 100% 0%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
+    var(--bg);
 }
 /* Texto con el degradado del modo (títulos destacados) */
 .grad-text {
@@ -685,18 +693,18 @@ main > section:not(#inicio):nth-of-type(odd) {
 }
 
 /* Foto de Sobre mí: tal cual, marco de 20 px con borde de 1 px en el pastel del modo */
-.photo-frame { border: 1px solid color-mix(in oklab, var(--grad-a) 70%, transparent); background: var(--color-card); }
+.photo-frame { border: 1px solid var(--accent); background: var(--color-card); }
 
 /* Modal de la hoja de vida */
-.cv-dialog::backdrop { background: rgb(14 13 12 / 0.78); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.cv-dialog::backdrop { background: rgb(0 0 0 / 0.72); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 .cv-dialog[open] { animation: dialog-in 0.35s var(--ease-out-expo); }
 @keyframes dialog-in { from { opacity: 0; transform: translateY(12px) scale(0.98); } }
 
 /* Habilidades: logos en mosaicos que se iluminan al pasar */
-.skill-tile { background: rgb(30 28 26 / 0.35); transition: border-color 0.3s, transform 0.4s var(--ease-out-expo), background-color 0.3s; }
+.skill-tile { background: color-mix(in srgb, var(--bg) 45%, transparent); transition: border-color 0.3s, transform 0.4s var(--ease-out-expo), background-color 0.3s; }
 .skill-tile svg { filter: drop-shadow(0 0 0 transparent); transition: filter 0.3s; }
 @media (hover: hover) and (pointer: fine) {
-  .skill-tile:hover { border-color: color-mix(in oklab, var(--grad-a) 55%, transparent); background: rgb(54 50 45 / 0.6); transform: translateY(-2px); }
+  .skill-tile:hover { border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: var(--surface-2); transform: translateY(-2px); }
 }
 
 /* Habilidades: anillo 3D de logos (protagonista de la sección) */
@@ -707,3 +715,43 @@ main > section:not(#inicio):nth-of-type(odd) {
 .logo-ring-item { box-shadow: var(--shadow); }
 :root[data-effects="reduced"] .logo-ring { animation: none; }
 @media (prefers-reduced-motion: reduce) { .logo-ring { animation: none; } }
+
+/* Cambio de modo: colores que transicionan en 600 ms (además de las variables registradas) */
+body, section, footer, .glass, .btn, .chip, .field, .nav-capsule {
+  transition-property: background-color, color, border-color, fill, transform, opacity, filter;
+  transition-duration: 0.6s, 0.6s, 0.6s, 0.6s, 0.15s, 0.3s, 0.2s;
+}
+
+/* ───────────── Anotaciones en órbita (Hero) ───────────── */
+@property --fade { syntax: "<number>"; inherits: false; initial-value: 1; }
+@keyframes orbit-in { from { --fade: 0; } to { --fade: 1; } }
+.orbit-line {
+  position: absolute;
+  z-index: 4;
+  border: 1px solid rgb(255 255 255 / 0.06);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.orbit-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  border-radius: 12px;
+  border: 1px solid var(--color-line-2);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  opacity: calc(var(--o, 0) * var(--fade, 1));
+  will-change: transform;
+  cursor: default;
+  animation: orbit-in 0.6s ease both;
+}
+.orbit-label[data-hot] { border-color: var(--accent); color: var(--accent-text); background: color-mix(in srgb, var(--surface) 70%, var(--accent)); }
+.theme-grad .orbit-label[data-hot] { color: #f5f2ee; border-color: var(--accent); }
+@media (max-width: 767px) { .orbit-label { font-size: 10px; line-height: 12px; padding: 4px 8px; } }

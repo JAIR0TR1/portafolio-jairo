@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/cn";
 
-const gradients = ["from-[#4a433b] to-[#2d2a26]", "from-[#4d3f37] to-[#2d2a26]", "from-[#3a4247] to-[#2d2a26]"];
+const gradients = ["from-white/20 to-white/5", "from-white/15 to-white/[.03]", "from-white/25 to-white/[.06]"];
 
 export function initialsOf(name: string) {
   return name

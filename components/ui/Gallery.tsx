@@ -65,7 +65,7 @@ export function Gallery({
       >
         {current && (
           <figure>
-            <div className="relative h-[min(72vh,760px)] w-full bg-[#1e1c1a]">
+            <div className="relative h-[min(72vh,760px)] w-full bg-bg">
               <Image src={current.src} alt={current.alt} fill sizes="1000px" className="object-contain" />
             </div>
             <figcaption className="flex items-center justify-between gap-3 border-t border-line px-4 py-3">

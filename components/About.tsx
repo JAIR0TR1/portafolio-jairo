@@ -75,7 +75,7 @@ export default function About() {
           <RevealItem className="lg:col-span-12">
             <div className="glass spotlight flex h-full flex-col gap-5 p-6 md:flex-row md:items-center md:justify-between md:p-8">
               <div className="flex items-start gap-4">
-                <span className="grid size-12 shrink-0 place-items-center rounded-[12px] bg-[image:var(--grad-soft)] text-[#1e1c1a]">
+                <span className="grid size-12 shrink-0 place-items-center rounded-[12px] bg-[image:var(--grad-soft)] text-white">
                   <FileText aria-hidden="true" className="size-5" />
                 </span>
                 <div>

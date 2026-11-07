@@ -133,7 +133,7 @@ export default function TrabajaConmigo() {
                     transition={{ duration: 0.4, ease: EASE }}
                     className="flex flex-col items-start gap-4"
                   >
-                    <span className="grid size-12 place-items-center rounded-full bg-[image:var(--grad-soft)] text-[#1e1c1a]">
+                    <span className="grid size-12 place-items-center rounded-full bg-[image:var(--grad-soft)] text-white">
                       <Check aria-hidden="true" />
                     </span>
                     <p className="text-xl font-semibold">¡Listo! Tu solicitud está escrita.</p>
@@ -222,7 +222,7 @@ function Field({ id, label, error, required, className, children }: { id: string
       {children}
       <AnimatePresence initial={false}>
         {error && (
-          <motion.p id={`${id}-e`} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="flex items-center gap-1.5 text-small text-[#f0b0a8]">
+          <motion.p id={`${id}-e`} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="flex items-center gap-1.5 text-small text-[#fca5a5]">
             <AlertCircle aria-hidden="true" className="size-3.5 shrink-0" /> {error}
           </motion.p>
         )}

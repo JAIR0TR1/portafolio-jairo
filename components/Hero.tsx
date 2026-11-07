@@ -6,7 +6,7 @@ import { HeroTitle } from "@/components/ui/HeroTitle";
 import { HeroAvatar } from "@/components/ui/HeroAvatar";
 import { HeroBlob } from "@/components/ui/HeroBlob";
 import { HeroAmbient } from "@/components/ui/HeroAmbient";
-import { ModeSelector, NotesList } from "@/components/ui/ModeSelector";
+import { ModeSelector } from "@/components/ui/ModeSelector";
 import { SocialGlyph } from "@/components/ui/BrandIcons";
 import { IntroGate } from "@/components/three/IntroGate";
 import { RobotCompanion } from "@/components/ui/RobotCompanion";
@@ -69,7 +69,6 @@ function HeroContent({ revealed = false }: { revealed?: boolean }) {
           </div>
         </div>
 
-        <NotesList className="mt-8 lg:hidden" />
 
         {/* Dos columnas simétricas a los lados de las piernas */}
         <div

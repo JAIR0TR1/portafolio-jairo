@@ -14,7 +14,7 @@ export default function Footer() {
       <div className="container-x grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-12">
         <div className="lg:col-span-5">
           <p className="flex items-center gap-3 font-display text-lg font-medium tracking-[-0.02em]">
-            <span className="grid size-10 place-items-center rounded-full bg-[image:var(--grad-soft)] font-mono text-small font-semibold text-[#1e1c1a]">{profile.initials}</span>
+            <span className="grid size-10 place-items-center rounded-full bg-[image:var(--grad-soft)] font-mono text-small font-semibold text-white">{profile.initials}</span>
             {profile.name}
           </p>
           <p className="mt-4 max-w-sm text-pretty text-muted">

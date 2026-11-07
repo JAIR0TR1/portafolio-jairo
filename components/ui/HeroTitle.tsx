@@ -6,14 +6,14 @@ import { MODES, useModeIndex } from "@/lib/mode";
 import { useReducedEffects } from "@/lib/effects";
 import { hash01 } from "@/lib/heroMotion";
 
-const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ+";
+const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.";
 const SCRAMBLE_MS = 600;
 
 /** Estilo común de la palabra y de la sonda que la mide (deben ser idénticos). */
 const TYPE: CSSProperties = { fontSize: 100, lineHeight: 0.9, letterSpacing: "-0.02em" };
 
 /**
- * Palabra gigante detrás del personaje (JAIRO / CÓDIGO / HUMANO+IA) en Michroma.
+ * Palabra gigante detrás del personaje (JAIRO / CÓDIGO / JAIRO.IA) en Michroma.
  * Se mide con la fuente real y se escala para ocupar EXACTAMENTE el ancho del contenedor.
  * Al cambiar de modo, las letras se mezclan (~600 ms) sin cambiar de capa.
  * Decorativa: el h1 real es el nombre completo.

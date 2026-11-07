@@ -16,18 +16,18 @@ export default function OpengraphImage() {
           justifyContent: "space-between",
           padding: 72,
           background:
-            "radial-gradient(circle at 85% 10%, rgba(242,184,160,.28), transparent 45%), radial-gradient(circle at 10% 95%, rgba(168,195,160,.2), transparent 45%), radial-gradient(circle at 55% 55%, rgba(157,180,200,.14), transparent 60%), #1E1C1A",
-          color: "#F3EEE6",
+            "radial-gradient(circle at 80% 15%, rgba(229,56,59,.35), transparent 50%), radial-gradient(circle at 10% 95%, rgba(229,56,59,.12), transparent 45%), #1C0A10",
+          color: "#F5F2EE",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 20, fontSize: 28, color: "#B5AC9F" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 20, fontSize: 28, color: "rgba(245,242,238,.68)" }}>
           <div
             style={{
               width: 64,
               height: 64,
               borderRadius: 16,
-              background: "linear-gradient(120deg, #F2B8A0, #E8D5B5)",
-              color: "#1E1C1A",
+              background: "#DA3538",
+              color: "#FFFFFF",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -40,14 +40,14 @@ export default function OpengraphImage() {
           Portafolio · Ingeniería de Software
         </div>
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 40, color: "#B5AC9F" }}>Jairo Andrés Vallejo Burbano</div>
+          <div style={{ fontSize: 40, color: "rgba(245,242,238,.68)" }}>Jairo Andrés Vallejo Burbano</div>
           <div style={{ fontSize: 84, fontWeight: 700, letterSpacing: -3, lineHeight: 1.05 }}>Código limpio.</div>
           <div style={{ fontSize: 84, fontWeight: 700, letterSpacing: -3, lineHeight: 1.05 }}>Interfaces claras.</div>
-          <div style={{ fontSize: 84, fontWeight: 700, letterSpacing: -3, lineHeight: 1.05, color: "#F2B8A0" }}>Ideas que se venden.</div>
+          <div style={{ fontSize: 84, fontWeight: 700, letterSpacing: -3, lineHeight: 1.05, color: "#FF8587" }}>Ideas que se venden.</div>
         </div>
-        <div style={{ display: "flex", gap: 16, fontSize: 24, color: "#B5AC9F" }}>
+        <div style={{ display: "flex", gap: 16, fontSize: 24, color: "rgba(245,242,238,.68)" }}>
           <span>Pasto, Nariño</span>
-          <span style={{ color: "#F2B8A0" }}>·</span>
+          <span style={{ color: "#FF8587" }}>·</span>
           <span>Frontend · Diseño UI · Backend · IA</span>
         </div>
       </div>
