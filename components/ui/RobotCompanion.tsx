@@ -92,7 +92,6 @@ function DesktopCompanion() {
     };
   }, [reduced, visible]);
 
-  const current = sections.findIndex((s) => s.id === active);
 
   return (
     <aside
@@ -126,32 +125,6 @@ function DesktopCompanion() {
         </div>
       </div>
 
-      {/* Pestañas numeradas: la sección activa se ilumina */}
-      <nav
-        className={cn(
-          "relative mt-2 grid w-[86%] grid-cols-2 gap-x-4 gap-y-1 font-mono text-[10.5px] uppercase tracking-[0.1em]",
-          visible && "pointer-events-auto",
-        )}
-        tabIndex={-1}
-      >
-        {sections.slice(1).map((s, i) => {
-          const on = current === i + 1;
-          return (
-            <a
-              key={s.id}
-              href={`#${s.id}`}
-              tabIndex={-1}
-              className={cn(
-                "flex items-center gap-2 border-t py-1.5 transition-colors",
-                on ? "border-ink text-ink" : "border-line text-muted hover:text-ink",
-              )}
-            >
-              <span className={cn("size-[5px] rounded-full transition-colors", on ? "bg-accent" : "bg-faint")} />
-              {String(i + 2).padStart(2, "0")} / {s.label}
-            </a>
-          );
-        })}
-      </nav>
     </aside>
   );
 }

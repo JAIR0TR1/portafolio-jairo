@@ -97,7 +97,7 @@ export default function TrabajaConmigo() {
           index={sectionIndex("trabaja-conmigo")}
           eyebrow="Trabaja conmigo"
           title="¿Tienes un proyecto? Agendemos."
-          description="Elige el servicio, la fecha y cuéntame la idea. El mensaje se arma solo y me llega por WhatsApp o correo."
+          description="Elige el servicio y la fecha; el mensaje me llega por WhatsApp o correo."
         />
 
         <div className="grid gap-4 lg:grid-cols-12">
@@ -107,12 +107,12 @@ export default function TrabajaConmigo() {
               return (
                 <RevealItem as="li" key={s.id}>
                   <div className="glass spotlight flex h-full items-start gap-4 p-5">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-[10px] border border-line-2 text-ink">
+                    <span className="grid size-10 shrink-0 place-items-center rounded-[12px] border border-line-2 text-ink">
                       <Icon aria-hidden="true" className="size-[18px]" />
                     </span>
                     <div>
-                      <h3 className="text-[16px] font-semibold tracking-[-0.01em]">{s.title}</h3>
-                      <p className="mt-1 text-pretty text-[14px] leading-relaxed text-muted">{s.text}</p>
+                      <h3 className="text-h3">{s.title}</h3>
+                      <p className="mt-1 text-pretty text-small text-muted">{s.text}</p>
                     </div>
                   </div>
                 </RevealItem>
@@ -133,7 +133,7 @@ export default function TrabajaConmigo() {
                     transition={{ duration: 0.4, ease: EASE }}
                     className="flex flex-col items-start gap-4"
                   >
-                    <span className="grid size-12 place-items-center rounded-full bg-[image:var(--grad-soft)] text-[#0b1030]">
+                    <span className="grid size-12 place-items-center rounded-full bg-[image:var(--grad-soft)] text-[#1e1c1a]">
                       <Check aria-hidden="true" />
                     </span>
                     <p className="text-xl font-semibold">¡Listo! Tu solicitud está escrita.</p>
@@ -156,7 +156,7 @@ export default function TrabajaConmigo() {
                   </motion.div>
                 ) : (
                   <motion.form key="form" noValidate onSubmit={onSubmit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="grid gap-5 md:grid-cols-2">
-                    <p className="text-sm text-muted md:col-span-2">
+                    <p className="text-small text-muted md:col-span-2">
                       Los campos con <span aria-hidden="true">*</span>
                       <span className="sr-only">asterisco</span> son obligatorios.
                     </p>
@@ -216,13 +216,13 @@ export default function TrabajaConmigo() {
 function Field({ id, label, error, required, className, children }: { id: string; label: string; error?: string; required?: boolean; className?: string; children: ReactNode }) {
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      <label htmlFor={id} className="text-sm font-medium">
+      <label htmlFor={id} className="text-small font-medium">
         {label} {required && <span className="text-muted" aria-hidden="true">*</span>}
       </label>
       {children}
       <AnimatePresence initial={false}>
         {error && (
-          <motion.p id={`${id}-e`} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="flex items-center gap-1.5 text-sm text-[#ff9fb8]">
+          <motion.p id={`${id}-e`} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="flex items-center gap-1.5 text-small text-[#f0b0a8]">
             <AlertCircle aria-hidden="true" className="size-3.5 shrink-0" /> {error}
           </motion.p>
         )}

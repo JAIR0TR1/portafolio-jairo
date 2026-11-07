@@ -44,11 +44,19 @@ export const keyFacts = [
   { label: "Ubicación", value: profile.location },
 ] as const;
 
-/** Redes del sitio (riel del Hero, menú y footer). Sin LinkedIn. */
+/** Redes del sitio (menú y footer). Sin LinkedIn. */
 export const socials: SocialLink[] = [
   { label: "GitHub", handle: profile.githubHandle, href: profile.github, icon: "github" },
   { label: "Instagram", handle: profile.instagramHandle, href: profile.instagram, icon: "instagram" },
   { label: "Correo", handle: profile.email, href: `mailto:${profile.email}`, icon: "mail" },
+];
+
+/** Riel lateral del Hero: GitHub, Instagram, WhatsApp y correo. */
+export const railLinks: SocialLink[] = [
+  socials[0],
+  socials[1],
+  { label: "WhatsApp", handle: "+57 301 391 7671", href: profile.whatsappHref, icon: "whatsapp" },
+  socials[2],
 ];
 
 /**

@@ -27,7 +27,7 @@ export const projects: Project[] = [
     github: `${GH}/DDIS-GUARDIAN-SHIELD`,
     status: "publicado",
     year: 2026,
-    accent: "#3B82F6",
+    accent: "#9DB4C8",
   },
   {
     title: "Brasa",
@@ -37,7 +37,7 @@ export const projects: Project[] = [
     github: `${GH}/brasa-wear-os`,
     status: "publicado",
     year: 2026,
-    accent: "#F59E0B",
+    accent: "#F2B8A0",
   },
   {
     title: "Reproductor de música",
@@ -48,7 +48,7 @@ export const projects: Project[] = [
     demo: "https://taller-reproductor-de-musica-psi.vercel.app",
     status: "publicado",
     year: 2026,
-    accent: "#EC4899",
+    accent: "#E8D5B5",
   },
   {
     title: "Cazador de Objetos",
@@ -56,7 +56,7 @@ export const projects: Project[] = [
     tags: ["Expo", "React Native", "TypeScript"],
     status: "en-desarrollo",
     year: 2026,
-    accent: "#22D3EE",
+    accent: "#A8C3A0",
   },
   {
     title: "StudyFlow",
@@ -64,7 +64,7 @@ export const projects: Project[] = [
     tags: ["React", "TypeScript", "Vite"],
     status: "publicado",
     year: 2025,
-    accent: "#8B5CF6",
+    accent: "#C9B79A",
   },
   {
     title: "Library Management System",
@@ -72,6 +72,6 @@ export const projects: Project[] = [
     tags: ["Java", "SQL"],
     status: "publicado",
     year: 2024,
-    accent: "#3B82F6",
+    accent: "#9DB4C8",
   },
 ];

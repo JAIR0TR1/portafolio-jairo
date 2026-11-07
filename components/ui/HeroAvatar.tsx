@@ -10,6 +10,26 @@ import { CircuitFigure, JairoAligned, ModeFigure, RobotAligned } from "./ModeAva
 import { cn } from "@/lib/cn";
 
 const CYCLE_MS = 6000;
+const NOTES_MS = 4000; // las anotaciones rotan en grupos de 4
+const PER_GROUP = 4;
+
+/** Grupo de anotaciones visible: reloj compartido (mismo grupo en ambas capas del Hero). */
+function useNotesTick(active: boolean) {
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    if (!active) return;
+    let t = 0;
+    const loop = () => {
+      t = window.setTimeout(() => {
+        setTick(Math.floor(Date.now() / NOTES_MS));
+        loop();
+      }, NOTES_MS - (Date.now() % NOTES_MS) + 20);
+    };
+    loop();
+    return () => window.clearTimeout(t);
+  }, [active]);
+  return tick;
+}
 const TILT = 6; // grados máximos de inclinación
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
@@ -108,6 +128,7 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
   const [nearTop, setNearTop] = useState(true);
   const [greeting, setGreeting] = useState(false);
   const [band, setBand] = useState<Band | null>(null);
+  const notesTick = useNotesTick(!reduced);
 
   const figRef = useRef<HTMLDivElement>(null);
   const greetTimer = useRef<number | undefined>(undefined);
@@ -270,8 +291,11 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
     if (!reduced) animate(heroJump, [0, -14, 0], { duration: 0.5, ease: EASE });
   };
 
-  const slots = freeSlots(band);
-  const notes = data.notes.slice(0, slots.length);
+  // Hasta 4 anotaciones a la vez; si hay más, rotan por grupos cada 4 s (fade).
+  const slots = freeSlots(band).slice(0, PER_GROUP);
+  const groups = slots.length ? Math.ceil(data.notes.length / slots.length) : 1;
+  const group = groups > 1 ? notesTick % groups : 0;
+  const notes = data.notes.slice(group * slots.length, group * slots.length + slots.length);
 
   const handlers = isBase
     ? {
@@ -310,7 +334,7 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
       {!reduced && (
         <div className="pointer-events-none absolute inset-0 z-20 hidden lg:block">
           <AnimatePresence mode="wait">
-            <motion.div key={mode.id} className="absolute inset-0" exit={{ opacity: 0, transition: { duration: 0.15 } }}>
+            <motion.div key={`${mode.id}-${group}`} className="absolute inset-0" exit={{ opacity: 0, transition: { duration: 0.3 } }}>
               {notes.map((t, i) => (
                 <Note key={t} text={t} i={i} slot={slots[i]} sx={sx} sy={sy} />
               ))}
@@ -406,19 +430,6 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
         </div>
       </div>
 
-      {/* Pista del híbrido: DEBAJO de la sombra, sin tapar los zapatos */}
-      <AnimatePresence>
-        {isHybrid && (
-          <motion.p
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="absolute left-1/2 top-[100%] z-20 -translate-x-1/2 whitespace-nowrap pt-1 font-mono text-[11px] uppercase tracking-[0.12em] text-muted"
-          >
-            {finePointer ? "Mueve para ver el lado IA" : "Desliza para ver el lado IA"}
-          </motion.p>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

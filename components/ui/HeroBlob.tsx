@@ -27,9 +27,11 @@ export function HeroBlob() {
     const layer = card?.querySelector<HTMLElement>("[data-hero-revealed]");
     if (!card || !layer) return;
 
+    // will-change solo mientras la mancha está viva (evita una capa de GPU del tamaño del Hero en reposo)
     const hide = () => {
       layer.style.clipPath = "circle(0px at 50% 50%)";
       layer.style.visibility = "hidden";
+      layer.style.willChange = "auto";
     };
     hide();
     if (reduced) return;
@@ -134,6 +136,7 @@ export function HeroBlob() {
       }
       layer.style.clipPath = `path("${d}Z")`;
       layer.style.visibility = "visible";
+      layer.style.willChange = "clip-path";
 
       if (st.onScreen && !document.hidden) st.raf = requestAnimationFrame(frame);
     };

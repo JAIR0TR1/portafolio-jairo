@@ -9,7 +9,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProjectCover } from "@/components/ui/ProjectCover";
 import { GithubIcon } from "@/components/ui/BrandIcons";
 import { TechIcon, tagToIcon } from "@/components/ui/TechIcon";
-import { EASE, useReducedEffects } from "@/lib/effects";
+import { EASE } from "@/lib/effects";
 import { cn } from "@/lib/cn";
 
 const ALL = "Todos";
@@ -30,37 +30,14 @@ function useFilters() {
 }
 
 function ProjectCard({ project, index }: { project: Project; index: number }) {
-  const reduced = useReducedEffects();
   const published = project.status !== "en-desarrollo";
   return (
     <article className="glass spotlight group flex h-full flex-col overflow-hidden">
-      <div className="relative aspect-[16/10] overflow-hidden rounded-t-[11px] border-b border-line">
-        {/* La portada sale de la oscuridad con un barrido de luz al entrar en pantalla */}
-        <motion.div
-          className="absolute inset-0"
-          initial={{ filter: "brightness(0.12) saturate(0.3)" }}
-          animate={
-            reduced ? { filter: "brightness(1) saturate(1)" } : undefined
-          }
-          whileInView={{ filter: "brightness(1) saturate(1)" }}
-          viewport={{ once: true, margin: "0px 0px -15% 0px" }}
-          transition={{ duration: 1.1, ease: EASE, delay: 0.1 }}
-        >
-          <ProjectCover project={project} priority={index < 2} />
-        </motion.div>
-        <motion.span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 -left-[60%] w-[60%]"
-          initial={reduced ? { opacity: 0 } : { x: "0%", opacity: 1 }}
-          whileInView={{ x: "300%", opacity: [1, 1, 0] }}
-          viewport={{ once: true, margin: "0px 0px -15% 0px" }}
-          transition={{ duration: 1.3, ease: EASE, delay: 0.15 }}
-        >
-          <span className="block h-full w-full skew-x-[-18deg] bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-        </motion.span>
+      <div className="relative aspect-[16/10] overflow-hidden rounded-t-[19px] border-b border-line">
+        <ProjectCover project={project} priority={index < 2} />
         <span
           className={cn(
-            "chip absolute left-3 top-3 bg-[#0b1030]/70 backdrop-blur-sm",
+            "chip absolute left-3 top-3 bg-[#1e1c1a]/70 backdrop-blur-sm",
             published ? "text-ink" : "text-muted",
           )}
         >
@@ -73,7 +50,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           {published ? "Publicado" : "En desarrollo"}
         </span>
         {project.year ? (
-          <span className="chip absolute right-3 top-3 bg-[#0b1030]/70 text-muted backdrop-blur-sm">
+          <span className="chip absolute right-3 top-3 bg-[#1e1c1a]/70 text-muted backdrop-blur-sm">
             {project.year}
           </span>
         ) : null}
@@ -81,7 +58,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 
       <div className="flex flex-1 flex-col gap-4 p-6">
         <div className="flex items-center gap-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-[10px] border border-line-2 font-mono text-xs text-muted">
+          <span className="grid size-10 shrink-0 place-items-center rounded-[12px] border border-line-2 text-label text-muted">
             {String(index + 1).padStart(2, "0")}
           </span>
           <h3 className="font-display text-xl font-medium tracking-[-0.025em]">
@@ -89,7 +66,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           </h3>
         </div>
         <p
-          className="line-clamp-2 min-h-[3.25em] text-pretty text-[15px] leading-relaxed text-muted"
+          className="line-clamp-2 min-h-[3.25em] text-pretty text-body text-muted"
           title={project.description}
         >
           {project.description}
@@ -129,7 +106,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             </a>
           )}
           {!project.github && !project.demo && (
-            <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
+            <span className="text-label text-muted">
               Enlaces próximamente
             </span>
           )}
@@ -157,7 +134,7 @@ export default function Projects() {
           index={sectionIndex("proyectos")}
           eyebrow="Proyectos"
           title={<>Cosas que he construido.</>}
-          description="Apps de escritorio, para reloj y web. Filtra por tecnología y abre el código o la demo."
+          description="Apps de escritorio, para reloj y web, con su código y su demo."
         />
 
         <div
@@ -174,9 +151,9 @@ export default function Projects() {
                 aria-pressed={on}
                 onClick={() => setFilter(f)}
                 className={cn(
-                  "relative min-h-11 rounded-full border px-4 text-sm transition-colors",
+                  "relative min-h-11 rounded-full border px-4 text-small transition-colors",
                   on
-                    ? "border-transparent font-medium text-[#0b1030]"
+                    ? "border-transparent font-medium text-[#1e1c1a]"
                     : "border-line text-muted hover:border-accent/50 hover:text-ink",
                 )}
               >
@@ -192,7 +169,7 @@ export default function Projects() {
             );
           })}
           <p
-            className="ml-auto self-center font-mono text-xs text-muted"
+            className="ml-auto self-center text-label text-muted"
             aria-live="polite"
           >
             Mostrando <span className="text-ink">{list.length}</span> de{" "}
@@ -211,10 +188,10 @@ export default function Projects() {
                 <motion.li
                   key={p.title}
                   layout
-                  initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
-                  whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-                  exit={{ opacity: 0, scale: 0.96, filter: "blur(6px)" }}
+                  exit={{ opacity: 0, scale: 0.98 }}
                   transition={{
                     duration: 0.6,
                     ease: EASE,

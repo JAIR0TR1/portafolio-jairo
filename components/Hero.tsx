@@ -1,5 +1,5 @@
 import { ArrowDownToLine, ArrowRight, CalendarCheck } from "lucide-react";
-import { profile, socials } from "@/data/profile";
+import { profile, railLinks } from "@/data/profile";
 import { projects } from "@/data/projects";
 import { aiTools } from "@/data/skills";
 import { HeroTitle } from "@/components/ui/HeroTitle";
@@ -29,8 +29,8 @@ function HeroContent({ revealed = false }: { revealed?: boolean }) {
   return (
     <>
       {/* Riel vertical izquierdo: redes + indicador de scroll (escritorio ancho) */}
-      <div className="absolute bottom-10 left-6 top-[calc(var(--header-h)+2rem)] z-20 hidden flex-col items-center gap-4 xl:flex">
-        {socials.map((s) => (
+      <div className="absolute left-6 top-[calc(var(--header-h)+2rem)] z-20 hidden flex-col items-center gap-3 xl:flex">
+        {railLinks.map((s) => (
           <a
             key={s.label}
             href={s.href}
@@ -38,30 +38,22 @@ function HeroContent({ revealed = false }: { revealed?: boolean }) {
             rel={s.icon === "mail" ? undefined : "noopener noreferrer"}
             aria-label={s.icon === "mail" ? `Escribir a ${s.handle}` : `${s.label} (abre en otra pestaña)`}
             tabIndex={revealed ? -1 : undefined}
-            className="grid size-9 place-items-center rounded-[6px] border border-line-2 text-muted transition-colors hover:border-accent/50 hover:text-ink"
+            className="grid size-11 place-items-center rounded-[12px] border border-line-2 text-muted transition-colors hover:border-accent/60 hover:text-ink"
           >
             <SocialGlyph icon={s.icon} className="size-4" />
           </a>
         ))}
-        <span aria-hidden="true" className="relative mt-2 w-px flex-1 overflow-hidden bg-line-2">
-          <span className="rail-dot absolute left-0 top-0 h-8 w-px bg-ink" />
-        </span>
-        <span aria-hidden="true" className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted [writing-mode:vertical-rl]">
-          Scroll
-        </span>
       </div>
 
       <div className="container-x relative pb-8 pt-[calc(var(--header-h)+0.25rem)]">
         {/* Fila de ficha */}
         <div
-          className="hero-in flex items-center justify-between gap-4 border-b border-line pb-3 font-mono text-[11px] uppercase tracking-[0.14em] text-muted"
+          className="hero-in flex items-center gap-4 border-b border-line pb-3 text-label text-muted"
           style={{ ["--i" as string]: 0 }}
         >
           <span>
-            <span className="text-ink">01</span> / Inicio — Disponible<span className="hidden sm:inline"> para proyectos</span>
+            <span className="text-accent">01</span> / Inicio — Disponible<span className="hidden sm:inline"> para proyectos</span>
           </span>
-          <span className="hidden md:inline">Mueve el mouse · toca la cabeza para saludar</span>
-          <span className="md:hidden">Toca para saludar</span>
         </div>
 
         {/* Escenario. Capas fijas: palabra gigante (z-0) → personaje (z-10) → anotaciones → UI (z-30) */}
@@ -85,11 +77,11 @@ function HeroContent({ revealed = false }: { revealed?: boolean }) {
           style={{ ["--i" as string]: 3 }}
         >
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted">Hola, soy {profile.shortName}</p>
+            <p className="text-label text-muted">Hola, soy {profile.shortName}</p>
             <Title id={revealed ? undefined : "hero-title"} className="text-display mt-3 text-[clamp(1.15rem,0.9rem+0.9vw,1.6rem)] leading-[1.15]">
               {profile.name}
             </Title>
-            <p className="mt-2 max-w-[44ch] text-pretty text-[15px] leading-relaxed text-muted">{profile.heroRole}</p>
+            <p className="mt-2 max-w-[44ch] text-pretty text-small text-muted md:text-body">{profile.heroRole}</p>
             <div className="mt-5 flex flex-wrap gap-2">
               <a href="/cv.pdf" download tabIndex={revealed ? -1 : undefined} className="btn btn-primary">
                 Descargar CV <ArrowDownToLine aria-hidden="true" />
@@ -104,7 +96,7 @@ function HeroContent({ revealed = false }: { revealed?: boolean }) {
 
           <div className="flex flex-col gap-3 lg:items-end lg:text-right">
             <ModeSelector />
-            <p className="max-w-[34ch] text-pretty text-[17px] font-medium leading-snug text-ink">{profile.tagline}</p>
+            <p className="max-w-[34ch] text-pretty text-body font-medium text-ink">{profile.tagline}</p>
             <a href="#proyectos" tabIndex={revealed ? -1 : undefined} className="btn btn-secondary w-fit">
               Ver proyectos <ArrowRight aria-hidden="true" />
             </a>
@@ -112,7 +104,7 @@ function HeroContent({ revealed = false }: { revealed?: boolean }) {
         </div>
 
         {/* Barra de cifras */}
-        <dl className="hero-in relative z-30 mt-8 grid grid-cols-2 rounded-[6px] border border-line md:grid-cols-4" style={{ ["--i" as string]: 4 }}>
+        <dl className="hero-in relative z-30 mt-8 grid grid-cols-2 rounded-[20px] border border-line md:grid-cols-4" style={{ ["--i" as string]: 4 }}>
           {stats.map((s, i) => (
             <div
               key={s.label}
@@ -120,7 +112,7 @@ function HeroContent({ revealed = false }: { revealed?: boolean }) {
             >
               <dt className="sr-only">{s.label}</dt>
               <dd className="font-mono text-xl leading-none text-ink md:text-2xl">{s.value}</dd>
-              <dd className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-muted">{s.label}</dd>
+              <dd className="text-label text-muted">{s.label}</dd>
             </div>
           ))}
         </dl>

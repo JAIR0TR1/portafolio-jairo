@@ -16,7 +16,6 @@ function Card({ t, i }: { t: Testimonial; i: number }) {
     <figure className="glass spotlight flex h-full flex-col justify-between gap-8 p-6 md:p-7">
       <div className="space-y-5">
         <span className="chip">
-          <span aria-hidden="true" className="size-[5px] rounded-full bg-accent" />
           {TYPE_LABEL[t.tipo]}
         </span>
         <blockquote className="text-pretty text-[17px] leading-relaxed text-ink">“{t.texto}”</blockquote>
@@ -25,7 +24,7 @@ function Card({ t, i }: { t: Testimonial; i: number }) {
         <InitialsAvatar name={t.nombre} src={t.foto} index={i} className="size-11 text-xs" />
         <span>
           <span className="block font-medium">{t.nombre}</span>
-          <span className="block text-sm text-muted">{t.relacion}</span>
+          <span className="block text-small text-muted">{t.relacion}</span>
         </span>
       </figcaption>
     </figure>
@@ -38,8 +37,8 @@ function Placeholder() {
     <div className="flex h-full flex-col items-start justify-between gap-10 rounded-[12px] border border-dashed border-line-2 p-6 md:p-7">
       <MessageSquareQuote aria-hidden="true" className="size-6 text-muted" />
       <div>
-        <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted">Próximamente</p>
-        <p className="mt-2 text-[15px] text-muted">Opiniones de clientes y docentes, publicadas con su permiso.</p>
+        <p className="text-label text-muted">Próximamente</p>
+        <p className="mt-2 text-body text-muted">Opiniones de clientes y docentes, publicadas con su permiso.</p>
       </div>
     </div>
   );

@@ -10,7 +10,22 @@ export type GalleryImage = { src: string; alt: string };
  * Galería con lightbox accesible (<dialog> nativo: foco atrapado y Esc cierra).
  * Flechas del teclado para pasar de imagen.
  */
-export function Gallery({ images, label }: { images: GalleryImage[]; label: string }) {
+export function Gallery({
+  images,
+  label,
+  className = "grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4",
+  aspect = "aspect-[3/4]",
+  fit = "object-cover",
+}: {
+  images: GalleryImage[];
+  label: string;
+  /** Clases de la grilla de miniaturas. */
+  className?: string;
+  /** Proporción fija de cada miniatura. */
+  aspect?: string;
+  /** object-cover (fotos) u object-contain (flyers con texto). */
+  fit?: "object-cover" | "object-contain";
+}) {
   const ref = useRef<HTMLDialogElement>(null);
   const [i, setI] = useState(0);
   const go = (n: number) => setI((n + images.length) % images.length);
@@ -18,7 +33,7 @@ export function Gallery({ images, label }: { images: GalleryImage[]; label: stri
 
   return (
     <>
-      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4" aria-label={label}>
+      <ul className={className} aria-label={label}>
         {images.map((img, n) => (
           <li key={img.src}>
             <button
@@ -27,10 +42,10 @@ export function Gallery({ images, label }: { images: GalleryImage[]; label: stri
                 setI(n);
                 ref.current?.showModal();
               }}
-              className="group relative block aspect-square w-full overflow-hidden rounded-[12px] border border-line"
+              className={`group relative block w-full overflow-hidden rounded-[20px] border border-line bg-card ${aspect}`}
               aria-label={`Ampliar: ${img.alt}`}
             >
-              <Image src={img.src} alt={img.alt} fill sizes="(min-width: 1024px) 220px, 45vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+              <Image src={img.src} alt={img.alt} fill sizes="(min-width: 1024px) 320px, 45vw" className={`${fit} transition-transform duration-500 group-hover:scale-[1.03]`} />
             </button>
           </li>
         ))}
@@ -39,7 +54,7 @@ export function Gallery({ images, label }: { images: GalleryImage[]; label: stri
       <dialog
         ref={ref}
         aria-label={label}
-        className="cv-dialog m-auto w-[min(1000px,calc(100vw-2rem))] rounded-[16px] border border-line-2 bg-card p-0 text-ink"
+        className="cv-dialog m-auto w-[min(1000px,calc(100vw-2rem))] rounded-[20px] border border-line-2 bg-card p-0 text-ink"
         onClick={(e) => {
           if (e.target === e.currentTarget) e.currentTarget.close();
         }}
@@ -50,11 +65,11 @@ export function Gallery({ images, label }: { images: GalleryImage[]; label: stri
       >
         {current && (
           <figure>
-            <div className="relative h-[min(72vh,760px)] w-full bg-[#0b1030]">
+            <div className="relative h-[min(72vh,760px)] w-full bg-[#1e1c1a]">
               <Image src={current.src} alt={current.alt} fill sizes="1000px" className="object-contain" />
             </div>
             <figcaption className="flex items-center justify-between gap-3 border-t border-line px-4 py-3">
-              <span className="text-sm text-muted">
+              <span className="text-small text-muted">
                 {current.alt} · {i + 1} / {images.length}
               </span>
               <span className="flex gap-2">

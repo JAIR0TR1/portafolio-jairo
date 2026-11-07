@@ -14,7 +14,7 @@ export default function Footer() {
       <div className="container-x grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-12">
         <div className="lg:col-span-5">
           <p className="flex items-center gap-3 font-display text-lg font-medium tracking-[-0.02em]">
-            <span className="grid size-10 place-items-center rounded-full bg-[image:var(--grad-soft)] font-mono text-sm font-semibold text-[#0b1030]">{profile.initials}</span>
+            <span className="grid size-10 place-items-center rounded-full bg-[image:var(--grad-soft)] font-mono text-small font-semibold text-[#1e1c1a]">{profile.initials}</span>
             {profile.name}
           </p>
           <p className="mt-4 max-w-sm text-pretty text-muted">
@@ -26,11 +26,11 @@ export default function Footer() {
         </div>
 
         <nav aria-label="Enlaces rápidos" className="lg:col-span-4">
-          <h2 className="text-eyebrow mb-4 text-muted">Enlaces rápidos</h2>
+          <h2 className="text-label mb-4 text-muted">Enlaces rápidos</h2>
           <ul className="grid grid-cols-2 gap-x-6">
             {sections.map((s) => (
               <li key={s.id}>
-                <a href={`#${s.id}`} className="flex min-h-10 items-center text-[15px] text-ink/85 transition-colors hover:text-ink hover:underline hover:decoration-accent hover:underline-offset-4">
+                <a href={`#${s.id}`} className="flex min-h-10 items-center text-body text-ink/85 transition-colors hover:text-ink hover:underline hover:decoration-accent hover:underline-offset-4">
                   {s.label}
                 </a>
               </li>
@@ -39,7 +39,7 @@ export default function Footer() {
         </nav>
 
         <div className="md:col-span-2 lg:col-span-3">
-          <h2 className="text-eyebrow mb-4 text-muted">Redes</h2>
+          <h2 className="text-label mb-4 text-muted">Redes</h2>
           <ul className="flex flex-wrap gap-2">
             {socials.map((s) => (
               <li key={s.label}>
@@ -54,7 +54,7 @@ export default function Footer() {
               </li>
             ))}
           </ul>
-          <h2 className="text-eyebrow mb-2 mt-8 text-muted">Preferencias</h2>
+          <h2 className="text-label mb-2 mt-8 text-muted">Preferencias</h2>
           <div className="flex flex-col">
             <ReduceEffectsToggle />
             <ReplayIntroButton />
@@ -62,7 +62,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="container-x flex flex-col gap-2 border-t border-line py-6 text-sm text-muted md:flex-row md:items-center md:justify-between">
+      <div className="container-x flex flex-col gap-2 border-t border-line py-6 text-small text-muted md:flex-row md:items-center md:justify-between">
         <p>
           {profile.name} · © {year}
         </p>

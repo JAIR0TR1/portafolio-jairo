@@ -5,8 +5,6 @@ import "./globals.css";
 import { profile } from "@/data/profile";
 import { Providers } from "@/components/ui/Providers";
 import { ScrollProgress } from "@/components/ui/ScrollProgress";
-import { SpotlightTracker } from "@/components/ui/SpotlightTracker";
-import { TechBackdrop } from "@/components/ui/TechBackdrop";
 import { Aurora } from "@/components/ui/Aurora";
 import { bootScript } from "@/lib/keys";
 
@@ -52,7 +50,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0B1030",
+  themeColor: "#1E1C1A",
   colorScheme: "dark",
 };
 
@@ -76,9 +74,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
           Saltar al contenido
         </a>
         <ScrollProgress />
-        <SpotlightTracker />
         <Aurora />
-        <TechBackdrop />
         <Providers>{children}</Providers>
       </body>
     </html>

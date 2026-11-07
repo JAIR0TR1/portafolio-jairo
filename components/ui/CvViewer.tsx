@@ -27,13 +27,13 @@ export function CvViewer() {
       <dialog
         ref={ref}
         aria-labelledby="cv-title"
-        className="cv-dialog m-auto w-[min(960px,calc(100vw-2rem))] rounded-[16px] border border-line-2 bg-card p-0 text-ink"
+        className="cv-dialog m-auto w-[min(960px,calc(100vw-2rem))] rounded-[20px] border border-line-2 bg-card p-0 text-ink"
         onClick={(e) => {
           if (e.target === e.currentTarget) e.currentTarget.close(); // clic en el fondo
         }}
       >
         <div className="flex items-center justify-between gap-4 border-b border-line px-5 py-3">
-          <h2 id="cv-title" className="text-[15px] font-semibold">
+          <h2 id="cv-title" className="text-body font-semibold">
             Hoja de vida · {profile.name}
           </h2>
           <div className="flex items-center gap-2">

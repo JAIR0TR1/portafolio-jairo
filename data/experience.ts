@@ -14,10 +14,10 @@ export const experience: Item[] = [
     type: "laboral",
     title: "Fundador · @jairovende_",
     place: "Emprendimiento propio · Pasto",
-    date: "Actualidad", // TODO(Jairo): fecha de inicio del emprendimiento (p. ej. «2023 – actualidad»)
+    date: "Finales de 2024 – actualidad",
     description:
-      "Venta de iPhone y accesorios en Pasto: atención directa a clientes, revisión de cada equipo, inventario y ventas por Instagram y WhatsApp.",
-    start: "",
+      "Venta de celulares iPhone y Android y accesorios en Pasto: mercancía importada y sellada con garantía, crédito con ADDI, Sistecrédito y Banco de Bogotá, y atención directa por Instagram y WhatsApp.",
+    start: "2024-11",
   },
   {
     type: "academica",
