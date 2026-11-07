@@ -6,8 +6,8 @@ import sharp from "sharp";
 import { mkdir } from "node:fs/promises";
 
 const url = process.argv[2] ?? "http://localhost:3000";
-const MAX_H = 8000; // límite seguro de textura en GPU
-const WIDTH = 1024;
+const MAX_H = 5600; // la intro solo recorre la parte alta; menos píxeles = carga y decodificación rápidas
+const WIDTH = 800;
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" });
@@ -32,6 +32,6 @@ const { data, info } = await img.toBuffer({ resolveWithObject: true });
 await mkdir(new URL("../public/intro/", import.meta.url), { recursive: true });
 await sharp(data)
   .extract({ left: 0, top: 0, width: info.width, height: Math.min(info.height, MAX_H) })
-  .webp({ quality: 70, effort: 6 })
+  .webp({ quality: 68, effort: 6 })
   .toFile(new URL("../public/intro/site.webp", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1"));
 console.log(`public/intro/site.webp → ${info.width}×${Math.min(info.height, MAX_H)}`);

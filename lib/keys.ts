@@ -19,4 +19,9 @@ if(location.pathname==='/'&&!s.getItem('${INTRO_KEY}')&&d.dataset.effects!=='red
 if(innerWidth>=768){var c=document.createElement('canvas'),g=c.getContext('webgl2')||c.getContext('webgl');
 d.dataset.intro=g?'webgl':'css';if(g&&g.getExtension('WEBGL_lose_context'))g.getExtension('WEBGL_lose_context').loseContext();}
 else if(r){d.dataset.intro='css';}
-if(d.dataset.intro)d.dataset.introKind=d.dataset.intro;}}catch(e){}`;
+if(d.dataset.intro){d.dataset.introKind=d.dataset.intro;var l=document.createElement('link');l.rel='preload';l.as='image';l.href='/intro/site.webp';l.fetchPriority='high';document.head.appendChild(l);
+// Sin JS (o si tarda): la intro se puede saltar y termina sola; IntroGate toma el control al montar.
+var end=function(){if(!d.dataset.intro||d.dataset.introMounted)return;try{s.setItem('${INTRO_KEY}','1')}catch(e){}delete d.dataset.intro;delete d.dataset.introKind;delete d.dataset.introGl;var h=decodeURIComponent(location.hash.slice(1)),t=h&&document.getElementById(h);if(t)t.scrollIntoView();};
+setTimeout(end,6500);
+document.addEventListener('click',function(e){var x=e.target;if(x&&x.closest&&x.closest('[data-intro-skip]')){e.preventDefault();end();}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')end();});}}}catch(e){}`;

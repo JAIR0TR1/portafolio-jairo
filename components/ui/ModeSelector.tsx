@@ -1,15 +1,14 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { Pause, Play } from "lucide-react";
 import { avatarModes } from "@/data/avatar";
-import { MODES, chooseMode, holdCycle, toggleUserPause, useModeState } from "@/lib/mode";
+import { MODES, chooseMode, holdCycle, useModeState } from "@/lib/mode";
 import { EASE } from "@/lib/effects";
 import { cn } from "@/lib/cn";
 
 /** Selectores de modo como chips de borde fino (heurísticas 3 y 6). */
 export function ModeSelector() {
-  const { index, userPaused } = useModeState();
+  const { index } = useModeState();
   return (
     <div
       role="group"
@@ -39,15 +38,6 @@ export function ModeSelector() {
           </button>
         );
       })}
-      <button
-        type="button"
-        onClick={toggleUserPause}
-        aria-pressed={userPaused}
-        aria-label={userPaused ? "Reanudar cambio automático de modo" : "Pausar cambio automático de modo"}
-        className="grid size-10 place-items-center rounded-[6px] border border-line-2 text-muted transition-colors hover:border-accent/50 hover:text-ink"
-      >
-        {userPaused ? <Play aria-hidden="true" className="size-3.5" /> : <Pause aria-hidden="true" className="size-3.5" />}
-      </button>
     </div>
   );
 }

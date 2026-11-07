@@ -79,11 +79,12 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
       geo.SW = stage.clientWidth;
       geo.off = (geo.SW - geo.W) / 2;
       geo.cx = geo.W / 2;
-      geo.cy = geo.H * (mobile ? 0.47 : 0.42);
-      const outer = Math.max(80, Math.min(geo.W * (mobile ? 0.82 : 1.02), geo.SW / 2 - (mobile ? 40 : 70)));
+      // móvil: órbita pequeña a la altura de las piernas (debajo de la palabra gigante)
+      geo.cy = geo.H * (mobile ? 0.66 : 0.42);
+      const outer = Math.max(70, Math.min(geo.W * (mobile ? 0.62 : 1.02), geo.SW / 2 - (mobile ? 70 : 70)));
       geo.rx = rings === 1 ? [outer, outer] : [outer * 0.64, outer];
       // la elipse nunca baja hasta el nombre y los botones (escritorio: hasta el 64 % del escenario)
-      const maxRy = geo.H * (mobile ? 0.3 : 0.22);
+      const maxRy = geo.H * (mobile ? 0.13 : 0.22);
       geo.ry = geo.rx.map((r) => Math.min(r * (mobile ? 0.75 : TILT), maxRy * (r / geo.rx[1])));
       // líneas de órbita (en ambas capas)
       hero.querySelectorAll<HTMLElement>("[data-orbit-line]").forEach((el) => {

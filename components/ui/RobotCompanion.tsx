@@ -106,7 +106,8 @@ function DesktopCompanion() {
       <div className="absolute left-1/2 top-[36%] aspect-square w-[85%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--accent)_20%,transparent),transparent)]" />
 
       {/* alto limitado para que el ancho del lienzo (0.747 × alto) nunca supere la columna */}
-      <div className={cn("relative h-[min(68vh,calc(var(--cw)/0.747))]", !reduced && "animate-float")}>
+      {/* margen de 40 px: la inclinación 3D y las poses con brazo extendido nunca se salen del viewport */}
+      <div className={cn("relative h-[min(64vh,calc((var(--cw)-40px)/0.747))]", !reduced && "animate-float")}>
         <div
           ref={figRef}
           className={cn("companion-tilt group relative aspect-[765/1024] h-full", visible && "pointer-events-auto")}

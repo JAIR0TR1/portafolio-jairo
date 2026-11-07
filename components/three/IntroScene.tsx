@@ -87,7 +87,7 @@ const shadowFragment = /* glsl */ `
   }
 `;
 
-function World({ onTick }: { onTick: (t: number) => void }) {
+function World({ onTick, onReady }: { onTick: (t: number) => void; onReady?: () => void }) {
   const tex = useTexture("/intro/site.webp");
 
   const { texA, texB, ry } = useMemo(() => {
@@ -150,7 +150,10 @@ function World({ onTick }: { onTick: (t: number) => void }) {
 
   useFrame((state) => {
     const now = state.clock.elapsedTime;
-    if (start.current === null) start.current = now;
+    if (start.current === null) {
+      start.current = now;
+      onReady?.(); // primer frame con la textura lista
+    }
     const t = now - start.current;
     onTick(t);
 
@@ -234,7 +237,15 @@ function World({ onTick }: { onTick: (t: number) => void }) {
   );
 }
 
-export default function IntroScene({ onTick, onFail }: { onTick: (t: number) => void; onFail: () => void }) {
+export default function IntroScene({
+  onTick,
+  onFail,
+  onReady,
+}: {
+  onTick: (t: number) => void;
+  onFail: () => void;
+  onReady?: () => void;
+}) {
   return (
     <Canvas
       dpr={[1, 1.5]}
@@ -244,7 +255,7 @@ export default function IntroScene({ onTick, onFail }: { onTick: (t: number) => 
     >
       <PerformanceMonitor onDecline={onFail} />
       <Suspense fallback={null}>
-        <World onTick={onTick} />
+        <World onTick={onTick} onReady={onReady} />
       </Suspense>
     </Canvas>
   );

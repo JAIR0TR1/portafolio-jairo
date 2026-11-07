@@ -166,11 +166,11 @@ export default function Navbar() {
         <div className="container-x flex justify-center">
           <nav
             aria-label="Principal"
-            className="nav-capsule pointer-events-auto flex w-full items-center justify-between gap-2 rounded-full p-1.5 lg:w-auto"
+            className="nav-capsule pointer-events-auto flex w-full min-w-0 items-center justify-between gap-2 rounded-full p-1.5 lg:w-auto"
           >
-            <a href="#inicio" className="flex min-h-10 items-center gap-2.5 rounded-full pl-0.5 pr-3" aria-label={`${profile.name}, ir al inicio`}>
+            <a href="#inicio" className="flex min-h-10 min-w-0 items-center gap-2.5 rounded-full pl-0.5 pr-2" aria-label={`${profile.name}, ir al inicio`}>
               <Monogram />
-              <span className="text-[15px] font-semibold tracking-tight">Jairo</span>
+              <span className="hidden text-[15px] font-semibold tracking-tight min-[360px]:inline">Jairo</span>
             </a>
 
             <ul className="isolate hidden items-center lg:flex">
@@ -236,7 +236,7 @@ export default function Navbar() {
               )}
             </ul>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex shrink-0 items-center gap-1.5">
               <a href="/cv.pdf" download className="btn btn-primary min-h-10 rounded-full px-4">
                 CV <ArrowDownToLine aria-hidden="true" />
               </a>
@@ -247,7 +247,7 @@ export default function Navbar() {
                 aria-expanded={open}
                 aria-controls="menu-movil"
                 aria-label="Abrir menú"
-                className="grid size-10 place-items-center rounded-full border border-line-2 lg:hidden"
+                className="grid size-10 place-items-center rounded-full border border-line-2 bg-white/[.08] text-ink lg:hidden"
               >
                 <Menu aria-hidden="true" className="size-5" />
               </button>

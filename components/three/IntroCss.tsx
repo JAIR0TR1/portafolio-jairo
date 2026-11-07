@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 
 /**
+ * Póster de la intro: se renderiza en el HTML (SSR) y se ve desde el primer pintado, antes
+ * de que cargue el JS; la escena 3D lo reemplaza si está lista en menos de 2 s.
  * Versión 2D de la intro (sin WebGL / móvil): pantalla en perspectiva CSS con el sitio
  * haciendo scroll adentro, rayo de luz sobre el piso y el mismo zoom final.
  */
@@ -32,9 +34,9 @@ export function IntroCss() {
       >
         <div className="relative h-full w-full overflow-hidden rounded-[clamp(10px,1.4vw,20px)] bg-bg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/intro/site.webp" alt="" className="intro-css-scroll absolute inset-x-0 top-0 w-full" />
+          <img src="/intro/site.webp" alt="" loading="lazy" decoding="async" className="intro-css-scroll absolute inset-x-0 top-0 w-full" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/intro/site.webp" alt="" className="intro-css-top absolute inset-x-0 top-0 w-full" />
+          <img src="/intro/site.webp" alt="" loading="lazy" decoding="async" className="intro-css-top absolute inset-x-0 top-0 w-full" />
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(125deg,rgb(255_255_255/.1),transparent_35%)]" />
         </div>
       </div>

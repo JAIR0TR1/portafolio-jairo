@@ -8,6 +8,9 @@ import { hash01 } from "@/lib/heroMotion";
 
 const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.";
 const SCRAMBLE_MS = 600;
+/** Ancho natural (px) de cada palabra a 100px en Michroma: permite pintar la palabra ya
+ *  ajustada al ancho en el HTML (unidades de contenedor), antes de que cargue el JS. */
+const NATURAL: Record<string, number> = { JAIRO: 414.77, "CÓDIGO": 544.41, "JAIRO.IA": 565.02 };
 
 /** Estilo común de la palabra y de la sonda que la mide (deben ser idénticos). */
 const TYPE: CSSProperties = { fontSize: 100, lineHeight: 0.9, letterSpacing: "-0.02em" };
@@ -83,14 +86,27 @@ export function HeroTitle() {
   }, [word, reduced]);
 
   return (
-    <div ref={wrapRef} aria-hidden="true" className="pointer-events-none relative w-full select-none">
+    <div ref={wrapRef} aria-hidden="true" className="pointer-events-none relative w-full select-none [container-type:inline-size]">
       <span ref={probeRef} className="invisible absolute left-0 top-0 whitespace-nowrap font-hero uppercase" style={TYPE} />
       <p
         data-hero-word
         className="hero-word mx-auto w-fit whitespace-nowrap font-hero uppercase"
-        style={{ ...TYPE, fontSize: size ? `${size}px` : "min(15vw, 13rem)" }}
+        style={{
+          ...TYPE,
+          fontSize: size ? `${size}px` : NATURAL[word] ? `calc(100cqw * ${(100 / NATURAL[word]).toFixed(4)})` : "min(15vw, 13rem)",
+        }}
       >
-        {shown.normalize("NFC")}
+        {/* La Ó de Michroma trae la tilde alta y separada: se dibuja una O + tilde propia,
+            centrada y pegada a la letra (el texto accesible sigue siendo la palabra en NFC) */}
+        {[...shown.normalize("NFC")].map((c, i) =>
+          c === "Ó" ? (
+            <span key={i} className="relative">
+              O<span aria-hidden="true" className="hero-acute" />
+            </span>
+          ) : (
+            c
+          ),
+        )}
       </p>
     </div>
   );

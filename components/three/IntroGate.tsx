@@ -3,13 +3,13 @@
 import dynamic from "next/dynamic";
 import { Component, useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { INTRO_KEY } from "@/lib/keys";
-import { IntroCss } from "./IntroCss";
 import { cn } from "@/lib/cn";
 
 // three / R3F solo se descargan si la intro 3D se va a mostrar.
 const IntroScene = dynamic(() => import("./IntroScene"), { ssr: false, loading: () => null });
 
 const LEAVE_AT = 4.4; // s: empieza el fundido al Hero real
+const GL_TIMEOUT = 2000; // ms: si la escena 3D no está lista, se queda la versión CSS
 const listeners = new Set<() => void>();
 
 function readIntro() {
@@ -22,6 +22,8 @@ function setIntro(value?: string) {
   else {
     delete d.intro;
     delete d.introKind;
+    delete d.introGl;
+    delete d.introMounted;
   }
   listeners.forEach((l) => l());
 }
@@ -62,6 +64,16 @@ export function IntroGate() {
   const active = state === "webgl" || state === "css";
   const leaving = state === "leaving";
   const [canEnter, setCanEnter] = useState(false);
+  // "loading": la escena 3D carga por debajo del póster CSS · "on": visible · "off": descartada
+  // si el JS llegó tarde (> 1,5 s), no se intenta el 3D (reiniciaría la intro): se queda la versión CSS
+  const [gl, setGl] = useState<"loading" | "on" | "off">(() =>
+    typeof window !== "undefined" && performance.now() > 1500 ? "off" : "loading",
+  );
+  const glRef = useRef(gl);
+  useEffect(() => {
+    glRef.current = gl;
+    if (gl === "off") delete document.documentElement.dataset.introGl; // vuelve el póster CSS
+  }, [gl]);
   const leavingRef = useRef(false);
   const barRef = useRef<HTMLDivElement>(null);
   const skipRef = useRef<HTMLButtonElement>(null);
@@ -95,18 +107,19 @@ export function IntroGate() {
 
   useEffect(() => {
     if (!active) return;
+    document.documentElement.dataset.introMounted = "1"; // el script de arranque ya no termina la intro por su cuenta
     skipRef.current?.focus({ preventScroll: true });
     const enterTimer = window.setTimeout(() => setCanEnter(true), 2000);
-    // Versión CSS: la línea de tiempo es CSS; aquí solo se mide el progreso.
+    // El póster CSS (en el HTML desde el primer pintado) marca el tiempo mientras no haya 3D.
     let raf = 0;
-    if (kind === "css") {
-      const t0 = performance.now();
-      const loop = () => {
-        onTick((performance.now() - t0) / 1000);
-        if (!leavingRef.current) raf = requestAnimationFrame(loop);
-      };
-      raf = requestAnimationFrame(loop);
-    }
+    // el póster arrancó con la página: el tiempo cuenta desde la navegación, no desde que montó el JS
+    const t0 = 0;
+    const loop = () => {
+      if (glRef.current !== "on") onTick((performance.now() - t0) / 1000);
+      if (!leavingRef.current) raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    const glTimer = kind === "webgl" ? window.setTimeout(() => setGl((g) => (g === "on" ? g : "off")), GL_TIMEOUT) : 0;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
         e.preventDefault();
@@ -119,6 +132,7 @@ export function IntroGate() {
     window.addEventListener("touchmove", onWheel, { passive: true });
     return () => {
       window.clearTimeout(enterTimer);
+      window.clearTimeout(glTimer);
       cancelAnimationFrame(raf);
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("wheel", onWheel);
@@ -126,24 +140,30 @@ export function IntroGate() {
     };
   }, [active, kind, finish, onTick]);
 
+  const onGlReady = useCallback(() => {
+    if (glRef.current === "loading") {
+      setGl("on");
+      document.documentElement.dataset.introGl = "on"; // oculta el póster CSS (ahorra GPU)
+    }
+  }, []);
+
   if (!active && !leaving) return null;
 
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[200] bg-bg transition-opacity ease-out",
+        "fixed inset-0 z-[200] transition-opacity ease-out",
         leaving ? "pointer-events-none opacity-0 duration-500" : "opacity-100",
       )}
     >
-      <div aria-hidden="true" className="absolute inset-0">
-        {kind === "webgl" ? (
-          <SceneBoundary onError={() => finish(true)}>
-            <IntroScene onTick={onTick} onFail={() => finish(true)} />
+      {/* Escena 3D: carga debajo y aparece solo si está lista antes de 2 s; si falla, sigue el póster CSS */}
+      {kind === "webgl" && gl !== "off" && (
+        <div aria-hidden="true" className={cn("absolute inset-0 transition-opacity duration-500", gl === "on" ? "opacity-100" : "opacity-0")}>
+          <SceneBoundary onError={() => setGl("off")}>
+            <IntroScene onTick={(t) => gl === "on" && onTick(t)} onFail={() => setGl("off")} onReady={onGlReady} />
           </SceneBoundary>
-        ) : (
-          <IntroCss />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Controles (heurística 03: control y libertad) */}
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 md:p-8">

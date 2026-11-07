@@ -3,14 +3,13 @@
 import { AnimatePresence, animate, motion, useSpring, useTransform } from "motion/react";
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { avatarModes } from "@/data/avatar";
-import { MODES, holdCycle, nextMode, useModeState, type ModeId } from "@/lib/mode";
+import { MODES, holdCycle, useModeState, type ModeId } from "@/lib/mode";
 import { EASE, useMediaQuery, useReducedEffects } from "@/lib/effects";
 import { heroJump, heroPointer } from "@/lib/heroMotion";
 import { CircuitFigure, JairoAligned, ModeFigure, RobotAligned } from "./ModeAvatar";
 import { HeroOrbit } from "./HeroOrbit";
 import { cn } from "@/lib/cn";
 
-const CYCLE_MS = 6000;
 const TILT = 6; // grados máximos de inclinación
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
@@ -34,12 +33,11 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
   const isBase = variant === "base";
   const reduced = useReducedEffects();
   const finePointer = useMediaQuery("(hover: hover) and (pointer: fine)");
-  const { index, transitionId, userPaused, holds } = useModeState();
+  const { index, transitionId } = useModeState();
   const mode = MODES[index];
   const data = avatarModes[mode.id];
   const isHybrid = mode.id === "ai";
 
-  const [deferTick, setDeferTick] = useState(0);
   const [nearTop, setNearTop] = useState(true);
   const [greeting, setGreeting] = useState(false);
 
@@ -63,16 +61,7 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
     sec?.style.setProperty("--py", ny.toFixed(3));
   };
 
-  // Cambio automático cada 6 s (solo la capa base; pausa: botón, hover/foco, fuera del inicio, reduced).
-  const paused = userPaused || holds > 0 || reduced || !nearTop;
-  useEffect(() => {
-    if (!isBase || paused) return;
-    const t = window.setTimeout(() => {
-      if (document.documentElement.dataset.intro) return setDeferTick((n) => n + 1);
-      nextMode();
-    }, CYCLE_MS);
-    return () => window.clearTimeout(t);
-  }, [isBase, index, paused, deferTick]);
+  // El modo solo cambia cuando el usuario pulsa Jairo / Desarrollador / IA (sin ciclo automático).
 
   useEffect(() => {
     if (!isBase) return;
