@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, PerformanceMonitor, RoundedBox, useTexture } from "@react-three/drei";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -88,23 +88,31 @@ const shadowFragment = /* glsl */ `
 `;
 
 function World({ onTick, onReady }: { onTick: (t: number) => void; onReady?: () => void }) {
-  const tex = useTexture("/intro/site.webp");
+  // A: página completa (scroll dentro de la pantalla) · B: Hero a 2880×1800 para el cierre nítido
+  const [scrollTex, heroTex] = useTexture(["/intro/site-scroll.webp", "/intro/site.webp"]);
+  const maxAniso = useThree((st) => st.gl.capabilities.getMaxAnisotropy());
 
   const { texA, texB, ry } = useMemo(() => {
-    const img = tex.image as { width: number; height: number };
-    const repeatY = (SCREEN_H / SCREEN_W) * (img.width / img.height);
-    const setup = (t: THREE.Texture) => {
+    const fit = (t: THREE.Texture) => {
+      const img = t.image as { width: number; height: number };
+      return (SCREEN_H / SCREEN_W) * (img.width / img.height);
+    };
+    const setup = (t: THREE.Texture, repeatY: number) => {
       t.colorSpace = THREE.SRGBColorSpace;
-      t.anisotropy = 8;
+      t.anisotropy = maxAniso; // anisotropía máxima del equipo
+      t.magFilter = THREE.LinearFilter; // filtrado lineal (sin pixelado al acercar)
+      t.minFilter = THREE.LinearMipmapLinearFilter;
+      t.generateMipmaps = true;
       t.wrapS = THREE.ClampToEdgeWrapping;
       t.wrapT = THREE.ClampToEdgeWrapping;
-      t.repeat.set(1, repeatY);
-      t.offset.set(0, 1 - repeatY);
+      t.repeat.set(1, Math.min(1, repeatY));
+      t.offset.set(0, 1 - Math.min(1, repeatY));
       t.needsUpdate = true;
       return t;
     };
-    return { texA: setup(tex), texB: setup(tex.clone()), ry: repeatY };
-  }, [tex]);
+    const ra = fit(scrollTex);
+    return { texA: setup(scrollTex, ra), texB: setup(heroTex, fit(heroTex)), ry: Math.min(1, ra) };
+  }, [scrollTex, heroTex, maxAniso]);
 
   const floorMat = useMemo(
     () =>

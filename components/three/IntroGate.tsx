@@ -9,7 +9,10 @@ import { cn } from "@/lib/cn";
 const IntroScene = dynamic(() => import("./IntroScene"), { ssr: false, loading: () => null });
 
 const LEAVE_AT = 4.4; // s: empieza el fundido al Hero real
-const GL_TIMEOUT = 2000; // ms: si la escena 3D no está lista, se queda la versión CSS
+const GL_TIMEOUT = 6000; // ms: si la escena 3D no carga, se entra directo al sitio
+
+// La escena se pide en cuanto este módulo carga (antes del primer render) si habrá intro.
+if (typeof document !== "undefined" && document.documentElement.dataset.intro === "webgl") void import("./IntroScene");
 const listeners = new Set<() => void>();
 
 function readIntro() {
@@ -22,7 +25,6 @@ function setIntro(value?: string) {
   else {
     delete d.intro;
     delete d.introKind;
-    delete d.introGl;
     delete d.introMounted;
   }
   listeners.forEach((l) => l());
@@ -36,8 +38,8 @@ function useIntroState() {
     readIntro,
     () => "none|none",
   );
-  const [state, kind] = snap.split("|");
-  return { state, kind };
+  const [state] = snap.split("|");
+  return { state };
 }
 
 /** Si algo falla en WebGL, se salta la intro sin romper la página. */
@@ -55,25 +57,17 @@ class SceneBoundary extends Component<{ onError: () => void; children: ReactNode
 }
 
 /**
- * Intro "La pantalla en la sala oscura". El contenido real ya está renderizado debajo;
- * esta capa se desmonta al terminar (libera la GPU). Saltar siempre visible; Entrar desde 2 s;
- * Esc / Enter / Espacio / rueda / deslizar también entran.
+ * Intro "La pantalla en la sala oscura" (3D). El contenido real ya está renderizado debajo;
+ * esta capa se desmonta al terminar (libera la GPU). Mientras carga la escena se ve solo el
+ * fondo del modo con un indicador discreto. Si WebGL falla o no carga a tiempo, se salta
+ * directo al sitio. Saltar siempre visible; Entrar desde 2 s; Esc / Enter / Espacio / rueda.
  */
 export function IntroGate() {
-  const { state, kind } = useIntroState();
-  const active = state === "webgl" || state === "css";
+  const { state } = useIntroState();
+  const active = state === "webgl";
   const leaving = state === "leaving";
   const [canEnter, setCanEnter] = useState(false);
-  // "loading": la escena 3D carga por debajo del póster CSS · "on": visible · "off": descartada
-  // si el JS llegó tarde (> 1,5 s), no se intenta el 3D (reiniciaría la intro): se queda la versión CSS
-  const [gl, setGl] = useState<"loading" | "on" | "off">(() =>
-    typeof window !== "undefined" && performance.now() > 1500 ? "off" : "loading",
-  );
-  const glRef = useRef(gl);
-  useEffect(() => {
-    glRef.current = gl;
-    if (gl === "off") delete document.documentElement.dataset.introGl; // vuelve el póster CSS
-  }, [gl]);
+  const [ready, setReady] = useState(false);
   const leavingRef = useRef(false);
   const barRef = useRef<HTMLDivElement>(null);
   const skipRef = useRef<HTMLButtonElement>(null);
@@ -107,19 +101,9 @@ export function IntroGate() {
 
   useEffect(() => {
     if (!active) return;
-    document.documentElement.dataset.introMounted = "1"; // el script de arranque ya no termina la intro por su cuenta
+    document.documentElement.dataset.introMounted = "1";
     skipRef.current?.focus({ preventScroll: true });
     const enterTimer = window.setTimeout(() => setCanEnter(true), 2000);
-    // El póster CSS (en el HTML desde el primer pintado) marca el tiempo mientras no haya 3D.
-    let raf = 0;
-    // el póster arrancó con la página: el tiempo cuenta desde la navegación, no desde que montó el JS
-    const t0 = 0;
-    const loop = () => {
-      if (glRef.current !== "on") onTick((performance.now() - t0) / 1000);
-      if (!leavingRef.current) raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-    const glTimer = kind === "webgl" ? window.setTimeout(() => setGl((g) => (g === "on" ? g : "off")), GL_TIMEOUT) : 0;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
         e.preventDefault();
@@ -132,36 +116,41 @@ export function IntroGate() {
     window.addEventListener("touchmove", onWheel, { passive: true });
     return () => {
       window.clearTimeout(enterTimer);
-      window.clearTimeout(glTimer);
-      cancelAnimationFrame(raf);
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("touchmove", onWheel);
     };
-  }, [active, kind, finish, onTick]);
+  }, [active, finish]);
 
-  const onGlReady = useCallback(() => {
-    if (glRef.current === "loading") {
-      setGl("on");
-      document.documentElement.dataset.introGl = "on"; // oculta el póster CSS (ahorra GPU)
-    }
-  }, []);
+  // Si la escena no está lista a tiempo, se entra directo al sitio (nunca una pantalla borrosa).
+  useEffect(() => {
+    if (!active || ready) return;
+    const t = window.setTimeout(() => finish(true), GL_TIMEOUT);
+    return () => window.clearTimeout(t);
+  }, [active, ready, finish]);
 
   if (!active && !leaving) return null;
 
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[200] transition-opacity ease-out",
+        "fixed inset-0 z-[200] bg-bg transition-opacity ease-out",
         leaving ? "pointer-events-none opacity-0 duration-500" : "opacity-100",
       )}
     >
-      {/* Escena 3D: carga debajo y aparece solo si está lista antes de 2 s; si falla, sigue el póster CSS */}
-      {kind === "webgl" && gl !== "off" && (
-        <div aria-hidden="true" className={cn("absolute inset-0 transition-opacity duration-500", gl === "on" ? "opacity-100" : "opacity-0")}>
-          <SceneBoundary onError={() => setGl("off")}>
-            <IntroScene onTick={(t) => gl === "on" && onTick(t)} onFail={() => setGl("off")} onReady={onGlReady} />
-          </SceneBoundary>
+      <div aria-hidden="true" className={cn("absolute inset-0 transition-opacity duration-500", ready ? "opacity-100" : "opacity-0")}>
+        <SceneBoundary onError={() => finish(true)}>
+          <IntroScene onTick={onTick} onFail={() => finish(true)} onReady={() => setReady(true)} />
+        </SceneBoundary>
+      </div>
+
+      {/* Indicador discreto mientras carga la escena */}
+      {!ready && (
+        <div role="status" className="absolute inset-0 grid place-items-center">
+          <span className="flex items-center gap-3 text-label text-muted">
+            <span aria-hidden="true" className="intro-loader" />
+            Cargando
+          </span>
         </div>
       )}
 
@@ -174,13 +163,13 @@ export function IntroGate() {
           <button
             type="button"
             onClick={() => finish()}
-            className={cn("btn btn-primary btn-sm transition-opacity", canEnter ? "opacity-100" : "pointer-events-none opacity-0")}
+            className={cn("btn btn-primary transition-opacity", canEnter ? "opacity-100" : "pointer-events-none opacity-0")}
             tabIndex={canEnter ? 0 : -1}
             aria-hidden={!canEnter}
           >
             Entrar
           </button>
-          <button ref={skipRef} type="button" onClick={() => finish(true)} className="btn btn-secondary btn-sm">
+          <button ref={skipRef} type="button" onClick={() => finish(true)} className="btn btn-secondary">
             Saltar intro <span className="font-mono text-[11px] text-muted">Esc</span>
           </button>
         </div>

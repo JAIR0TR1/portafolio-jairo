@@ -136,7 +136,8 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
     const s = split.current;
     const loop = (now: number) => {
       const idle = !s.dragging && now - s.lastInput > 1800;
-      const target = idle ? 0.5 + Math.sin(now / 1500) * 0.12 : s.target;
+      const paused = document.documentElement.dataset.anim === "paused";
+      const target = idle ? (paused ? s.current : 0.5 + Math.sin(now / 1500) * 0.12) : s.target;
       s.current += (target - s.current) * (idle ? 0.04 : 0.12);
       el.style.setProperty("--split", `${(s.current * 100).toFixed(2)}%`);
       raf = requestAnimationFrame(loop);

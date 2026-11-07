@@ -631,38 +631,16 @@ main > section:not(#inicio):nth-of-type(odd) {
 }
 
 /* ───────────── Intro (pantalla en la sala oscura) ───────────── */
-:root[data-intro="webgl"],
-:root[data-intro="css"] { overflow: hidden; }
+:root[data-intro="webgl"] { overflow: hidden; }
 /* Tapa negra desde el primer pintado hasta que monta el overlay (evita parpadeo) */
-:root[data-intro="webgl"] body::before,
-:root[data-intro="css"] body::before {
+:root[data-intro="webgl"] body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: 199;
-  background: #0b0b0f;
+  background: var(--bg);
 }
 
-@keyframes intro-fade-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes intro-sweep {
-  from { transform: translateX(-120%) rotate(-24deg); }
-  to { transform: translateX(0) rotate(-24deg); }
-}
-@keyframes intro-device {
-  0% { transform: translate(-50%, -50%) rotateX(32deg) rotateY(-22deg) rotateZ(3deg) scale(0.84); }
-  64% { transform: translate(-50%, -52%) rotateX(24deg) rotateY(-6deg) rotateZ(1deg) scale(0.92); }
-  88%, 100% { transform: translate(-50%, -50%) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(var(--cover, 1.5)); }
-}
-@keyframes intro-scroll {
-  0%, 12% { transform: translateY(0); }
-  64%, 100% { transform: translateY(-48%); }
-}
-@keyframes intro-top { 0%, 64% { opacity: 0; } 80%, 100% { opacity: 1; } }
-.intro-css-scene { animation: intro-fade-in 0.8s ease-out both; }
-.intro-css-beam { animation: intro-sweep 1.1s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.intro-css-device { animation: intro-device 4.4s cubic-bezier(0.65, 0, 0.35, 1) both; }
-.intro-css-scroll { animation: intro-scroll 4.4s cubic-bezier(0.65, 0, 0.35, 1) both; }
-.intro-css-top { animation: intro-top 4.4s ease both; }
 
 /* Móvil: sin backdrop-filter ni grano (coste alto de GPU en equipos modestos) */
 @media (max-width: 767px) {
@@ -754,8 +732,9 @@ body, section, footer, .glass, .btn, .chip, .field, .nav-capsule {
   top: 0;
   white-space: nowrap;
   border-radius: 12px;
-  border: 1px solid var(--color-line-2);
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  /* cápsula: --surface al 80 % + borde --border → legible aunque pase sobre la palabra gigante (sin blur) */
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
   padding: 6px 12px;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -772,9 +751,11 @@ body, section, footer, .glass, .btn, .chip, .field, .nav-capsule {
 .theme-grad .orbit-label[data-hot] { color: #f5f2ee; border-color: var(--accent); }
 @media (max-width: 767px) { .orbit-label { font-size: 10px; line-height: 12px; padding: 4px 8px; } }
 
-/* Póster de la intro (SSR): visible solo mientras hay intro; la escena 3D lo cubre si llega a tiempo */
-.intro-poster { display: none; }
-:root[data-intro] .intro-poster { display: block; position: fixed; inset: 0; z-index: 199; transition: opacity 0.5s ease-out, visibility 0s 0.5s; }
-:root[data-intro="leaving"] .intro-poster { opacity: 0; }
-:root[data-intro-gl="on"] .intro-poster { visibility: hidden; }
-:root[data-intro-mounted] .intro-poster-controls { display: none; }
+/* Indicador de carga de la intro (discreto) */
+.intro-loader { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgb(255 255 255 / 0.18); border-top-color: var(--accent); animation: intro-spin 0.8s linear infinite; }
+@keyframes intro-spin { to { transform: rotate(360deg); } }
+
+/* Pausa global (WCAG 2.2.2): el movimiento automático queda quieto donde está */
+:root[data-anim="paused"] :is(.idle-float, .idle-breathe, .idle-sway, .animate-float, .logo-ring, .hybrid-spark, .circuit-scan, .minibot-bob, .intro-loader) {
+  animation-play-state: paused !important;
+}

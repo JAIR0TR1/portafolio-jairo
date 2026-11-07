@@ -9,7 +9,6 @@ import { HeroAmbient } from "@/components/ui/HeroAmbient";
 import { ModeSelector } from "@/components/ui/ModeSelector";
 import { SocialGlyph } from "@/components/ui/BrandIcons";
 import { IntroGate } from "@/components/three/IntroGate";
-import { IntroCss } from "@/components/three/IntroCss";
 import { RobotCompanion } from "@/components/ui/RobotCompanion";
 
 /** Cifras reales: se calculan desde data/. */
@@ -124,18 +123,6 @@ function HeroContent({ revealed = false }: { revealed?: boolean }) {
 export default function Hero() {
   return (
     <section id="inicio" aria-labelledby="hero-title" className="hero-s relative -mt-[var(--header-h)] overflow-hidden px-2 pb-3 pt-2 md:px-4 md:pb-6 md:pt-3">
-      {/* Póster de la intro en el HTML: visible desde el primer pintado (sin esperar al JS) */}
-      <div className="intro-poster">
-        <div aria-hidden="true">
-          <IntroCss />
-        </div>
-        {/* «Saltar intro» funciona aunque el JS no haya cargado (lo atiende el script de arranque) */}
-        <div className="intro-poster-controls absolute inset-x-0 bottom-0 flex justify-end p-5 md:p-8">
-          <button type="button" data-intro-skip className="btn btn-secondary">
-            Saltar intro <span className="font-mono text-[11px] text-muted">Esc</span>
-          </button>
-        </div>
-      </div>
       <IntroGate />
       <RobotCompanion />
       {/* Luz ambiental: el personaje ampliado y desenfocado detrás de la tarjeta */}

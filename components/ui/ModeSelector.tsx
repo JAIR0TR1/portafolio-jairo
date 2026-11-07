@@ -5,6 +5,7 @@ import { avatarModes } from "@/data/avatar";
 import { MODES, chooseMode, holdCycle, useModeState } from "@/lib/mode";
 import { EASE } from "@/lib/effects";
 import { cn } from "@/lib/cn";
+import { PauseButton } from "./PauseButton";
 
 /** Selectores de modo como chips de borde fino (heurísticas 3 y 6). */
 export function ModeSelector() {
@@ -38,6 +39,7 @@ export function ModeSelector() {
           </button>
         );
       })}
+      <PauseButton />
     </div>
   );
 }

@@ -142,7 +142,7 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
         s.oy += s.vy;
         const depth = (sin + 1) / 2; // 0 = detrás, 1 = delante
         const scale = 0.85 + 0.15 * depth;
-        const opacity = 0.35 + 0.65 * depth;
+        const opacity = 0.45 + 0.55 * depth;
         const isHot = hot.current.index === i;
         for (const el of groups[i]) {
           el.style.transform = `translate3d(${(x + s.ox).toFixed(1)}px, ${(y + s.oy).toFixed(1)}px, 0) translate(-50%, -50%) scale(${(isHot ? 1.06 : scale).toFixed(3)})`;
@@ -158,7 +158,8 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
       raf = 0;
       const dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
       last = now;
-      if (hot.current.index < 0) t += dt;
+      // quieta si el usuario pausó las animaciones o hay una etiqueta bajo el cursor
+      if (hot.current.index < 0 && document.documentElement.dataset.anim !== "paused") t += dt;
       place();
       if (onScreen && !document.hidden) raf = requestAnimationFrame(frame);
     };

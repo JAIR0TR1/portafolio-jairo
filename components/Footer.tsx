@@ -2,6 +2,7 @@ import { ArrowUp } from "lucide-react";
 import { profile, sections, socials } from "@/data/profile";
 import { SocialGlyph } from "@/components/ui/BrandIcons";
 import { ReduceEffectsToggle, ReplayIntroButton } from "@/components/ui/FooterControls";
+import { PauseButton } from "@/components/ui/PauseButton";
 
 function currentYear() {
   return new Date().getFullYear();
@@ -57,6 +58,7 @@ export default function Footer() {
           <h2 className="text-label mb-2 mt-8 text-muted">Preferencias</h2>
           <div className="flex flex-col">
             <ReduceEffectsToggle />
+            <PauseButton withLabel className="mt-1 w-fit" />
             <ReplayIntroButton />
           </div>
         </div>
