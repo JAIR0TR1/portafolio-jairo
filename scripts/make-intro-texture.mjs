@@ -26,14 +26,14 @@ await page.addInitScript(() => {
 await page.goto(url, { waitUntil: "networkidle" });
 await page.addStyleTag({ content: ".hero-in{animation:none!important} *{transition:none!important}" });
 // espera a que todas las imágenes visibles (versión 2×) estén descargadas y decodificadas
-await page.waitForFunction(() => [...document.querySelectorAll("[data-hero-layer]:not([data-hero-revealed]) img")].every((i) => i.complete && i.naturalWidth > 0), null, { timeout: 30000 });
-await page.evaluate(() => Promise.all([...document.querySelectorAll("[data-hero-layer]:not([data-hero-revealed]) img")].map((i) => i.decode().catch(() => {}))));
+await page.waitForFunction(() => [...document.querySelectorAll("[data-hero-layer] img")].filter((i) => !i.closest("[data-hero-revealed]")).every((i) => i.complete && i.naturalWidth > 0), null, { timeout: 30000 });
+await page.evaluate(() => Promise.all([...document.querySelectorAll("[data-hero-layer] img")].filter((i) => !i.closest("[data-hero-revealed]")).map((i) => i.decode().catch(() => {}))));
 await page.waitForTimeout(1500);
 await mkdir(new URL("../public/intro/", import.meta.url), { recursive: true });
 
 // 1) Hero (primera pantalla) a 2880×1800
 const hero = await page.screenshot({ type: "png" });
-await sharp(hero).webp({ quality: 90, effort: 6 }).toFile(out("site.webp"));
+await sharp(hero).webp({ quality: 92, effort: 6 }).toFile(out("site.webp"));
 console.log("public/intro/site.webp → 2880×1800");
 
 // 2) Página completa para el scroll dentro de la tablet
@@ -57,10 +57,10 @@ await m.addInitScript(() => {
 });
 await m.goto(url, { waitUntil: "networkidle" });
 await m.addStyleTag({ content: ".hero-in{animation:none!important} *{transition:none!important}" });
-await m.waitForFunction(() => [...document.querySelectorAll("[data-hero-layer]:not([data-hero-revealed]) img")].every((i) => i.complete && i.naturalWidth > 0), null, { timeout: 30000 });
-await m.evaluate(() => Promise.all([...document.querySelectorAll("[data-hero-layer]:not([data-hero-revealed]) img")].map((i) => i.decode().catch(() => {}))));
+await m.waitForFunction(() => [...document.querySelectorAll("[data-hero-layer] img")].filter((i) => !i.closest("[data-hero-revealed]")).every((i) => i.complete && i.naturalWidth > 0), null, { timeout: 30000 });
+await m.evaluate(() => Promise.all([...document.querySelectorAll("[data-hero-layer] img")].filter((i) => !i.closest("[data-hero-revealed]")).map((i) => i.decode().catch(() => {}))));
 await m.waitForTimeout(1500);
-await sharp(await m.screenshot({ type: "png" })).webp({ quality: 90, effort: 6 }).toFile(out("site-mobile.webp"));
+await sharp(await m.screenshot({ type: "png" })).webp({ quality: 92, effort: 6 }).toFile(out("site-mobile.webp"));
 console.log("public/intro/site-mobile.webp → 1170×2532");
 await browser.close();
 const resized = await sharp(full).resize({ width: SCROLL_W }).toBuffer({ resolveWithObject: true });

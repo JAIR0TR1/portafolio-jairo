@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMediaQuery, useReducedEffects } from "@/lib/effects";
 import { cn } from "@/lib/cn";
+import { createTask } from "@/lib/ticker";
 
 const ROTATE_MS = 8000; // si hay más etiquetas que lugares, las extra entran cada 8 s
 const PERIOD = 55; // segundos por vuelta
@@ -70,7 +71,6 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
     const cursor = { x: -9999, y: -9999 };
     let t = 0;
     let last = 0;
-    let raf = 0;
     let onScreen = true;
 
     const measure = () => {
@@ -81,11 +81,11 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
       geo.cx = geo.W / 2;
       // móvil: órbita pequeña a la altura de las piernas (debajo de la palabra gigante)
       // móvil: una elipse más amplia que el avatar, a la altura del torso y las piernas (debajo de la palabra)
-      geo.cy = geo.H * (mobile ? 0.62 : 0.42);
+      geo.cy = geo.H * (mobile ? 0.67 : 0.42);
       const outer = Math.max(70, mobile ? geo.SW / 2 - 40 : Math.min(geo.W * 1.02, geo.SW / 2 - 70));
       geo.rx = rings === 1 ? [outer, outer] : [outer * 0.64, outer];
       // la elipse nunca baja hasta el nombre y los botones (escritorio: hasta el 64 % del escenario)
-      const maxRy = geo.H * (mobile ? 0.2 : 0.22);
+      const maxRy = geo.H * (mobile ? 0.17 : 0.22);
       geo.ry = geo.rx.map((r) => Math.min(r * (mobile ? 0.75 : TILT), maxRy * (r / geo.rx[1])));
       // líneas de órbita (en ambas capas)
       hero.querySelectorAll<HTMLElement>("[data-orbit-line]").forEach((el) => {
@@ -183,23 +183,23 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
     };
 
     const frame = (now: number) => {
-      raf = 0;
       const dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
       last = now;
       // quieta si el usuario pausó las animaciones o hay una etiqueta bajo el cursor
       if (hot.current.index < 0 && document.documentElement.dataset.anim !== "paused") t += dt;
       place();
-      if (onScreen && !document.hidden) raf = requestAnimationFrame(frame);
+      if (!onScreen || document.hidden) task.stop();
     };
+    const task = createTask(frame); // rAF compartido (órbita + mancha + costura)
     const run = () => {
       if (reduced) {
         place();
         requestAnimationFrame(place); // la capa revelada puede montar un frame después
         return;
       }
-      if (!raf && onScreen && !document.hidden) {
+      if (!task.running && onScreen && !document.hidden) {
         last = 0;
-        raf = requestAnimationFrame(frame);
+        task.start();
       }
     };
 
@@ -218,10 +218,7 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
     const io = new IntersectionObserver(([e]) => {
       onScreen = e.isIntersecting;
       if (onScreen) run();
-      else {
-        cancelAnimationFrame(raf);
-        raf = 0;
-      }
+      else task.stop();
     });
     io.observe(fig);
     const onVis = () => {
@@ -234,7 +231,7 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
     document.addEventListener("visibilitychange", onVis);
     window.addEventListener("pointermove", onMove, { passive: true });
     return () => {
-      cancelAnimationFrame(raf);
+      task.stop();
       ro.disconnect();
       io.disconnect();
       document.removeEventListener("visibilitychange", onVis);

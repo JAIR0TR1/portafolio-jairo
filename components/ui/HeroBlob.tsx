@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useReducedEffects } from "@/lib/effects";
 import { simplex3 } from "@/lib/simplex";
+import { createTask } from "@/lib/ticker";
 
 const POINTS = 40; // puntos del contorno
 const FOLLOW = 0.12; // lerp hacia el puntero (por frame a 60 fps)
@@ -49,7 +50,6 @@ export function HeroBlob() {
       t: 0,
       z: 0, // tiempo del ruido (avanza más rápido al moverse)
       last: 0,
-      raf: 0,
     };
     const xs = new Float32Array(POINTS);
     const ys = new Float32Array(POINTS);
@@ -57,7 +57,6 @@ export function HeroBlob() {
     const radius = (w: number) => Math.min(230, Math.max(140, w * 0.15));
 
     const frame = (now: number) => {
-      st.raf = 0;
       const dt = Math.min(0.05, st.last ? (now - st.last) / 1000 : 1 / 60);
       st.last = now;
       const f = dt * 60; // frames de 60 fps transcurridos
@@ -85,7 +84,8 @@ export function HeroBlob() {
         st.s = 0;
         st.last = 0;
         hide();
-        return; // bucle detenido hasta la próxima interacción
+        task.stop(); // bucle detenido hasta la próxima interacción
+        return;
       }
 
       const speed = Math.hypot(st.vx, st.vy);
@@ -138,15 +138,15 @@ export function HeroBlob() {
       layer.style.visibility = "visible";
       layer.style.willChange = "clip-path";
 
-      if (st.onScreen && !document.hidden) st.raf = requestAnimationFrame(frame);
+      if (!st.onScreen || document.hidden) task.stop();
     };
+    const task = createTask(frame); // rAF compartido (órbita + mancha + costura)
 
     const run = () => {
-      if (!st.raf && st.onScreen && !document.hidden) st.raf = requestAnimationFrame(frame);
+      if (!task.running && st.onScreen && !document.hidden) task.start();
     };
     const stop = () => {
-      cancelAnimationFrame(st.raf);
-      st.raf = 0;
+      task.stop();
       st.last = 0;
     };
 

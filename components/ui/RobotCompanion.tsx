@@ -1,12 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { HEAD, poses, sectionRobot, type PoseId } from "@/data/avatar";
+import { poses, sectionRobot, type PoseId } from "@/data/avatar";
 import { sections } from "@/data/profile";
 import { useMediaQuery, useReducedEffects } from "@/lib/effects";
 import { RobotFigure } from "./ModeAvatar";
-import { RobotEyes } from "./RobotEyes";
 import { cn } from "@/lib/cn";
 
 const POSE_IDS = Object.keys(poses) as PoseId[];
@@ -130,106 +128,8 @@ function DesktopCompanion() {
   );
 }
 
-const CONTENT_TAGS = new Set(["A", "BUTTON", "INPUT", "TEXTAREA", "SELECT", "LABEL", "P", "H1", "H2", "H3", "H4", "LI", "SPAN", "IMG", "DT", "DD", "BLOCKQUOTE", "FIGCAPTION", "TIME", "SVG"]);
-
-/** Móvil y tablet: cabeza del robot de 56px en la esquina; sube al inicio y se aparta si tapa algo. */
-function MiniBot() {
-  const reduced = useReducedEffects();
-  const { afterHero, dir } = useScrollState();
-  const btnRef = useRef<HTMLButtonElement>(null);
-  const [peek, setPeek] = useState(false);
-  const [fast, setFast] = useState(false);
-
-  // Scroll rápido: el mini robot se esconde un momento (no distrae ni tapa al leer)
-  useEffect(() => {
-    let lastY = window.scrollY;
-    let lastT = performance.now();
-    let timer = 0;
-    const on = () => {
-      const now = performance.now();
-      const v = Math.abs(window.scrollY - lastY) / Math.max(1, now - lastT); // px/ms
-      lastY = window.scrollY;
-      lastT = now;
-      if (v > 1.6) {
-        setFast(true);
-        window.clearTimeout(timer);
-        timer = window.setTimeout(() => setFast(false), 450);
-      }
-    };
-    window.addEventListener("scroll", on, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", on);
-      window.clearTimeout(timer);
-    };
-  }, []);
-
-  // Si debajo hay texto o un botón, se esconde casi entero en el margen.
-  useEffect(() => {
-    if (!afterHero) return;
-    let frame = 0;
-    const check = () => {
-      frame = 0;
-      const btn = btnRef.current;
-      if (!btn) return;
-      const r = btn.getBoundingClientRect();
-      const pts: [number, number][] = [
-        [r.left + 4, r.top + 4],
-        [r.right - 4, r.top + 4],
-        [r.left + 4, r.bottom - 4],
-        [r.right - 4, r.bottom - 4],
-        [r.left + r.width / 2, r.top + r.height / 2],
-      ];
-      // Se mide en la posición visible (no en la escondida)
-      const hit = pts.some(([x, y]) =>
-        document.elementsFromPoint(x, y).some((el) => {
-          if (btn.contains(el) || el === btn) return false;
-          if (el.closest("[aria-hidden='true']")) return false;
-          return CONTENT_TAGS.has(el.tagName.toUpperCase());
-        }),
-      );
-      setPeek(hit);
-    };
-    const on = () => {
-      if (!frame) frame = requestAnimationFrame(check);
-    };
-    on();
-    window.addEventListener("scroll", on, { passive: true });
-    window.addEventListener("resize", on);
-    return () => {
-      window.removeEventListener("scroll", on);
-      window.removeEventListener("resize", on);
-      cancelAnimationFrame(frame);
-    };
-  }, [afterHero, peek]);
-
-  return (
-    <button
-      ref={btnRef}
-      type="button"
-      aria-label="Volver arriba"
-      onClick={() => window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" })}
-      className={cn(
-        "group fixed bottom-[calc(16px+env(safe-area-inset-bottom))] right-[calc(12px+env(safe-area-inset-right))] z-40 size-14 overflow-hidden rounded-[12px] border border-line-2 bg-bg transition-[translate,opacity] duration-500 ease-[var(--ease-out-expo)] lg:hidden",
-        // nunca cortado en el borde: si tapa texto/botones o hay scroll rápido, se oculta completo
-        afterHero && !peek && !fast ? "opacity-100" : "pointer-events-none translate-y-6 opacity-0",
-      )}
-      style={{ ["--ly" as string]: reduced ? 0 : dir * 0.7 }}
-    >
-      <span className={cn("absolute left-1/2 top-[4%] aspect-[160/202] h-[112%] -translate-x-1/2", !reduced && dir !== 0 && "minibot-bob")}>
-        {/* la imagen solo se pide cuando el mini robot aparece (no compite con el LCP) */}
-        {afterHero && (
-          <>
-            <Image src={HEAD.src} alt="" fill sizes="64px" className="object-contain" />
-            <RobotEyes eyes={HEAD.eyes} />
-          </>
-        )}
-      </span>
-    </button>
-  );
-}
-
-/** El robot acompaña al navegar: columna fija en escritorio, mini robot en móvil/tablet. */
+/** El robot acompaña al navegar: columna fija en escritorio (en celular vive dentro de cada sección: SectionRobot). */
 export function RobotCompanion() {
   const desktop = useMediaQuery("(min-width: 1024px)");
-  return desktop ? <DesktopCompanion /> : <MiniBot />;
+  return desktop ? <DesktopCompanion /> : null;
 }

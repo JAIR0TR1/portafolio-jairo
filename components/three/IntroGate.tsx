@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
 const IntroScene = dynamic(() => import("./IntroScene"), { ssr: false, loading: () => null });
 
 const LEAVE_AT = 4.4; // s: empieza el fundido al Hero real
-const GL_TIMEOUT = 6000; // ms: si la escena 3D no carga, se entra directo al sitio
+const GL_TIMEOUT = 10000; // ms: solo si la escena 3D de verdad no carga, se entra directo al sitio
 
 // La escena se pide en cuanto este módulo carga (antes del primer render) si habrá intro.
 if (typeof document !== "undefined" && document.documentElement.dataset.intro === "webgl") void import("./IntroScene");

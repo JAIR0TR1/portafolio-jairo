@@ -45,16 +45,28 @@ export const HYBRID = { robot: { dx: -0.55, dy: 0.56, scale: 1 } };
 
 export type Expression = "neutral" | "happy" | "curious" | "focus";
 
-/** Pose y expresión del robot acompañante en cada sección. */
+/** Pose y expresión del robot en cada sección (columna fija en escritorio; junto al encabezado en celular). */
 export const sectionRobot: Record<string, { pose: PoseId; expression: Expression }> = {
-  "sobre-mi": { pose: "saludo", expression: "neutral" },
+  "sobre-mi": { pose: "saludo", expression: "happy" },
   proyectos: { pose: "senala", expression: "curious" },
   experiencia: { pose: "laptop", expression: "focus" },
-  emprendimiento: { pose: "pulgar", expression: "happy" },
+  emprendimiento: { pose: "base", expression: "happy" },
   testimonios: { pose: "base", expression: "neutral" },
-  "trabaja-conmigo": { pose: "senala", expression: "happy" },
+  "trabaja-conmigo": { pose: "pulgar", expression: "happy" },
   contacto: { pose: "pulgar", expression: "happy" },
   habilidades: { pose: "laptop", expression: "focus" },
+};
+
+/** Burbuja corta del robot en cada sección (celular). */
+export const sectionBubble: Record<string, string> = {
+  "sobre-mi": "¡Hola! Este es Jairo",
+  proyectos: "Esto es lo que he construido",
+  experiencia: "Aquí está el recorrido",
+  emprendimiento: "Su negocio en Pasto",
+  testimonios: "Lo que dicen de él",
+  "trabaja-conmigo": "¿Agendamos tu proyecto?",
+  contacto: "Aquí lo encuentras",
+  habilidades: "Su stack, por capas",
 };
 
 export type AvatarMode = {

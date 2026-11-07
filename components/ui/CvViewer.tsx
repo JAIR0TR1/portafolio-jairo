@@ -11,17 +11,15 @@ import { profile } from "@/data/profile";
 export function CvViewer() {
   const ref = useRef<HTMLDialogElement>(null);
 
-  const open = () => {
-    if (window.matchMedia("(max-width: 767px)").matches) {
-      window.open("/cv.pdf", "_blank", "noopener,noreferrer");
-      return;
-    }
-    ref.current?.showModal();
-  };
+  const open = () => ref.current?.showModal();
 
   return (
     <>
-      <button type="button" onClick={open} className="btn btn-secondary" aria-haspopup="dialog">
+      {/* celular: enlace real que abre el PDF en pestaña nueva · escritorio: modal con el PDF */}
+      <a href="/cv.pdf" target="_blank" rel="noopener noreferrer" className="btn btn-secondary md:hidden">
+        <Eye aria-hidden="true" /> Ver hoja de vida <span className="sr-only">(abre en otra pestaña)</span>
+      </a>
+      <button type="button" onClick={open} className="btn btn-secondary max-md:hidden" aria-haspopup="dialog">
         <Eye aria-hidden="true" /> Ver hoja de vida
       </button>
       <dialog

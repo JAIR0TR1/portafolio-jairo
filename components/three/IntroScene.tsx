@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, PerformanceMonitor, RoundedBox, useTexture } from "@react-three/drei";
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 /* Línea de tiempo (s) */
@@ -171,7 +171,7 @@ function World({ onTick, onReady, mobile }: { onTick: (t: number) => void; onRea
       start.current = now;
       onReady?.(); // primer frame con la textura lista
     }
-    const t = now - start.current;
+    const t = (now - start.current) * (mobile ? 4.4 / 3 : 1);
     onTick(t);
 
     // 0–0.8 s: fundido desde negro + el rayo barre el piso
@@ -221,7 +221,7 @@ function World({ onTick, onReady, mobile }: { onTick: (t: number) => void; onRea
       {!mobile && <pointLight position={[0.6, 2.6, -1.8]} color="#ffe0e0" intensity={28} distance={9} />}
       {/* luz dura del rayo */}
       <spotLight position={[-7, 7.5, -4.5]} angle={0.14} penumbra={0.25} intensity={420} color="#f4f6ff" distance={20} />
-      <Environment resolution={mobile ? 64 : 256} frames={1}>
+      <Environment resolution={mobile ? 64 : 128} frames={1}>
         <Lightformer form="rect" intensity={2.4} color="#ffffff" position={[0, 5, -4]} scale={[10, 1.2, 1]} />
         <Lightformer form="rect" intensity={1.6} color="#ff5a1f" position={[-5, 1, 2]} rotation-y={Math.PI / 2} scale={[4, 1, 1]} />
         <Lightformer form="rect" intensity={1.6} color="#2f6bff" position={[5, 1, 2]} rotation-y={-Math.PI / 2} scale={[4, 1, 1]} />
@@ -254,14 +254,10 @@ function World({ onTick, onReady, mobile }: { onTick: (t: number) => void; onRea
   );
 }
 
-/** Celular: como máximo 30 fps (pide un frame cada ~33 ms en vez de cada refresco). */
-function Throttle30() {
-  const invalidate = useThree((st) => st.invalidate);
-  useEffect(() => {
-    const id = window.setInterval(() => invalidate(), 1000 / 30);
-    return () => window.clearInterval(id);
-  }, [invalidate]);
-  return null;
+// Precarga: las texturas se piden en cuanto se importa la escena; la animación arranca con todo listo.
+if (typeof window !== "undefined") {
+  if (window.innerWidth < 768) useTexture.preload("/intro/site-mobile.webp");
+  else useTexture.preload(["/intro/site-scroll.webp", "/intro/site.webp"]);
 }
 
 export default function IntroScene({
@@ -277,13 +273,11 @@ export default function IntroScene({
   const G = mobile ? MOBILE : DESKTOP;
   return (
     <Canvas
-      dpr={mobile ? [1, 2] : [1, 1.5]}
-      frameloop={mobile ? "demand" : "always"}
+      dpr={[1, 2]}
       camera={{ fov: FOV, position: [0, G.y0, G.r0], near: 0.1, far: 60 }}
-      gl={{ antialias: !mobile, powerPreference: "high-performance" }}
+      gl={{ antialias: true, powerPreference: "high-performance" }}
       onCreated={({ gl }) => gl.setClearColor("#0b0b0d")}
     >
-      {mobile && <Throttle30 />}
       <PerformanceMonitor onDecline={onFail} />
       <Suspense fallback={null}>
         <World onTick={onTick} onReady={onReady} mobile={mobile} />

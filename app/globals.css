@@ -382,7 +382,7 @@ footer[id] {
 /* --sh: alto del escenario (palabra gigante + personaje) */
 .hero-s { --sh: clamp(26rem, 70svh, 47rem); }
 @media (max-width: 1023px) { .hero-s { --sh: clamp(22rem, 58svh, 34rem); } }
-@media (max-width: 639px) { .hero-s { --sh: clamp(19rem, 48svh, 26rem); } }
+@media (max-width: 639px) { .hero-s { --sh: clamp(18rem, 46svh, 26rem); } } /* avatar ≈ 45 % del alto en celular */
 
 /* Anotaciones: flotan suave, con desfase */
 @keyframes note-float {
@@ -769,7 +769,6 @@ body, section, footer, .glass, .btn, .chip, .field, .nav-capsule {
   text-transform: uppercase;
   color: var(--color-ink);
   opacity: calc(var(--o, 0) * var(--fade, 1));
-  will-change: transform;
   cursor: default;
   animation: orbit-in 0.6s ease both;
 }
@@ -797,3 +796,8 @@ body, section, footer, .glass, .btn, .chip, .field, .nav-capsule {
 main, footer, main > section { overflow-x: clip; }
 footer { padding-bottom: env(safe-area-inset-bottom); }
 .menu-sheet { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+
+/* Celular: texto secundario ≥ 16 px (legible sin zoom en iOS) */
+@media (max-width: 767px) {
+  .text-small { font-size: 16px; line-height: 24px; }
+}

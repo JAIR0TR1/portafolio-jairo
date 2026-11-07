@@ -6,6 +6,7 @@ import { avatarModes } from "@/data/avatar";
 import { MODES, holdCycle, useModeState, type ModeId } from "@/lib/mode";
 import { EASE, useMediaQuery, useReducedEffects } from "@/lib/effects";
 import { heroJump, heroPointer } from "@/lib/heroMotion";
+import { createTask } from "@/lib/ticker";
 import { CircuitFigure, JairoAligned, ModeFigure, RobotAligned } from "./ModeAvatar";
 import { HeroOrbit } from "./HeroOrbit";
 import { cn } from "@/lib/cn";
@@ -47,8 +48,8 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
   const split = useRef({ target: 0.5, current: 0.5, lastInput: 0, dragging: false });
 
   // Puntero compartido → inclinación con resorte (mismos parámetros en ambas capas)
-  const sx = useSpring(heroPointer.x, { stiffness: 80, damping: 15 });
-  const sy = useSpring(heroPointer.y, { stiffness: 80, damping: 15 });
+  const sx = useSpring(heroPointer.x, { stiffness: 120, damping: 20 });
+  const sy = useSpring(heroPointer.y, { stiffness: 120, damping: 20 });
   const rotateY = useTransform(sx, (v) => v * TILT);
   const rotateX = useTransform(sy, (v) => v * -TILT);
 
@@ -132,7 +133,6 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
       el.style.setProperty("--split", "50%");
       return;
     }
-    let raf = 0;
     const s = split.current;
     const loop = (now: number) => {
       const idle = !s.dragging && now - s.lastInput > 1800;
@@ -140,10 +140,18 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
       const target = idle ? (paused ? s.current : 0.5 + Math.sin(now / 1500) * 0.12) : s.target;
       s.current += (target - s.current) * (idle ? 0.04 : 0.12);
       el.style.setProperty("--split", `${(s.current * 100).toFixed(2)}%`);
-      raf = requestAnimationFrame(loop);
     };
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+    // rAF compartido; pausado cuando el personaje sale de pantalla o la pestaña se oculta
+    const task = createTask(loop);
+    const io = new IntersectionObserver(([e]) => (e.isIntersecting && !document.hidden ? task.start() : task.stop()));
+    io.observe(el);
+    const onVis = () => (document.hidden ? task.stop() : task.start());
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      task.stop();
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVis);
+    };
   }, [isBase, isHybrid, reduced]);
 
   // Táctil: arrastrar sobre el personaje mueve la costura del híbrido.
@@ -199,7 +207,7 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
     <div
       ref={figRef}
       data-hero-figure={isBase ? "" : undefined}
-      className="group relative aspect-[765/1024] h-[70%] md:h-full"
+      className="group relative aspect-[765/1024] h-full"
       style={{ touchAction: "pan-y" }}
       {...handlers}
     >
@@ -239,30 +247,14 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
                 aria-label={isBase ? data.alt : undefined}
                 className="absolute inset-0"
               >
-                <AnimatePresence mode="wait" initial={false}>
+                {/* Cambio de modo: crossfade de 400 ms (solo opacidad y escala, sin filtros) */}
+                <AnimatePresence initial={false}>
                   <motion.div
                     key={mode.id}
-                    className="absolute inset-0 origin-[50%_22%]"
-                    initial={reduced ? { opacity: 0 } : { scale: 0.25, opacity: 0, filter: "blur(10px) brightness(3)" }}
-                    animate={
-                      reduced
-                        ? { opacity: 1, transition: { duration: 0.3 } }
-                        : {
-                            scale: 1,
-                            opacity: 1,
-                            filter: "blur(0px) brightness(1)",
-                            transition: {
-                              delay: 0.12,
-                              scale: { type: "spring", stiffness: 240, damping: 17, mass: 0.9 },
-                              default: { duration: 0.4, ease: EASE },
-                            },
-                          }
-                    }
-                    exit={
-                      reduced
-                        ? { opacity: 0, transition: { duration: 0.2 } }
-                        : { scale: 0.25, opacity: 0, filter: "blur(10px) brightness(3)", transition: { duration: 0.34, ease: [0.55, 0, 0.75, 0] } }
-                    }
+                    className="absolute inset-0 origin-[50%_60%]"
+                    initial={{ opacity: 0, scale: reduced ? 1 : 0.97 }}
+                    animate={{ opacity: 1, scale: 1, transition: { duration: reduced ? 0.2 : 0.4, ease: EASE } }}
+                    exit={{ opacity: 0, scale: reduced ? 1 : 1.02, transition: { duration: reduced ? 0.2 : 0.4, ease: EASE } }}
                   >
                     <LayerFigure id={mode.id} variant={variant} priority={isBase && index === 0} />
                   </motion.div>
