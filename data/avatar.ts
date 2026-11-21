@@ -1,4 +1,5 @@
 import type { ModeId } from "@/lib/mode";
+import type { Tx } from "@/lib/i18n";
 
 /**
  * Imágenes en public/avatar/*.webp: 765×1024 a resolución completa (mismo lienzo → misma línea de piso y centro).
@@ -58,89 +59,144 @@ export const sectionRobot: Record<string, { pose: PoseId; expression: Expression
 };
 
 /** Burbuja corta del robot en cada sección (celular). */
-export const sectionBubble: Record<string, string> = {
-  "sobre-mi": "¡Hola! Este es Jairo",
-  proyectos: "Esto es lo que he construido",
-  experiencia: "Aquí está el recorrido",
-  emprendimiento: "Su negocio en Pasto",
-  testimonios: "Lo que dicen de él",
-  "trabaja-conmigo": "¿Agendamos tu proyecto?",
-  contacto: "Aquí lo encuentras",
-  habilidades: "Su stack, por capas",
+export const sectionBubble: Record<string, Tx> = {
+  "sobre-mi": { es: "¡Hola! Este es Jairo", en: "Hi! This is Jairo" },
+  proyectos: { es: "Esto es lo que he construido", en: "Here's what he's built" },
+  experiencia: { es: "Aquí está el recorrido", en: "Here's the journey" },
+  emprendimiento: { es: "Su negocio en Pasto", en: "His business in Pasto" },
+  testimonios: { es: "Lo que dicen de él", en: "What people say" },
+  "trabaja-conmigo": { es: "¿Agendamos tu proyecto?", en: "Shall we book your project?" },
+  contacto: { es: "Aquí lo encuentras", en: "Here's how to reach him" },
+  habilidades: { es: "Su stack, por capas", en: "His stack, layer by layer" },
 };
 
 export type AvatarMode = {
   /** Palabra gigante detrás del personaje. */
-  word: string;
+  word: Tx;
   /** Nombre del grupo de anotaciones. */
-  group: string;
-  notes: string[];
-  alt: string;
+  group: Tx;
+  notes: Tx<string[]>;
+  alt: Tx;
 };
 
 export const avatarModes: Record<ModeId, AvatarMode> = {
   jairo: {
-    word: "Jairo",
-    group: "Cómo trabajo",
-    notes: [
-      "Aprendizaje autónomo",
-      "Pensamiento crítico",
-      "Resolución de problemas",
-      "Comunicación efectiva",
-      "Trabajo en equipo",
-      "Visión de producto",
-      "Orientación al usuario",
-      "Gestión del tiempo",
-      "Liderazgo",
-      "Adaptabilidad",
-      "Atención al detalle",
-      "Mentalidad emprendedora",
-    ],
-    alt: "Ilustración 3D de Jairo con sudadera negra",
+    word: { es: "Jairo", en: "Jairo" },
+    group: { es: "Cómo trabajo", en: "How I work" },
+    notes: {
+      es: [
+        "Aprendizaje autónomo",
+        "Pensamiento crítico",
+        "Resolución de problemas",
+        "Comunicación efectiva",
+        "Trabajo en equipo",
+        "Visión de producto",
+        "Orientación al usuario",
+        "Gestión del tiempo",
+        "Liderazgo",
+        "Adaptabilidad",
+        "Atención al detalle",
+        "Mentalidad emprendedora",
+      ],
+      en: [
+        "Self-directed learning",
+        "Critical thinking",
+        "Problem solving",
+        "Clear communication",
+        "Teamwork",
+        "Product vision",
+        "User focus",
+        "Time management",
+        "Leadership",
+        "Adaptability",
+        "Attention to detail",
+        "Entrepreneurial mindset",
+      ],
+    },
+    alt: { es: "Ilustración 3D de Jairo con sudadera negra", en: "3D illustration of Jairo in a black hoodie" },
   },
   dev: {
-    word: "Código",
-    group: "Lo que sé hacer",
-    notes: [
-      "Java",
-      "POO",
-      "Spring Boot",
-      "APIs REST",
-      "React",
-      "Next.js",
-      "TypeScript",
-      "SQL",
-      "PostgreSQL",
-      "MongoDB",
-      "Patrones de diseño (GoF)",
-      "Arquitectura de software",
-      "UI/UX en Figma",
-      "Git",
-      "GitHub Flow",
-      "Scrum",
-      "Jira",
-      "Modelado UML",
-      "Python",
-      "Flask",
-      "Despliegue en Vercel",
-    ],
-    alt: "Robot de Jairo con casco y visor",
+    word: { es: "Código", en: "Code" },
+    group: { es: "Lo que sé hacer", en: "What I can do" },
+    notes: {
+      es: [
+        "Java",
+        "POO",
+        "Spring Boot",
+        "APIs REST",
+        "React",
+        "Next.js",
+        "TypeScript",
+        "SQL",
+        "PostgreSQL",
+        "MongoDB",
+        "Patrones de diseño (GoF)",
+        "Arquitectura de software",
+        "UI/UX en Figma",
+        "Git",
+        "GitHub Flow",
+        "Scrum",
+        "Jira",
+        "Modelado UML",
+        "Python",
+        "Flask",
+        "Despliegue en Vercel",
+      ],
+      en: [
+        "Java",
+        "OOP",
+        "Spring Boot",
+        "REST APIs",
+        "React",
+        "Next.js",
+        "TypeScript",
+        "SQL",
+        "PostgreSQL",
+        "MongoDB",
+        "Design patterns (GoF)",
+        "Software architecture",
+        "UI/UX in Figma",
+        "Git",
+        "GitHub Flow",
+        "Scrum",
+        "Jira",
+        "UML modeling",
+        "Python",
+        "Flask",
+        "Deploying on Vercel",
+      ],
+    },
+    alt: { es: "Robot de Jairo con casco y visor", en: "Jairo's robot with a helmet and visor" },
   },
   ai: {
-    word: "Jairo.IA",
-    group: "Cómo uso la IA",
-    notes: [
-      "Prompt engineering",
-      "Claude Code (agentes)",
-      "Gemini API",
-      "Prototipado rápido con IA",
-      "Revisión de código asistida",
-      "Automatización de flujos",
-      "Generación de assets",
-      "Integración de APIs de IA",
-      "Análisis de datos con IA",
-      "Criterio humano y ética",
-    ],
-    alt: "Jairo.IA: Jairo mitad persona y mitad robot",
+    word: { es: "Jairo.IA", en: "Jairo.AI" },
+    group: { es: "Cómo uso la IA", en: "How I use AI" },
+    notes: {
+      es: [
+        "Prompt engineering",
+        "Claude Code (agentes)",
+        "Gemini API",
+        "Prototipado rápido con IA",
+        "Revisión de código asistida",
+        "Automatización de flujos",
+        "Generación de assets",
+        "Integración de APIs de IA",
+        "Análisis de datos con IA",
+        "Criterio humano y ética",
+      ],
+      en: [
+        "Prompt engineering",
+        "Claude Code (agents)",
+        "Gemini API",
+        "Rapid prototyping with AI",
+        "AI-assisted code review",
+        "Workflow automation",
+        "Asset generation",
+        "AI API integration",
+        "Data analysis with AI",
+        "Human judgment and ethics",
+      ],
+    },
+    alt: { es: "Jairo.IA: Jairo mitad persona y mitad robot", en: "Jairo.AI: Jairo, half human and half robot" },
   },
 };

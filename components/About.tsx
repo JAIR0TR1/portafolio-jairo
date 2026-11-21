@@ -6,17 +6,20 @@ import { keyFacts, profile, sectionIndex } from "@/data/profile";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { CvViewer } from "@/components/ui/CvViewer";
+import { fmt, tx } from "@/lib/i18n";
+import { getI18n } from "@/lib/dictionaries";
 
 const factIcons = [GraduationCap, Target, MapPin];
 
 /** La foto real solo se muestra si el archivo existe en public/ (se comprueba al compilar). */
 const hasPhoto = existsSync(join(process.cwd(), "public", profile.photo));
 
-export default function About() {
+export default async function About() {
+  const { lang, t } = await getI18n();
   return (
     <section id="sobre-mi" aria-labelledby="sobre-mi-title" className="section-y relative">
       <div className="container-x">
-        <SectionHeading id="sobre-mi-title" index={sectionIndex("sobre-mi")} eyebrow="Sobre mí" title="Diseño y código, en el mismo lugar." />
+        <SectionHeading id="sobre-mi-title" index={sectionIndex("sobre-mi")} eyebrow={t.about.eyebrow} title={t.about.title} />
 
         <Reveal stagger className="grid gap-4 lg:grid-cols-12">
           {hasPhoto && (
@@ -24,7 +27,7 @@ export default function About() {
               <figure className="photo-frame relative mx-auto aspect-[3/4] w-full max-w-[420px] overflow-hidden rounded-[20px] lg:max-w-none">
                 <Image
                   src={profile.photo}
-                  alt={`Foto de ${profile.name}`}
+                  alt={fmt(t.about.photoAlt, { name: profile.name })}
                   fill
                   sizes="(min-width: 1024px) 380px, (min-width: 768px) 420px, 100vw"
                   quality={90}
@@ -37,13 +40,13 @@ export default function About() {
           {/* Párrafo + intereses */}
           <RevealItem className={hasPhoto ? "lg:col-span-8" : "lg:col-span-7"}>
             <div className="glass spotlight flex h-full flex-col justify-between gap-8 p-6 md:p-8">
-              <p className="max-w-[65ch] text-pretty text-body text-ink">{profile.about}</p>
+              <p className="max-w-[65ch] text-pretty text-body text-ink">{tx(profile.about, lang)}</p>
               <div>
-                <h3 className="text-label mb-3 text-muted">Fuera del código</h3>
+                <h3 className="text-label mb-3 text-muted">{t.about.outside}</h3>
                 <ul className="flex flex-wrap gap-2">
-                  {profile.interests.map((t) => (
-                    <li key={t} className="chip">
-                      {t}
+                  {tx(profile.interests, lang).map((item) => (
+                    <li key={item} className="chip">
+                      {item}
                     </li>
                   ))}
                 </ul>
@@ -57,14 +60,14 @@ export default function About() {
               {keyFacts.map(({ label, value }, i) => {
                 const Icon = factIcons[i];
                 return (
-                  <div key={label}>
+                  <div key={label.es}>
                     <dt className="flex flex-col gap-3 text-label text-muted">
                       <span aria-hidden="true" className="grid size-12 shrink-0 place-items-center rounded-[12px] border border-line-2 text-accent">
                         <Icon className="size-[18px]" />
                       </span>
-                      {label}
+                      {tx(label, lang)}
                     </dt>
-                    <dd className="mt-1 text-body text-ink">{value}</dd>
+                    <dd className="mt-1 text-body text-ink">{tx(value, lang)}</dd>
                   </div>
                 );
               })}
@@ -79,16 +82,14 @@ export default function About() {
                   <FileText aria-hidden="true" className="size-5" />
                 </span>
                 <div>
-                  <h3 className="text-h3">Hoja de vida</h3>
-                  <p className="mt-1 max-w-[52ch] text-pretty text-body text-muted">
-                    Mi formación, proyectos y tecnologías, listos para revisar o descargar.
-                  </p>
+                  <h3 className="text-h3">{t.about.cvTitle}</h3>
+                  <p className="mt-1 max-w-[52ch] text-pretty text-body text-muted">{t.about.cvText}</p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
                 <CvViewer />
                 <a href="/cv.pdf" download className="btn btn-primary">
-                  Descargar CV <ArrowDownToLine aria-hidden="true" />
+                  {t.common.downloadCv} <ArrowDownToLine aria-hidden="true" />
                 </a>
               </div>
             </div>

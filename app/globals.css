@@ -17,11 +17,13 @@
 @property --btn-fg { syntax: "<color>"; inherits: true; initial-value: #0b0b0d; }
 
 @theme {
-  --color-ink: #f5f3f0;
-  --color-muted: #a3a1a8;
-  --color-faint: rgb(245 243 240 / 0.14); /* SOLO decorativo */
-  --color-line: rgb(255 255 255 / 0.08);
-  --color-line-2: rgb(255 255 255 / 0.16);
+  /* dependen del tema (oscuro / claro): ver :root y :root[data-theme="light"] */
+  --color-ink: var(--text);
+  --color-muted: var(--muted);
+  --color-faint: color-mix(in srgb, var(--text) 14%, transparent); /* SOLO decorativo */
+  --color-line: var(--border);
+  --color-line-2: var(--border-2);
+  --color-danger: var(--danger);
   --color-fire-a: #ff5a1f;
   --color-fire-b: #ffb020;
   --color-steel: #2f6bff;
@@ -71,8 +73,10 @@
   --surface: #17171c;
   --surface-2: #1f1f26;
   --border: rgb(255 255 255 / 0.08);
+  --border-2: rgb(255 255 255 / 0.16);
   --text: #f5f3f0;
   --muted: #a3a1a8;
+  --danger: #fca5a5;
   --fire-a: #ff5a1f;
   --fire-b: #ffb020;
   --steel: #2f6bff;
@@ -92,6 +96,34 @@
   --grad: linear-gradient(120deg, var(--btn-a), var(--btn-b));
   --grad-soft: var(--grad);
   --shadow: 0 12px 32px -16px rgb(0 0 0 / 0.7);
+  --nav-shadow: 0 10px 40px -18px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.05);
+  /* Hero: luz del modo, viñeta, retícula, palabra metálica y sombra de contacto */
+  --glow-a: 42%;
+  --glow-b: 36%;
+  --vignette: color-mix(in srgb, var(--bg) 55%, black);
+  --dots: rgb(255 255 255 / 0.05);
+  --metal: linear-gradient(
+    180deg,
+    #f7f7f8 0%,
+    #d9dde3 34%,
+    color-mix(in srgb, var(--accent) 34%, #e3e6ea) 52%,
+    color-mix(in srgb, var(--accent-2) 22%, #c4c9d1) 60%,
+    #aab1bb 66%,
+    rgb(245 246 248 / 0.2) 100%
+  );
+  --metal-stroke: rgb(255 255 255 / 0.16);
+  --acute: linear-gradient(180deg, #f7f7f8, #d9dde3);
+  --contact: radial-gradient(closest-side, rgb(0 0 0 / 0.85), rgb(0 0 0 / 0.35) 55%, transparent);
+  --ambient-filter: var(--ambient-filter);
+  /* Capa revelada por la mancha: el tema contrario (claro sobre el oscuro y viceversa) */
+  --inv-bg: #f7f5f0;
+  --inv-text: #0b0b0d;
+  --metal-inv: linear-gradient(180deg, #0b0b0d 0%, #2c3440 45%, #4a5563 100%);
+  --metal-inv-stroke: rgb(11 11 13 / 0.18);
+  --acute-inv: #0b0b0d;
+  --contact-inv: radial-gradient(closest-side, rgb(11 11 13 / 0.4), rgb(11 11 13 / 0.14) 55%, transparent);
+  --footer-glow: rgb(8 12 38 / 0.85);
+  --footer-stroke: rgb(180 190 255 / 0.12);
   --header-h: 76px;
   --t-mode: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   transition: --accent var(--t-mode), --accent-2 var(--t-mode), --accent-text var(--t-mode), --detail var(--t-mode),
@@ -122,6 +154,79 @@
   --btn-a: var(--ai-ember-hot);
   --btn-b: var(--ai-ember);
   --btn-fg: #0b0b0d;
+}
+
+/* ───────────── Tema claro «arena» ─────────────
+   Fondo crema cálido (nunca blanco plano), texto casi negro cálido y los mismos acentos de
+   marca. Los colores de texto se oscurecen para AA sobre crema: texto 14.6–17.1 · apagado
+   6.1–7.1 · acento 4.65–5.9 · error 5.3 · botones 5.1–11. Los degradados y resplandores
+   siguen usando el fuego #FF5A1F→#FFB020 y el azul acero #2F6BFF. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f5efe6;
+  --bg-2: #eee6da;
+  --surface: #fbf8f3;
+  --surface-2: #f2ebe1;
+  --border: rgb(26 21 18 / 0.1);
+  --border-2: rgb(26 21 18 / 0.2);
+  --text: #1a1512;
+  --muted: #5c534b;
+  --danger: #b42318;
+  --accent-text: #b83a0c;
+  --detail: #2150d0;
+  --btn-fg: #1a1512;
+  --shadow: 0 14px 32px -18px rgb(60 40 20 / 0.3);
+  --nav-shadow: 0 10px 30px -16px rgb(60 40 20 / 0.28), inset 0 1px 0 rgb(255 255 255 / 0.7);
+  --glow-a: 30%;
+  --glow-b: 24%;
+  --vignette: color-mix(in srgb, var(--bg) 82%, #8a6a4a);
+  --dots: rgb(26 21 18 / 0.07);
+  --metal: linear-gradient(
+    180deg,
+    #1a1512 0%,
+    #2f3440 36%,
+    color-mix(in srgb, var(--accent) 48%, #3a3f4a) 52%,
+    color-mix(in srgb, var(--accent-2) 32%, #4d5562) 60%,
+    #5d6672 68%,
+    rgb(26 21 18 / 0.2) 100%
+  );
+  --metal-stroke: rgb(26 21 18 / 0.14);
+  --acute: linear-gradient(180deg, #1a1512, #2f3440);
+  --contact: radial-gradient(closest-side, rgb(40 28 18 / 0.38), rgb(40 28 18 / 0.12) 55%, transparent);
+  --ambient-filter: blur(40px) brightness(1.15) saturate(0.7);
+  --inv-bg: #111014;
+  --inv-text: #f5f3f0;
+  --metal-inv: linear-gradient(
+    180deg,
+    #f7f7f8 0%,
+    #d9dde3 34%,
+    color-mix(in srgb, var(--accent) 34%, #e3e6ea) 52%,
+    color-mix(in srgb, var(--accent-2) 22%, #c4c9d1) 60%,
+    #aab1bb 66%,
+    rgb(245 246 248 / 0.2) 100%
+  );
+  --metal-inv-stroke: rgb(255 255 255 / 0.16);
+  --acute-inv: linear-gradient(180deg, #f7f7f8, #d9dde3);
+  --contact-inv: radial-gradient(closest-side, rgb(0 0 0 / 0.85), rgb(0 0 0 / 0.35) 55%, transparent);
+  --footer-glow: color-mix(in srgb, var(--steel) 10%, var(--bg-2));
+  --footer-stroke: rgb(26 21 18 / 0.1);
+}
+:root[data-theme="light"][data-mode="dev"] {
+  --accent-text: #1f4fd1;
+  --detail: #b83a0c;
+  --btn-fg: #ffffff;
+}
+:root[data-theme="light"][data-mode="ai"] {
+  --accent-text: #a4470a;
+  --detail: #be2a2e;
+  --btn-fg: #1a1512;
+}
+/* Cambio de tema: un intercambio limpio, sin colores a medio animar durante un frame */
+:root[data-theme-switching],
+:root[data-theme-switching] *,
+:root[data-theme-switching] *::before,
+:root[data-theme-switching] *::after {
+  transition: none !important;
 }
 
 /* ───────────────────────── base ───────────────────────── */
@@ -319,13 +424,13 @@ footer[id] {
     color: var(--color-ink);
     border: 1px solid var(--color-line-2);
   }
-  .btn-secondary:not(:disabled):hover { border-color: color-mix(in srgb, var(--accent) 70%, transparent); background: rgb(255 255 255 / 0.05); }
+  .btn-secondary:not(:disabled):hover { border-color: color-mix(in srgb, var(--accent) 70%, transparent); background: color-mix(in srgb, var(--text) 5%, transparent); }
 
   .btn-ghost {
     color: var(--color-muted);
     padding-inline: 0.75rem;
   }
-  .btn-ghost:not(:disabled):hover { color: var(--color-ink); background: rgb(255 255 255 / 0.07); }
+  .btn-ghost:not(:disabled):hover { color: var(--color-ink); background: color-mix(in srgb, var(--text) 7%, transparent); }
 
   /* misma altura en todo el sitio: .btn-sm solo existe por compatibilidad */
   .btn-sm { }
@@ -357,14 +462,14 @@ footer[id] {
     font-size: 1rem;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .field::placeholder { color: rgb(245 242 238 / 0.5); }
-  .field:hover { border-color: rgb(255 255 255 / 0.35); }
+  .field::placeholder { color: color-mix(in srgb, var(--text) 50%, transparent); }
+  .field:hover { border-color: color-mix(in srgb, var(--text) 35%, transparent); }
   .field:focus-visible {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent);
   }
-  .field[aria-invalid="true"] { border-color: #fca5a5; }
+  .field[aria-invalid="true"] { border-color: var(--danger); }
 }
 
 @keyframes progress {
@@ -405,19 +510,11 @@ footer[id] {
 
 /* Palabra gigante: degradado vertical + contorno de 1 px (Michroma) */
 .hero-word {
-  background: linear-gradient(
-    180deg,
-    #f7f7f8 0%,
-    #d9dde3 34%,
-    color-mix(in srgb, var(--accent) 34%, #e3e6ea) 52%,
-    color-mix(in srgb, var(--accent-2) 22%, #c4c9d1) 60%,
-    #aab1bb 66%,
-    rgb(245 246 248 / 0.2) 100%
-  );
+  background: var(--metal);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  -webkit-text-stroke: 1px rgb(255 255 255 / 0.16);
+  -webkit-text-stroke: 1px var(--metal-stroke);
   /* espacio para la tilde de la Ó: sin esto queda fuera del área del degradado */
   padding-top: 0.22em;
   margin-top: -0.22em;
@@ -432,11 +529,11 @@ footer[id] {
   height: 0.13em;
   translate: -38% 0;
   transform: skewX(-38deg);
-  background: linear-gradient(180deg, #f7f7f8, #d9dde3);
+  background: var(--acute);
   border-radius: 0.012em;
   pointer-events: none;
 }
-.theme-grad .hero-acute { background: #0b0b0d; }
+.theme-grad .hero-acute { background: var(--acute-inv); }
 /* Profundidad: la palabra se mueve un poco al revés del personaje */
 .hero-word-parallax {
   transform: translate3d(calc(var(--px, 0) * -14px), calc(var(--py, 0) * -6px), 0);
@@ -463,8 +560,7 @@ footer[id] {
   height: 4.5%;
   translate: -50% -50%;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(0 0 0 / 0.85), rgb(0 0 0 / 0.35) 55%, transparent);
-  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.03);
+  background: var(--contact);
   pointer-events: none;
 }
 
@@ -472,8 +568,8 @@ footer[id] {
 /* Capa oscura (base): degradado --bg→--bg-2 con luz del modo, viñeta + retícula de puntos debajo, grano encima */
 .hero-surface {
   background:
-    radial-gradient(ellipse 40% 55% at 40% 42%, color-mix(in srgb, var(--accent) 42%, transparent), transparent 70%),
-    radial-gradient(ellipse 40% 55% at 60% 42%, color-mix(in srgb, var(--accent-2) 36%, transparent), transparent 70%),
+    radial-gradient(ellipse 40% 55% at 40% 42%, color-mix(in srgb, var(--accent) var(--glow-a), transparent), transparent 70%),
+    radial-gradient(ellipse 40% 55% at 60% 42%, color-mix(in srgb, var(--accent-2) var(--glow-b), transparent), transparent 70%),
     linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
 }
 .hero-surface::before,
@@ -485,8 +581,8 @@ footer[id] {
 }
 .hero-surface::before {
   background:
-    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 55%, color-mix(in srgb, var(--bg) 55%, black) 100%),
-    radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.05) 1px, transparent 1.5px) 0 0 / 22px 22px;
+    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 55%, var(--vignette) 100%),
+    radial-gradient(circle at 1px 1px, var(--dots) 1px, transparent 1.5px) 0 0 / 22px 22px;
 }
 .hero-surface::after {
   z-index: 40;
@@ -496,42 +592,40 @@ footer[id] {
 }
 /* Capa clara (revelada): mismo sistema invertido */
 .hero-revealed {
-  background: #f7f5f0;
+  background: var(--inv-bg);
   visibility: hidden; /* el JS de la mancha la muestra; sin JS / reduced, nunca se ve */
   clip-path: circle(0px at 50% 50%);
 }
 .hero-revealed::before {
   background:
-    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 60%, rgb(11 11 13 / 0.1) 100%),
-    radial-gradient(circle at 1px 1px, rgb(11 11 13 / 0.08) 1px, transparent 1.5px) 0 0 / 22px 22px;
+    radial-gradient(ellipse 75% 70% at 50% 42%, transparent 60%, color-mix(in srgb, var(--inv-text) 10%, transparent) 100%),
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--inv-text) 8%, transparent) 1px, transparent 1.5px) 0 0 / 22px 22px;
 }
 .hero-revealed::after { display: none; } /* sin mezcla por frame dentro de la mancha (rendimiento) */
 @media (prefers-reduced-motion: reduce) { .hero-revealed { display: none; } }
 :root[data-effects="reduced"] .hero-revealed { display: none; }
 @media (max-width: 767px) { .hero-surface::after { display: none; } }
 
-/* Capa revelada (dentro de la mancha): fondo blanco cálido, textos oscuros, chips y botones invertidos */
+/* Capa revelada (dentro de la mancha): el tema contrario. En oscuro, fondo blanco cálido y
+   textos oscuros; en claro, fondo negro y textos claros. Chips y botones invertidos. */
 .theme-grad {
-  --color-bg: #0b0b0d;
-  --color-card: #0b0b0d;
-  --color-ink: #0b0b0d;
-  --color-muted: rgb(11 11 13 / 0.72);
-  --color-faint: rgb(11 11 13 / 0.2);
-  --color-line: rgb(11 11 13 / 0.14);
-  --color-line-2: rgb(11 11 13 / 0.28);
+  --color-bg: var(--inv-text);
+  --color-card: var(--inv-text);
+  --color-ink: var(--inv-text);
+  --color-muted: color-mix(in srgb, var(--inv-text) 72%, transparent);
+  --color-faint: color-mix(in srgb, var(--inv-text) 20%, transparent);
+  --color-line: color-mix(in srgb, var(--inv-text) 14%, transparent);
+  --color-line-2: color-mix(in srgb, var(--inv-text) 28%, transparent);
   color: var(--color-ink);
 }
-.theme-grad .btn-secondary { background: #0b0b0d; border-color: #0b0b0d; color: #f5f3f0; }
-.theme-grad .orbit-label { background: #0b0b0d; border-color: #0b0b0d; color: #f5f3f0; }
-.theme-grad .orbit-line { border-color: rgb(11 11 13 / 0.1); }
+.theme-grad .btn-secondary { background: var(--inv-text); border-color: var(--inv-text); color: var(--inv-bg); }
+.theme-grad .orbit-label { background: var(--inv-text); border-color: var(--inv-text); color: var(--inv-bg); }
+.theme-grad .orbit-line { border-color: color-mix(in srgb, var(--inv-text) 10%, transparent); }
 .theme-grad .hero-word {
-  background-image: linear-gradient(180deg, #0b0b0d 0%, #2c3440 45%, #4a5563 100%);
-  -webkit-text-stroke-color: rgb(11 11 13 / 0.18);
+  background-image: var(--metal-inv);
+  -webkit-text-stroke-color: var(--metal-inv-stroke);
 }
-.theme-grad .contact-shadow {
-  background: radial-gradient(closest-side, rgb(11 11 13 / 0.4), rgb(11 11 13 / 0.14) 55%, transparent);
-  box-shadow: none;
-}
+.theme-grad .contact-shadow { background: var(--contact-inv); }
 /* Al pasar por el personaje base, el robot revelado también sonríe */
 #inicio:has([data-hero-figure]:hover) .hero-revealed .robot-eyes .eye-open { opacity: 0; }
 #inicio:has([data-hero-figure]:hover) .hero-revealed .robot-eyes .eye-happy { opacity: 1; }
@@ -540,7 +634,7 @@ footer[id] {
 .hero-ambient-img {
   transform: scale(2.3);
   transform-origin: 50% 30%;
-  filter: blur(40px) brightness(0.35);
+  filter: var(--ambient-filter);
 }
 .hero-ambient-tint { background: var(--accent); opacity: 0.3; -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 40%, #000, transparent 75%); mask-image: radial-gradient(ellipse 60% 55% at 50% 40%, #000, transparent 75%); }
 
@@ -577,11 +671,11 @@ main > section:not(#inicio):nth-of-type(odd) {
 .aurora-dots {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.06) 1px, transparent 1.5px) 0 0 / 26px 26px;
+  background: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1.5px) 0 0 / 26px 26px;
   -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000, transparent);
   mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000, transparent);
 }
-.aurora-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 90% 80% at 50% 45%, transparent 55%, color-mix(in srgb, var(--bg) 50%, black)); }
+.aurora-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 90% 80% at 50% 45%, transparent 55%, var(--vignette)); }
 
 /* ───────────── Ojos del robot (por código) ───────────── */
 .robot-eyes svg { fill: currentColor; filter: drop-shadow(0 0 3px var(--accent)); transition: scale 0.3s; }
@@ -672,7 +766,21 @@ main > section:not(#inicio):nth-of-type(odd) {
   position: fixed;
   inset: 0;
   z-index: 199;
-  background: var(--bg);
+  background: #0b0b0d; /* la intro es una sala oscura en ambos temas */
+}
+/* La capa de la intro usa siempre los tokens del tema oscuro */
+.intro-shell {
+  --bg: #0b0b0d;
+  --text: #f5f3f0;
+  --muted: #a3a1a8;
+  --border: rgb(255 255 255 / 0.08);
+  --border-2: rgb(255 255 255 / 0.16);
+  --color-bg: #0b0b0d;
+  --color-ink: #f5f3f0;
+  --color-muted: #a3a1a8;
+  --color-line: rgb(255 255 255 / 0.08);
+  --color-line-2: rgb(255 255 255 / 0.16);
+  color: var(--color-ink);
 }
 
 
@@ -688,7 +796,7 @@ main > section:not(#inicio):nth-of-type(odd) {
   -webkit-backdrop-filter: blur(16px) saturate(1.3);
   backdrop-filter: blur(16px) saturate(1.3);
   border: 1px solid var(--color-line);
-  box-shadow: 0 10px 40px -18px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.05);
+  box-shadow: var(--nav-shadow);
 }
 @media (max-width: 767px) { .nav-capsule { background: color-mix(in srgb, var(--surface) 95%, transparent); } }
 /* ───────────── Pestañas (navegación y selector de modos) ─────────────
@@ -718,6 +826,8 @@ main > section:not(#inicio):nth-of-type(odd) {
 .tab:not([aria-current]):not([aria-pressed="true"]):hover::after,
 .tab:not([aria-current]):not([aria-pressed="true"]):focus-visible::before,
 .tab:not([aria-current]):not([aria-pressed="true"]):focus-visible::after { opacity: 1; transform: none; }
+/* presión (táctil y mouse): la pestaña se hunde 1 px; la activa no se mueve (su placa se desliza) */
+.tab:not([aria-current]):not([aria-pressed="true"]):active { translate: 0 1px; }
 /* número de sección en mono, como superíndice: no ocupa ancho */
 .tab-idx {
   position: absolute;
@@ -750,6 +860,21 @@ main > section:not(#inicio):nth-of-type(odd) {
   background-clip: text;
   color: transparent;
 }
+
+/* Footer: degradado hacia un tono profundo del tema + nombre gigante en contorno */
+.footer-surface { background: linear-gradient(180deg, transparent, var(--footer-glow)); }
+.footer-stroke { -webkit-text-stroke: 1px var(--footer-stroke); }
+/* Portada ilustrada de proyecto: rejilla técnica en el color del texto */
+.project-grid {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+  -webkit-mask-image: radial-gradient(ellipse at 70% 40%, black, transparent 75%);
+  mask-image: radial-gradient(ellipse at 70% 40%, black, transparent 75%);
+}
+/* Logos de marca muy claros (JavaScript, Tailwind…): un poco más oscuros sobre crema */
+:root[data-theme="light"] svg[data-light-logo] { filter: brightness(0.78) saturate(1.25); }
 
 /* Foto de Sobre mí: tal cual, marco de 20 px con borde de 1 px en el pastel del modo */
 .photo-frame { border: 1px solid var(--accent); background: var(--color-card); }
@@ -787,7 +912,7 @@ body, section, footer, .glass, .btn, .chip, .field, .nav-capsule {
 .orbit-line {
   position: absolute;
   z-index: 4;
-  border: 1px solid rgb(255 255 255 / 0.06);
+  border: 1px solid color-mix(in srgb, var(--text) 7%, transparent);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -812,7 +937,7 @@ body, section, footer, .glass, .btn, .chip, .field, .nav-capsule {
   animation: orbit-in 0.6s ease both;
 }
 .orbit-label[data-hot] { border-color: var(--accent); color: var(--accent-text); background: color-mix(in srgb, var(--surface) 70%, var(--accent)); }
-.theme-grad .orbit-label[data-hot] { color: #f5f3f0; border-color: var(--accent); }
+.theme-grad .orbit-label[data-hot] { color: var(--inv-bg); border-color: var(--accent); }
 @media (max-width: 767px) { .orbit-label { font-size: 10px; line-height: 12px; padding: 4px 8px; } }
 
 /* Intro: mientras carga la escena, el nombre hace fade sobre el fondo */

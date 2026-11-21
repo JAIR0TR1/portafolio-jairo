@@ -10,6 +10,7 @@ import { createTask } from "@/lib/ticker";
 import { CircuitFigure, JairoAligned, ModeFigure, RobotAligned } from "./ModeAvatar";
 import { HeroOrbit } from "./HeroOrbit";
 import { cn } from "@/lib/cn";
+import { useI18n } from "./I18nProvider";
 
 const TILT = 6; // grados máximos de inclinación
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
@@ -37,6 +38,7 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
   const { index, transitionId } = useModeState();
   const mode = MODES[index];
   const data = avatarModes[mode.id];
+  const { lang, t } = useI18n();
   const isHybrid = mode.id === "ai";
 
   const [nearTop, setNearTop] = useState(true);
@@ -218,7 +220,7 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
       />
 
       {/* Anotaciones en órbita alrededor del personaje (detrás: z-5 · delante: z-20) */}
-      <HeroOrbit notes={data.notes} modeId={mode.id} isBase={isBase} />
+      <HeroOrbit notes={data.notes[lang]} modeId={mode.id} isBase={isBase} />
 
       {/* Globo de saludo (solo la capa base) */}
       <AnimatePresence>
@@ -231,7 +233,7 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
             transition={{ type: "spring", stiffness: 420, damping: 24 }}
             className="absolute left-[58%] top-[3%] z-30 origin-bottom-left whitespace-nowrap rounded-[6px] rounded-bl-none bg-ink px-3 py-1.5 text-[13px] font-semibold text-bg"
           >
-            ¡Hola! Soy Jairo
+            {t.hero.greeting}
           </motion.p>
         )}
       </AnimatePresence>
@@ -244,7 +246,7 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
               <motion.div
                 style={{ y: heroJump }}
                 role={isBase ? "img" : undefined}
-                aria-label={isBase ? data.alt : undefined}
+                aria-label={isBase ? data.alt[lang] : undefined}
                 className="absolute inset-0"
               >
                 {/* Cambio de modo: crossfade de 400 ms (solo opacidad y escala, sin filtros) */}
@@ -282,7 +284,7 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
                 <button
                   type="button"
                   onClick={greet}
-                  aria-label="Saludar a Jairo"
+                  aria-label={t.hero.greet}
                   className="absolute left-[37%] top-[5%] z-10 h-[23%] w-[26%] cursor-pointer rounded-full"
                 />
               )}

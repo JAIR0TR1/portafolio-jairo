@@ -6,7 +6,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { profile, sections, socials, type SectionId } from "@/data/profile";
 import { SocialGlyph } from "@/components/ui/BrandIcons";
 import { ReduceEffectsToggle } from "@/components/ui/FooterControls";
-import { EASE, useMediaQuery, useReducedEffects } from "@/lib/effects";
+import { LangSwitch, ThemeSwitch } from "@/components/ui/Prefs";
+import { useI18n } from "@/components/ui/I18nProvider";
+import { fmt, tx } from "@/lib/i18n";
+import { EASE, useMediaQuery, usePlateMotion } from "@/lib/effects";
 import { cn } from "@/lib/cn";
 
 const ids = sections.map((s) => s.id);
@@ -59,15 +62,12 @@ function Monogram({ className }: { className?: string }) {
   );
 }
 
-/** Desplazamiento de la placa activa (transform vía layoutId); instantáneo con reduced-motion. */
-const plateMotion = (reduced: boolean) => (reduced ? { duration: 0 } : ({ type: "spring", stiffness: 420, damping: 36 } as const));
-
 /** Número de sección «01…09» (orden de la página). */
 const sectionNo = (id: string) => String(ids.indexOf(id as SectionId) + 1).padStart(2, "0");
 
 /** Pestaña del menú: placa de esquinas cortadas que se desliza (layoutId) + esquinas [ ] al hover. */
 function NavLink({ id, label, active, className, onClick }: { id: string; label: string; active: boolean; className?: string; onClick?: () => void }) {
-  const reduced = useReducedEffects();
+  const plate = usePlateMotion();
   return (
     <a
       href={`#${id}`}
@@ -79,7 +79,7 @@ function NavLink({ id, label, active, className, onClick }: { id: string; label:
         className,
       )}
     >
-      {active && <motion.span layoutId="nav-plate" transition={plateMotion(reduced)} className="tab-plate absolute inset-0 -z-10" />}
+      {active && <motion.span layoutId="nav-plate" transition={plate} className="tab-plate absolute inset-0 -z-10" />}
       <span className="relative">{label}</span>
       <span aria-hidden="true" className="tab-idx">
         {sectionNo(id)}
@@ -98,7 +98,8 @@ export default function Navbar() {
   // ≥1400 px caben los 9 enlaces; debajo, los secundarios van en «Más» (un solo dueño de la píldora)
   const wide = useMediaQuery("(min-width: 1400px)");
   const moreActive = !wide && secondary.some((s) => s.id === active);
-  const reduced = useReducedEffects();
+  const plate = usePlateMotion();
+  const { lang, t } = useI18n();
 
   const close = useCallback((restoreFocus: boolean) => {
     setOpen(false);
@@ -168,12 +169,13 @@ export default function Navbar() {
   return (
     <>
       <header className="pointer-events-none sticky top-0 z-50 flex h-[calc(var(--header-h)+env(safe-area-inset-top))] items-center pt-[env(safe-area-inset-top)]">
-        <div className="container-x flex justify-center">
+        {/* más ancho que el contenido: caben las 9 pestañas y los selectores de tema e idioma */}
+        <div className="container-x flex justify-center xl:max-w-[1440px]!">
           <nav
-            aria-label="Principal"
+            aria-label={t.nav.label}
             className="nav-capsule pointer-events-auto flex w-full min-w-0 items-center justify-between gap-2 rounded-[16px] p-1.5 lg:w-auto"
           >
-            <a href="#inicio" className="flex min-h-10 min-w-0 items-center gap-2.5 rounded-full pl-0.5 pr-2" aria-label={`${profile.name}, ir al inicio`}>
+            <a href="#inicio" className="flex min-h-10 min-w-0 items-center gap-2.5 rounded-full pl-0.5 pr-2" aria-label={fmt(t.nav.home, { name: profile.name })}>
               <Monogram />
               <span className="hidden text-[15px] font-semibold tracking-tight min-[360px]:inline">Jairo</span>
             </a>
@@ -181,7 +183,7 @@ export default function Navbar() {
             <ul className="isolate hidden items-center lg:flex">
               {(wide ? sections : primary).map((s) => (
                 <li key={s.id}>
-                  <NavLink id={s.id} label={s.label} active={active === s.id} />
+                  <NavLink id={s.id} label={tx(s.label, lang)} active={active === s.id} />
                 </li>
               ))}
               {/* En pantallas medianas, los secundarios van en «Más» */}
@@ -199,8 +201,8 @@ export default function Navbar() {
                       moreActive ? "text-[var(--btn-fg)]" : "text-muted hover:text-ink",
                     )}
                   >
-                    {moreActive && <motion.span layoutId="nav-plate" transition={plateMotion(reduced)} className="tab-plate absolute inset-0 -z-10" />}
-                    <span className="relative">{moreActive ? secondary.find((s) => s.id === active)?.label : "Más"}</span>
+                    {moreActive && <motion.span layoutId="nav-plate" transition={plate} className="tab-plate absolute inset-0 -z-10" />}
+                    <span className="relative">{moreActive ? tx(secondary.find((s) => s.id === active)!.label, lang) : t.nav.more}</span>
                     <ChevronDown aria-hidden="true" className={cn("relative size-4 transition-transform", more && "rotate-180")} />
                   </button>
                   <AnimatePresence>
@@ -226,7 +228,7 @@ export default function Navbar() {
                             >
                               {/* la placa va en una capa interna: el clip-path no recorta el anillo de foco */}
                               {active === s.id && <span aria-hidden="true" className="tab-plate absolute inset-0 -z-10" />}
-                              {s.label}
+                              {tx(s.label, lang)}
                               <span aria-hidden="true" className={cn("font-mono text-[10px]", active === s.id ? "opacity-70" : "text-muted")}>
                                 {sectionNo(s.id)}
                               </span>
@@ -242,8 +244,13 @@ export default function Navbar() {
             </ul>
 
             <div className="flex shrink-0 items-center gap-1.5">
-              <a href="/cv.pdf" download className="btn btn-primary min-h-10 px-4">
-                CV <ArrowDownToLine aria-hidden="true" />
+              {/* tema e idioma: siempre a la vista en escritorio (en celular, dentro del menú) */}
+              <div className="hidden items-center gap-1.5 lg:flex">
+                <ThemeSwitch variant="compact" />
+                <LangSwitch variant="compact" />
+              </div>
+              <a href="/cv.pdf" download className="btn btn-primary min-h-10 px-4" aria-label={t.common.downloadCv}>
+                {t.nav.cv} <ArrowDownToLine aria-hidden="true" />
               </a>
               <button
                 ref={toggleRef}
@@ -251,8 +258,8 @@ export default function Navbar() {
                 onClick={() => setOpen(true)}
                 aria-expanded={open}
                 aria-controls="menu-movil"
-                aria-label="Abrir menú"
-                className="grid size-10 place-items-center rounded-[12px] border border-line-2 bg-white/[.08] text-ink lg:hidden"
+                aria-label={t.nav.openMenu}
+                className="grid size-10 place-items-center rounded-[12px] border border-line-2 bg-ink/[.06] text-ink lg:hidden"
               >
                 <Menu aria-hidden="true" className="size-5" />
               </button>
@@ -268,7 +275,7 @@ export default function Navbar() {
             id="menu-movil"
             role="dialog"
             aria-modal="true"
-            aria-label="Menú"
+            aria-label={t.nav.menu}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -277,19 +284,19 @@ export default function Navbar() {
           >
             <div className="container-x relative flex h-[var(--header-h)] items-center justify-between">
               <span className="flex items-center gap-2.5 font-semibold">
-                <Monogram /> Menú
+                <Monogram /> {t.nav.menu}
               </span>
               <button
                 type="button"
                 onClick={() => close(true)}
-                aria-label="Cerrar menú"
+                aria-label={t.nav.closeMenu}
                 className="grid size-11 place-items-center rounded-[12px] border border-line-2"
               >
                 <X aria-hidden="true" className="size-5" />
               </button>
             </div>
 
-            <nav aria-label="Menú móvil" className="container-x relative flex-1 pt-4">
+            <nav aria-label={t.nav.mobileNav} className="container-x relative flex-1 pt-4">
               <ul className="flex flex-col">
                 {sections.map((s, i) => (
                   <motion.li
@@ -305,7 +312,7 @@ export default function Navbar() {
                       aria-current={active === s.id ? "true" : undefined}
                       className="flex min-h-14 items-center justify-between py-2 text-[clamp(1.4rem,6.5vw,2.1rem)] font-semibold tracking-[-0.03em]"
                     >
-                      <span className={active === s.id ? "text-ink" : "text-ink/80"}>{s.label}</span>
+                      <span className={active === s.id ? "text-ink" : "text-ink/80"}>{tx(s.label, lang)}</span>
                       <span
                         className={cn(
                           "font-mono text-xs",
@@ -320,22 +327,25 @@ export default function Navbar() {
               </ul>
             </nav>
 
-            <div className="container-x relative pt-6">
+            <div className="container-x relative flex flex-col items-start gap-3 pt-6">
+              <p className="text-label text-muted">{t.prefs.title}</p>
+              <ThemeSwitch variant="full" />
+              <LangSwitch variant="full" />
               <ReduceEffectsToggle />
             </div>
             <div className="container-x relative flex flex-wrap items-center gap-2 pb-8 pt-2">
               <a href="/cv.pdf" download className="btn btn-primary">
-                Descargar CV <ArrowDownToLine aria-hidden="true" />
+                {t.common.downloadCv} <ArrowDownToLine aria-hidden="true" />
               </a>
               {socials.map((s) => (
                 <a
-                  key={s.label}
+                  key={s.icon}
                   href={s.href}
                   target={s.icon === "mail" ? undefined : "_blank"}
                   rel={s.icon === "mail" ? undefined : "noopener noreferrer"}
                   className="btn btn-secondary"
                 >
-                  <SocialGlyph icon={s.icon} /> {s.label}
+                  <SocialGlyph icon={s.icon} /> {tx(s.label, lang)}
                 </a>
               ))}
             </div>

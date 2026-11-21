@@ -1,8 +1,12 @@
+import type { Tx } from "@/lib/i18n";
+
 export type Testimonial = {
+  /** Nombre propio: no se traduce. */
   nombre: string;
   /** Relación con Jairo, p. ej. «Cliente de @jairovende_» o «Docente de Diseño de Interfaces». */
-  relacion: string;
-  texto: string;
+  relacion: Tx;
+  /** Cita textual en español y su traducción fiel al inglés (sin agregar ni quitar nada). */
+  texto: Tx;
   tipo: "cliente" | "academico";
   /** Foto opcional en public/images/testimonios/. Sin foto se muestran iniciales. */
   foto?: string;

@@ -1,3 +1,5 @@
+import type { Tx } from "@/lib/i18n";
+
 export type Skill = {
   name: string;
   /** Clave del logo en components/ui/TechIcon.tsx (simple-icons). */
@@ -6,7 +8,7 @@ export type Skill = {
 
 export type SkillGroup = {
   id: string;
-  title: string;
+  title: Tx;
   skills: Skill[];
 };
 
@@ -14,7 +16,7 @@ export type SkillGroup = {
 export const skillGroups: SkillGroup[] = [
   {
     id: "lenguajes",
-    title: "Lenguajes",
+    title: { es: "Lenguajes", en: "Languages" },
     skills: [
       { name: "Java", icon: "java" },
       { name: "TypeScript", icon: "typescript" },
@@ -26,7 +28,7 @@ export const skillGroups: SkillGroup[] = [
   },
   {
     id: "frontend",
-    title: "Frontend",
+    title: { es: "Frontend", en: "Frontend" },
     skills: [
       { name: "React", icon: "react" },
       { name: "Next.js", icon: "nextdotjs" },
@@ -37,7 +39,7 @@ export const skillGroups: SkillGroup[] = [
   },
   {
     id: "backend",
-    title: "Backend y datos",
+    title: { es: "Backend y datos", en: "Backend and data" },
     skills: [
       { name: "Spring Boot", icon: "springboot" },
       { name: "PostgreSQL", icon: "postgresql" },
@@ -46,7 +48,7 @@ export const skillGroups: SkillGroup[] = [
   },
   {
     id: "herramientas",
-    title: "Herramientas",
+    title: { es: "Herramientas", en: "Tools" },
     skills: [
       { name: "Git", icon: "git" },
       { name: "GitHub", icon: "github" },
@@ -57,7 +59,7 @@ export const skillGroups: SkillGroup[] = [
   },
   {
     id: "ia",
-    title: "IA en mi flujo",
+    title: { es: "IA en mi flujo", en: "AI in my workflow" },
     skills: [
       { name: "Claude", icon: "claude" },
       { name: "Gemini", icon: "googlegemini" },

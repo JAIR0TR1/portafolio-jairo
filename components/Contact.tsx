@@ -9,6 +9,8 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { EASE } from "@/lib/effects";
 import { cn } from "@/lib/cn";
+import { fmt, tx, type Dict } from "@/lib/i18n";
+import { useI18n } from "@/components/ui/I18nProvider";
 
 /** Formulario de contacto solo si existe el id de Formspree (si no, se oculta: «Trabaja conmigo» ya tiene formulario). */
 const FORMSPREE_ID = process.env.NEXT_PUBLIC_FORMSPREE_ID;
@@ -18,23 +20,25 @@ type Fields = { name: string; email: string; message: string };
 type Status = "idle" | "sending" | "sent" | "error";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-function validate(f: Fields): Partial<Record<keyof Fields, string>> {
+function validate(f: Fields, t: Dict["contact"]): Partial<Record<keyof Fields, string>> {
   const e: Partial<Record<keyof Fields, string>> = {};
-  if (f.name.trim().length < 2) e.name = "Escribe tu nombre (mínimo 2 letras).";
-  if (!f.email.trim()) e.email = "Escribe tu correo para poder responderte.";
-  else if (!EMAIL_RE.test(f.email.trim())) e.email = "Revisa el correo: debe verse como nombre@dominio.com.";
-  if (f.message.trim().length < 10) e.message = "Cuéntame un poco más (mínimo 10 caracteres).";
-  else if (f.message.length > MAX) e.message = `Máximo ${MAX} caracteres.`;
+  if (f.name.trim().length < 2) e.name = t.errName;
+  if (!f.email.trim()) e.email = t.errEmailEmpty;
+  else if (!EMAIL_RE.test(f.email.trim())) e.email = t.errEmail;
+  if (f.message.trim().length < 10) e.message = t.errMessage;
+  else if (f.message.length > MAX) e.message = fmt(t.errMax, { max: MAX });
   return e;
 }
 
 const contactLinks: SocialLink[] = [
-  { label: "Correo", handle: profile.email, href: `mailto:${profile.email}`, icon: "mail" },
-  { label: "WhatsApp", handle: "+57 301 391 7671", href: profile.whatsappHref, icon: "whatsapp" },
+  socials.find((s) => s.icon === "mail")!,
+  { label: { es: "WhatsApp", en: "WhatsApp" }, handle: "+57 301 391 7671", href: profile.whatsappHref, icon: "whatsapp" },
   ...socials.filter((s) => s.icon !== "mail"),
 ];
 
 export default function Contact() {
+  const { lang, t: dict } = useI18n();
+  const t = dict.contact;
   const [fields, setFields] = useState<Fields>({ name: "", email: "", message: "" });
   const [touched, setTouched] = useState<Partial<Record<keyof Fields, boolean>>>({});
   const [status, setStatus] = useState<Status>("idle");
@@ -43,7 +47,7 @@ export default function Contact() {
   const toastTimer = useRef<number | undefined>(undefined);
   const uid = useId();
 
-  const errors = validate(fields);
+  const errors = validate(fields, t);
   const show = (k: keyof Fields) => (touched[k] ? errors[k] : undefined);
 
   const notify = (msg: string) => {
@@ -55,9 +59,9 @@ export default function Contact() {
   const copy = async (text: string, what: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      notify(`${what} copiado`);
+      notify(fmt(t.copied, { what }));
     } catch {
-      notify("No se pudo copiar. Selecciónalo y copia a mano.");
+      notify(t.copyFail);
     }
   };
 
@@ -83,7 +87,7 @@ export default function Contact() {
     setStatus("sending");
 
     if (!FORMSPREE_ID) {
-      const subject = encodeURIComponent(`Mensaje desde el portafolio — ${fields.name}`);
+      const subject = encodeURIComponent(fmt(t.subject, { name: fields.name }));
       const body = encodeURIComponent(`${fields.message}\n\n— ${fields.name} (${fields.email})`);
       window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
       setSentVia("mailto");
@@ -115,9 +119,9 @@ export default function Contact() {
         <SectionHeading
           id="contacto-title"
           index={sectionIndex("contacto")}
-          eyebrow="Contacto"
-          title="Hablemos."
-          description="Escríbeme por correo o WhatsApp, o sígueme en GitHub e Instagram."
+          eyebrow={t.eyebrow}
+          title={t.title}
+          description={t.description}
         />
 
         <div className="grid gap-4 lg:grid-cols-12">
@@ -126,14 +130,15 @@ export default function Contact() {
             {contactLinks.map((s) => {
               const isMail = s.icon === "mail";
               const copyValue = isMail ? profile.email : s.href;
+              const label = tx(s.label, lang);
               return (
-                <RevealItem as="li" key={s.label} className={cn("min-w-0", isMail && !FORMSPREE_ID && "md:col-span-2")}>
+                <RevealItem as="li" key={s.icon} className={cn("min-w-0", isMail && !FORMSPREE_ID && "md:col-span-2")}>
                   <div className="glass spotlight flex items-center gap-4 p-4 md:p-5">
                     <span className="grid size-12 shrink-0 place-items-center rounded-[12px] border border-line-2 text-ink">
                       <SocialGlyph icon={s.icon} className="size-5" />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-label text-muted">{s.label}</p>
+                      <p className="text-label text-muted">{label}</p>
                       <a
                         href={s.href}
                         target={isMail ? undefined : "_blank"}
@@ -141,21 +146,21 @@ export default function Contact() {
                         className="block truncate text-body underline-offset-4 hover:underline"
                       >
                         {s.handle}
-                        {!isMail && <span className="sr-only"> (abre en otra pestaña)</span>}
+                        {!isMail && <span className="sr-only"> {dict.common.newTab}</span>}
                       </a>
                     </div>
                     {isMail ? (
                       <button
                         type="button"
-                        onClick={() => copy(copyValue, "Correo")}
+                        onClick={() => copy(copyValue, label)}
                         className="btn btn-secondary btn-sm shrink-0"
-                        aria-label="Copiar correo"
+                        aria-label={t.copyEmail}
                       >
-                        <Copy aria-hidden="true" /> Copiar
+                        <Copy aria-hidden="true" /> {t.copy}
                       </button>
                     ) : (
-                      <a href={s.href} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm shrink-0" aria-label={`Abrir ${s.label} (otra pestaña)`}>
-                        Abrir <ArrowUpRight aria-hidden="true" />
+                      <a href={s.href} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm shrink-0" aria-label={fmt(t.openAria, { label })}>
+                        {t.open} <ArrowUpRight aria-hidden="true" />
                       </a>
                     )}
                   </div>
@@ -168,8 +173,8 @@ export default function Contact() {
           {FORMSPREE_ID && (
           <Reveal className="lg:col-span-7">
             <div id="formulario" className="glass scroll-mt-28 p-6 md:p-8">
-              <h3 className="text-h3">Envíame un mensaje</h3>
-              <p className="mt-1 text-small text-muted">Todos los campos son obligatorios.</p>
+              <h3 className="text-h3">{t.formTitle}</h3>
+              <p className="mt-1 text-small text-muted">{t.formNote}</p>
 
               <AnimatePresence mode="wait" initial={false}>
                 {status === "sent" ? (
@@ -185,14 +190,12 @@ export default function Contact() {
                     <span className="grid size-11 place-items-center rounded-[12px] bg-ink text-bg">
                       <Check aria-hidden="true" />
                     </span>
-                    <p className="text-lg font-medium">¡Gracias! Tu mensaje está listo.</p>
+                    <p className="text-lg font-medium">{t.sentTitle}</p>
                     <p className="text-muted">
-                      {sentVia === "formspree"
-                        ? "Lo recibí y te responderé a tu correo pronto."
-                        : `Se abrió tu app de correo con el mensaje escrito; solo dale «Enviar». Si no se abrió, escríbeme a ${profile.email}.`}
+                      {sentVia === "formspree" ? t.sentFormspree : fmt(t.sentMailto, { email: profile.email })}
                     </p>
                     <button type="button" className="btn btn-secondary btn-sm" onClick={() => setStatus("idle")}>
-                      Enviar otro mensaje
+                      {t.sendAnother}
                     </button>
                   </motion.div>
                 ) : (
@@ -206,7 +209,7 @@ export default function Contact() {
                     className="mt-8 grid gap-5 md:grid-cols-2"
                     aria-describedby={status === "error" ? `${uid}-err` : undefined}
                   >
-                    <Field id={fieldIds.name} label="Nombre" error={show("name")}>
+                    <Field id={fieldIds.name} label={t.name} error={show("name")}>
                       <input
                         id={fieldIds.name}
                         name="name"
@@ -214,7 +217,7 @@ export default function Contact() {
                         required
                         minLength={2}
                         autoComplete="name"
-                        placeholder="¿Cómo te llamas?"
+                        placeholder={t.namePh}
                         value={fields.name}
                         onChange={update("name")}
                         onBlur={() => setTouched((t) => ({ ...t, name: true }))}
@@ -223,7 +226,7 @@ export default function Contact() {
                         className="field"
                       />
                     </Field>
-                    <Field id={fieldIds.email} label="Correo" error={show("email")}>
+                    <Field id={fieldIds.email} label={t.email} error={show("email")}>
                       <input
                         id={fieldIds.email}
                         name="email"
@@ -231,7 +234,7 @@ export default function Contact() {
                         required
                         autoComplete="email"
                         inputMode="email"
-                        placeholder="nombre@dominio.com"
+                        placeholder={t.emailPh}
                         value={fields.email}
                         onChange={update("email")}
                         onBlur={() => setTouched((t) => ({ ...t, email: true }))}
@@ -242,12 +245,12 @@ export default function Contact() {
                     </Field>
                     <Field
                       id={fieldIds.message}
-                      label="Mensaje"
+                      label={t.message}
                       error={show("message")}
                       className="md:col-span-2"
                       aside={
                         <span
-                          className={cn("text-label", fields.message.length > MAX ? "text-[#fca5a5]" : "text-muted")}
+                          className={cn("text-label", fields.message.length > MAX ? "text-danger" : "text-muted")}
                           aria-live="polite"
                         >
                           {fields.message.length} / {MAX}
@@ -261,7 +264,7 @@ export default function Contact() {
                         minLength={10}
                         maxLength={MAX + 200}
                         rows={6}
-                        placeholder="Cuéntame tu idea, el plazo y cómo te puedo ayudar (mínimo 10 caracteres)."
+                        placeholder={t.messagePh}
                         value={fields.message}
                         onChange={update("message")}
                         onBlur={() => setTouched((t) => ({ ...t, message: true }))}
@@ -274,7 +277,7 @@ export default function Contact() {
                     {/* Honeypot (invisible para personas) */}
                     <div aria-hidden="true" className="absolute -left-[9999px] size-px overflow-hidden">
                       <label>
-                        Empresa
+                        {t.honeypot}
                         <input type="text" name="empresa" tabIndex={-1} autoComplete="off" />
                       </label>
                     </div>
@@ -283,11 +286,10 @@ export default function Contact() {
                       <p
                         id={`${uid}-err`}
                         role="alert"
-                        className="flex items-start gap-2 rounded-[12px] border border-[#fca5a5]/40 bg-[#fca5a5]/[.08] p-3 text-small md:col-span-2"
+                        className="flex items-start gap-2 rounded-[12px] border border-danger/40 bg-danger/[.08] p-3 text-small md:col-span-2"
                       >
-                        <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-[#fca5a5]" />
-                        No se pudo enviar (puede ser tu conexión). Tu mensaje sigue aquí: inténtalo de nuevo o
-                        escríbeme a {profile.email}.
+                        <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-danger" />
+                        {fmt(t.errSend, { email: profile.email })}
                       </p>
                     )}
 
@@ -295,20 +297,20 @@ export default function Contact() {
                       <button type="submit" className="btn btn-primary" disabled={status === "sending"}>
                         {status === "sending" ? (
                           <>
-                            <Loader2 aria-hidden="true" className="animate-spin" /> Enviando…
+                            <Loader2 aria-hidden="true" className="animate-spin" /> {t.sending}
                           </>
                         ) : status === "error" ? (
                           <>
-                            Reintentar <Send aria-hidden="true" />
+                            {t.retry} <Send aria-hidden="true" />
                           </>
                         ) : (
                           <>
-                            Enviar mensaje <Send aria-hidden="true" />
+                            {t.send} <Send aria-hidden="true" />
                           </>
                         )}
                       </button>
                       <a href={`mailto:${profile.email}`} className="btn btn-ghost">
-                        <Mail aria-hidden="true" /> Escríbeme por correo
+                        <Mail aria-hidden="true" /> {t.writeEmail}
                       </a>
                     </div>
                   </motion.form>
@@ -371,7 +373,7 @@ function Field({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="flex items-center gap-1.5 text-small text-[#fca5a5]"
+            className="flex items-center gap-1.5 text-small text-danger"
           >
             <AlertCircle aria-hidden="true" className="size-3.5 shrink-0" /> {error}
           </motion.p>

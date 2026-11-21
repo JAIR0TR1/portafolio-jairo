@@ -11,8 +11,11 @@ import { GithubIcon } from "@/components/ui/BrandIcons";
 import { TechIcon, tagToIcon } from "@/components/ui/TechIcon";
 import { EASE } from "@/lib/effects";
 import { cn } from "@/lib/cn";
+import { fmt, tx } from "@/lib/i18n";
+import { useI18n } from "@/components/ui/I18nProvider";
 
-const ALL = "Todos";
+/** Valor interno del filtro «todos» (la etiqueta visible sale del diccionario). */
+const ALL = "*";
 
 /** Filtros = tecnologías más usadas (máx. 7), calculadas desde los datos. */
 function useFilters() {
@@ -30,14 +33,18 @@ function useFilters() {
 }
 
 function ProjectCard({ project, index }: { project: Project; index: number }) {
+  const { lang, t } = useI18n();
   const published = project.status !== "en-desarrollo";
+  const title = tx(project.title, lang);
+  const description = tx(project.description, lang);
+  const tagLabel = (tag: string) => (t.projects.tags as Record<string, string>)[tag] ?? tag;
   return (
     <article className="glass spotlight group flex h-full flex-col overflow-hidden">
       <div className="relative aspect-[16/10] overflow-hidden rounded-t-[19px] border-b border-line">
-        <ProjectCover project={project} priority={index < 2} />
+        <ProjectCover project={project} title={title} alt={fmt(t.projects.shotAlt, { title })} priority={index < 2} />
         <span
           className={cn(
-            "chip absolute left-3 top-3 bg-black/50 backdrop-blur-sm",
+            "chip absolute left-3 top-3 bg-bg/70 backdrop-blur-sm",
             published ? "text-ink" : "text-muted",
           )}
         >
@@ -47,10 +54,10 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
               published ? "bg-accent" : "border border-muted",
             )}
           />
-          {published ? "Publicado" : "En desarrollo"}
+          {published ? t.projects.published : t.projects.inProgress}
         </span>
         {project.year ? (
-          <span className="chip absolute right-3 top-3 bg-black/50 text-muted backdrop-blur-sm">
+          <span className="chip absolute right-3 top-3 bg-bg/70 text-muted backdrop-blur-sm">
             {project.year}
           </span>
         ) : null}
@@ -62,22 +69,22 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             {String(index + 1).padStart(2, "0")}
           </span>
           <h3 className="font-display text-xl font-medium tracking-[-0.025em]">
-            {project.title}
+            {title}
           </h3>
         </div>
         <p
           className="line-clamp-2 min-h-[3.25em] text-pretty text-body text-muted"
-          title={project.description}
+          title={description}
         >
-          {project.description}
+          {description}
         </p>
-        <ul className="flex flex-wrap gap-1.5" aria-label="Tecnologías">
-          {project.tags.map((t) => (
-            <li key={t} className="chip text-[11px]">
-              {tagToIcon[t] ? (
-                <TechIcon name={tagToIcon[t]} className="size-3 text-ink/75" />
+        <ul className="flex flex-wrap gap-1.5" aria-label={t.projects.techs}>
+          {project.tags.map((tag) => (
+            <li key={tag} className="chip text-[11px]">
+              {tagToIcon[tag] ? (
+                <TechIcon name={tagToIcon[tag]} className="size-3 text-ink/75" />
               ) : null}
-              {t}
+              {tagLabel(tag)}
             </li>
           ))}
         </ul>
@@ -88,7 +95,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-secondary btn-sm"
-              aria-label={`Código de ${project.title} en GitHub (abre en otra pestaña)`}
+              aria-label={fmt(t.projects.codeAria, { title })}
             >
               <GithubIcon /> GitHub{" "}
               <ArrowUpRight aria-hidden="true" className="opacity-60" />
@@ -100,14 +107,14 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-primary btn-sm"
-              aria-label={`Ver demo de ${project.title} (abre en otra pestaña)`}
+              aria-label={fmt(t.projects.demoAria, { title })}
             >
-              Ver demo <ArrowUpRight aria-hidden="true" />
+              {t.projects.demo} <ArrowUpRight aria-hidden="true" />
             </a>
           )}
           {!project.github && !project.demo && (
             <span className="text-label text-muted">
-              Enlaces próximamente
+              {t.projects.linksSoon}
             </span>
           )}
         </div>
@@ -118,9 +125,11 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 
 export default function Projects() {
   const filters = useFilters();
+  const { t } = useI18n();
   const [filter, setFilter] = useState(ALL);
   const list =
     filter === ALL ? projects : projects.filter((p) => p.tags.includes(filter));
+  const label = (f: string) => (f === ALL ? t.projects.all : ((t.projects.tags as Record<string, string>)[f] ?? f));
 
   return (
     <section
@@ -132,14 +141,14 @@ export default function Projects() {
         <SectionHeading
           id="proyectos-title"
           index={sectionIndex("proyectos")}
-          eyebrow="Proyectos"
-          title={<>Cosas que he construido.</>}
-          description="Apps de escritorio, para reloj y web, con su código y su demo."
+          eyebrow={t.projects.eyebrow}
+          title={t.projects.title}
+          description={t.projects.description}
         />
 
         <div
           role="group"
-          aria-label="Filtrar proyectos por tecnología"
+          aria-label={t.projects.filter}
           className="-mx-1 mb-8 flex flex-wrap gap-2 px-1"
         >
           {filters.map((f) => {
@@ -164,7 +173,7 @@ export default function Projects() {
                     transition={{ type: "spring", stiffness: 420, damping: 36 }}
                   />
                 )}
-                <span className="relative">{f}</span>
+                <span className="relative">{label(f)}</span>
               </button>
             );
           })}
@@ -172,9 +181,8 @@ export default function Projects() {
             className="w-full self-center text-label text-muted sm:ml-auto sm:w-auto"
             aria-live="polite"
           >
-            Mostrando <span className="text-ink">{list.length}</span> de{" "}
-            {projects.length}
-            {filter === ALL ? "" : ` · ${filter}`}
+            {fmt(t.projects.showing, { n: list.length, total: projects.length })}
+            {filter === ALL ? "" : ` · ${label(filter)}`}
           </p>
         </div>
 
@@ -186,7 +194,7 @@ export default function Projects() {
             <AnimatePresence mode="popLayout" initial={false}>
               {list.map((p, i) => (
                 <motion.li
-                  key={p.title}
+                  key={p.id}
                   layout
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -206,16 +214,14 @@ export default function Projects() {
         ) : (
           <div className="glass flex flex-col items-center gap-4 px-6 py-16 text-center">
             <SearchX aria-hidden="true" className="size-8 text-muted" />
-            <p className="text-lg">No hay proyectos con «{filter}» todavía.</p>
-            <p className="text-muted">
-              Prueba con otra tecnología o mira todos.
-            </p>
+            <p className="text-lg">{fmt(t.projects.empty, { filter: label(filter) })}</p>
+            <p className="text-muted">{t.projects.emptyHint}</p>
             <button
               type="button"
               className="btn btn-secondary"
               onClick={() => setFilter(ALL)}
             >
-              Ver todos los proyectos
+              {t.projects.seeAll}
             </button>
           </div>
         )}

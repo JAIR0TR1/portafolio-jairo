@@ -1,11 +1,11 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
-import { avatarModes } from "@/data/avatar";
+import { motion } from "motion/react";
 import { MODES, chooseMode, holdCycle, useModeState } from "@/lib/mode";
-import { EASE, useReducedEffects } from "@/lib/effects";
+import { usePlateMotion } from "@/lib/effects";
 import { cn } from "@/lib/cn";
 import { PauseButton } from "./PauseButton";
+import { useI18n } from "./I18nProvider";
 
 /**
  * Selector de modo: riel segmentado (heurísticas 3 y 6). El modo activo lleva la placa de
@@ -15,12 +15,13 @@ import { PauseButton } from "./PauseButton";
  */
 export function ModeSelector() {
   const { index } = useModeState();
-  const reduced = useReducedEffects();
+  const plate = usePlateMotion();
+  const { t } = useI18n();
   return (
     <div className="flex flex-wrap items-center gap-2">
       <div
         role="group"
-        aria-label="Elige un modo del avatar"
+        aria-label={t.modes.group}
         className="mode-rail isolate inline-flex items-stretch gap-1 rounded-[12px] border border-line-2 p-1"
         onFocusCapture={() => holdCycle(true)}
         onBlurCapture={() => holdCycle(false)}
@@ -41,48 +42,19 @@ export function ModeSelector() {
               {on && (
                 <motion.span
                   layoutId="mode-plate"
-                  transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 36 }}
+                  transition={plate}
                   className="tab-plate absolute inset-0 -z-10"
                 />
               )}
               <span aria-hidden="true" className={cn("hidden text-[10px] sm:inline", on ? "opacity-70" : "text-muted opacity-60")}>
                 {String(i + 1).padStart(2, "0")}
               </span>
-              {m.label}
+              {t.modes[m.id]}
             </button>
           );
         })}
       </div>
       <PauseButton />
-    </div>
-  );
-}
-
-/** En pantallas pequeñas las anotaciones van como lista (no caben alrededor del avatar). */
-export function NotesList({ className }: { className?: string }) {
-  const { index } = useModeState();
-  const data = avatarModes[MODES[index].id];
-  return (
-    <div className={className}>
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={MODES[index].id}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: 0.3, ease: EASE }}
-        >
-          <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.14em] text-muted">{data.group}</p>
-          <ul className="flex flex-wrap gap-1.5">
-            {data.notes.map((t) => (
-              <li key={t} className="chip text-[11px]">
-                <span aria-hidden="true" className="size-[5px] rounded-full bg-accent" />
-                {t}
-              </li>
-            ))}
-          </ul>
-        </motion.div>
-      </AnimatePresence>
     </div>
   );
 }

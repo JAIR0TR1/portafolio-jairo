@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { Component, useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { INTRO_KEY } from "@/lib/keys";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/components/ui/I18nProvider";
 
 // three / R3F solo se descargan si la intro 3D se va a mostrar.
 const IntroScene = dynamic(() => import("./IntroScene"), { ssr: false, loading: () => null });
@@ -64,6 +65,7 @@ class SceneBoundary extends Component<{ onError: () => void; children: ReactNode
  */
 export function IntroGate() {
   const { state } = useIntroState();
+  const { t } = useI18n();
   const active = state === "webgl";
   const leaving = state === "leaving";
   const [canEnter, setCanEnter] = useState(false);
@@ -134,7 +136,7 @@ export function IntroGate() {
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[200] bg-bg transition-opacity ease-out",
+        "intro-shell fixed inset-0 z-[200] bg-bg transition-opacity ease-out",
         leaving ? "pointer-events-none opacity-0 duration-500" : "opacity-100",
       )}
     >
@@ -154,7 +156,7 @@ export function IntroGate() {
       {/* Controles (heurística 03: control y libertad) */}
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 md:p-8">
         <p className="hidden font-mono text-xs text-muted md:block">
-          Jairo Andrés Vallejo Burbano <span className="text-accent">·</span> Portafolio
+          Jairo Andrés Vallejo Burbano <span className="text-accent">·</span> {t.intro.portfolio}
         </p>
         <div className="ml-auto flex items-center gap-2">
           <button
@@ -164,10 +166,10 @@ export function IntroGate() {
             tabIndex={canEnter ? 0 : -1}
             aria-hidden={!canEnter}
           >
-            Entrar
+            {t.intro.enter}
           </button>
           <button ref={skipRef} type="button" onClick={() => finish(true)} className="btn btn-secondary">
-            Saltar intro <span className="font-mono text-[11px] text-muted">Esc</span>
+            {t.intro.skip} <span className="font-mono text-[11px] text-muted">Esc</span>
           </button>
         </div>
       </div>

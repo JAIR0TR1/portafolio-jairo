@@ -107,8 +107,17 @@ export function TechIcon({
 }: { name: string; colored?: boolean } & SVGProps<SVGSVGElement>) {
   const icon = techIcons[name];
   if (!icon) return null;
+  // logos muy claros (JavaScript, Tailwind…): en el tema claro el CSS los oscurece un poco
+  const n = parseInt(icon.hex, 16);
+  const veryLight = colored && 0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255) > 170;
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" fill={colored ? readable(icon.hex) : "currentColor"} {...props}>
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      fill={colored ? readable(icon.hex) : "currentColor"}
+      data-light-logo={veryLight ? "" : undefined}
+      {...props}
+    >
       <path d={icon.path} />
     </svg>
   );

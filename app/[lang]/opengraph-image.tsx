@@ -1,10 +1,22 @@
 import { ImageResponse } from "next/og";
+import { isLang, type Lang } from "@/lib/i18n";
+import { getDict } from "@/lib/dictionaries";
 
-export const alt = "Jairo Andrés Vallejo Burbano — Código limpio. Interfaces claras. Ideas que se venden.";
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+const size = { width: 1200, height: 630 };
 
-export default function OpengraphImage() {
+async function langOf(params: Promise<{ lang: string }> | { lang: string }): Promise<Lang> {
+  const { lang } = await params;
+  return isLang(lang) ? lang : "es";
+}
+
+/** Una imagen por idioma, con su texto alternativo traducido. */
+export async function generateImageMetadata({ params }: { params: Promise<{ lang: string }> | { lang: string } }) {
+  const t = getDict(await langOf(params));
+  return [{ id: "og", alt: t.meta.ogAlt, size, contentType: "image/png" }];
+}
+
+export default async function OpengraphImage({ params }: { params: Promise<{ lang: string }> }) {
+  const t = getDict(await langOf(params));
   return new ImageResponse(
     (
       <div
@@ -37,18 +49,23 @@ export default function OpengraphImage() {
           >
             JV
           </div>
-          Portafolio · Ingeniería de Software
+          {t.meta.ogKicker}
         </div>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ fontSize: 40, color: "#A3A1A8" }}>Jairo Andrés Vallejo Burbano</div>
-          <div style={{ fontSize: 84, fontWeight: 700, letterSpacing: -3, lineHeight: 1.05 }}>Código limpio.</div>
-          <div style={{ fontSize: 84, fontWeight: 700, letterSpacing: -3, lineHeight: 1.05 }}>Interfaces claras.</div>
-          <div style={{ fontSize: 84, fontWeight: 700, letterSpacing: -3, lineHeight: 1.05, color: "#FFB020" }}>Ideas que se venden.</div>
+          {t.meta.ogLines.map((line, i) => (
+            <div
+              key={line}
+              style={{ fontSize: 84, fontWeight: 700, letterSpacing: -3, lineHeight: 1.05, ...(i === 2 ? { color: "#FFB020" } : {}) }}
+            >
+              {line}
+            </div>
+          ))}
         </div>
         <div style={{ display: "flex", gap: 16, fontSize: 24, color: "#A3A1A8" }}>
-          <span>Pasto, Nariño</span>
+          <span>{t.meta.ogPlace}</span>
           <span style={{ color: "#FFB020" }}>·</span>
-          <span>Frontend · Diseño UI · Backend · IA</span>
+          <span>{t.meta.ogFocus}</span>
         </div>
       </div>
     ),

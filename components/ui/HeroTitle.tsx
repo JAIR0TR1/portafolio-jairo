@@ -5,12 +5,13 @@ import { avatarModes } from "@/data/avatar";
 import { MODES, useModeIndex } from "@/lib/mode";
 import { useReducedEffects } from "@/lib/effects";
 import { hash01 } from "@/lib/heroMotion";
+import { useI18n } from "./I18nProvider";
 
 const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.";
 const SCRAMBLE_MS = 600;
 /** Ancho natural (px) de cada palabra a 100px en Michroma: permite pintar la palabra ya
  *  ajustada al ancho en el HTML (unidades de contenedor), antes de que cargue el JS. */
-const NATURAL: Record<string, number> = { JAIRO: 414.77, "CÓDIGO": 544.41, "JAIRO.IA": 565.02 };
+const NATURAL: Record<string, number> = { JAIRO: 414.77, "CÓDIGO": 544.41, "JAIRO.IA": 565.02, CODE: 396.75, "JAIRO.AI": 565.02 };
 
 /** Estilo común de la palabra y de la sonda que la mide (deben ser idénticos). */
 const TYPE: CSSProperties = { fontSize: 100, lineHeight: 0.9, letterSpacing: "-0.02em" };
@@ -24,7 +25,8 @@ const TYPE: CSSProperties = { fontSize: 100, lineHeight: 0.9, letterSpacing: "-0
 export function HeroTitle() {
   const reduced = useReducedEffects();
   const index = useModeIndex();
-  const word = avatarModes[MODES[index].id].word.toUpperCase();
+  const { lang } = useI18n();
+  const word = avatarModes[MODES[index].id].word[lang].toUpperCase();
 
   const wrapRef = useRef<HTMLDivElement>(null);
   const probeRef = useRef<HTMLSpanElement>(null);

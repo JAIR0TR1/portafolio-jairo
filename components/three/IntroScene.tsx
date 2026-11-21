@@ -4,6 +4,13 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, PerformanceMonitor, RoundedBox, useTexture } from "@react-three/drei";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { introDir } from "@/lib/keys";
+
+/** Capturas del sitio en el idioma y tema actuales (public/intro/…). */
+function introBase() {
+  const d = document.documentElement;
+  return `/intro/${introDir(d.lang, d.dataset.theme ?? "dark")}`;
+}
 
 /* Línea de tiempo (s) */
 const T = { fadeIn: 0.8, drift: 3.2, zoom: 4.4 };
@@ -95,8 +102,9 @@ function World({ onTick, onReady, mobile }: { onTick: (t: number) => void; onRea
   const DEVICE_Y = G.Y;
   // A: página completa (scroll dentro de la pantalla) · B: Hero nítido para el cierre del zoom.
   // Celular: captura móvil del Hero (390×844 a 3×) en ambas.
+  const base = introBase();
   const [scrollTex, heroTex] = useTexture(
-    mobile ? ["/intro/site-mobile.webp", "/intro/site-mobile.webp"] : ["/intro/site-scroll.webp", "/intro/site.webp"],
+    mobile ? [`${base}site-mobile.webp`, `${base}site-mobile.webp`] : [`${base}site-scroll.webp`, `${base}site.webp`],
   );
   const maxAniso = useThree((st) => st.gl.capabilities.getMaxAnisotropy());
 
@@ -256,8 +264,9 @@ function World({ onTick, onReady, mobile }: { onTick: (t: number) => void; onRea
 
 // Precarga: las texturas se piden en cuanto se importa la escena; la animación arranca con todo listo.
 if (typeof window !== "undefined") {
-  if (window.innerWidth < 768) useTexture.preload("/intro/site-mobile.webp");
-  else useTexture.preload(["/intro/site-scroll.webp", "/intro/site.webp"]);
+  const base = introBase();
+  if (window.innerWidth < 768) useTexture.preload(`${base}site-mobile.webp`);
+  else useTexture.preload([`${base}site-scroll.webp`, `${base}site.webp`]);
 }
 
 export default function IntroScene({
