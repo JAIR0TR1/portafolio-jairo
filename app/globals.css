@@ -106,14 +106,22 @@
   --btn-b: #2b63f0;
   --btn-fg: #ffffff;
 }
+/* JAIRO.IA — «brasa sobre acero»: la energía de la IA es una brasa ámbar que arde sobre una
+   atmósfera de acero profundo; el rojo solo aparece como señal puntual. Sin rojo→azul
+   (su mezcla da el morado genérico «de IA»). Contraste: texto brasa 9.2 · señal 6.45 ·
+   botón 8.3–12 (todos sobre --bg/--surface). */
 :root[data-mode="ai"] {
-  --accent: #e5383b;
-  --accent-2: #2f6bff;
-  --accent-text: #ff6b6e;
-  --detail: #ffb020;
-  --btn-a: #c92e31;
-  --btn-b: #2b63f0;
-  --btn-fg: #ffffff;
+  --ai-ember: #ff8a1f; /* brasa: núcleo de energía (resplandor, palabra, costura, ojos) */
+  --ai-ember-hot: #ffc043; /* brasa al rojo blanco: arranque del botón */
+  --ai-steel-deep: #1d3d9e; /* acero profundo: la atmósfera detrás del personaje */
+  --ai-signal: #ff6b6e; /* rojo #E5383B aclarado para texto: acentos puntuales */
+  --accent: var(--ai-ember);
+  --accent-2: var(--ai-steel-deep);
+  --accent-text: #ffa64d;
+  --detail: var(--ai-signal);
+  --btn-a: var(--ai-ember-hot);
+  --btn-b: var(--ai-ember);
+  --btn-fg: #0b0b0d;
 }
 
 /* ───────────────────────── base ───────────────────────── */
@@ -683,22 +691,53 @@ main > section:not(#inicio):nth-of-type(odd) {
   box-shadow: 0 10px 40px -18px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.05);
 }
 @media (max-width: 767px) { .nav-capsule { background: color-mix(in srgb, var(--surface) 95%, transparent); } }
-/* subrayado animado al hover (no en el activo, que ya tiene píldora) */
-.nav-link:not([aria-current]) .nav-label::after {
+/* ───────────── Pestañas (navegación y selector de modos) ─────────────
+   Activa: «placa» de esquinas cortadas (chaflán, como una ficha técnica) con el degradado del
+   modo, que se desliza entre pestañas por transform (layoutId). Reposo/hover: dos esquinas de
+   encuadre [ ] en el color del modo que se cierran sobre la etiqueta. Foco con teclado: el anillo
+   global del acento, instantáneo. Sin píldoras ni subrayado. */
+.tab-plate {
+  --cut: 8px;
+  background: var(--grad);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.tab { position: relative; }
+.tab::before,
+.tab::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -3px;
-  height: 1.5px;
-  border-radius: 2px;
-  background: var(--grad);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.35s var(--ease-out-expo);
+  width: 7px;
+  height: 7px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease-out-expo), transform 0.2s var(--ease-out-expo);
 }
-.nav-link:not([aria-current]):hover .nav-label::after,
-.nav-link:not([aria-current]):focus-visible .nav-label::after { transform: scaleX(1); }
+.tab::before { left: 2px; top: 2px; border-left: 1.5px solid var(--accent); border-top: 1.5px solid var(--accent); transform: translate(4px, 4px); }
+.tab::after { right: 2px; bottom: 2px; border-right: 1.5px solid var(--accent); border-bottom: 1.5px solid var(--accent); transform: translate(-4px, -4px); }
+.tab:not([aria-current]):not([aria-pressed="true"]):hover::before,
+.tab:not([aria-current]):not([aria-pressed="true"]):hover::after,
+.tab:not([aria-current]):not([aria-pressed="true"]):focus-visible::before,
+.tab:not([aria-current]):not([aria-pressed="true"]):focus-visible::after { opacity: 1; transform: none; }
+/* número de sección en mono, como superíndice: no ocupa ancho */
+.tab-idx {
+  position: absolute;
+  top: 5px;
+  right: 4px;
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+  opacity: 0.8;
+}
+.tab[aria-current] .tab-idx { color: var(--btn-fg); opacity: 0.7; }
+/* selector de modos: riel segmentado */
+.mode-rail { background: color-mix(in srgb, var(--surface) 72%, transparent); }
+@media (prefers-reduced-motion: reduce) {
+  .tab::before, .tab::after { transition: none; }
+}
+:root[data-effects="reduced"] .tab::before,
+:root[data-effects="reduced"] .tab::after { transition: none; }
 .menu-sheet {
   background:
     radial-gradient(ellipse 80% 50% at 100% 0%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),

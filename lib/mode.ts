@@ -7,7 +7,7 @@ import { MODE_KEY } from "./keys";
 export const MODES = [
   { id: "jairo", label: "Jairo", color: "#FF5A1F" },
   { id: "dev", label: "Desarrollador", color: "#2F6BFF" },
-  { id: "ai", label: "IA", color: "#E5383B" },
+  { id: "ai", label: "IA", color: "#FF8A1F" },
 ] as const;
 
 export type ModeId = (typeof MODES)[number]["id"];

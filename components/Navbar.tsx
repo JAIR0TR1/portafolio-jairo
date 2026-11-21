@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { profile, sections, socials, type SectionId } from "@/data/profile";
 import { SocialGlyph } from "@/components/ui/BrandIcons";
 import { ReduceEffectsToggle } from "@/components/ui/FooterControls";
-import { EASE, useMediaQuery } from "@/lib/effects";
+import { EASE, useMediaQuery, useReducedEffects } from "@/lib/effects";
 import { cn } from "@/lib/cn";
 
 const ids = sections.map((s) => s.id);
@@ -59,27 +59,31 @@ function Monogram({ className }: { className?: string }) {
   );
 }
 
-/** Enlace del menú: píldora con el degradado que se desliza (layoutId) + subrayado al hover. */
+/** Desplazamiento de la placa activa (transform vía layoutId); instantáneo con reduced-motion. */
+const plateMotion = (reduced: boolean) => (reduced ? { duration: 0 } : ({ type: "spring", stiffness: 420, damping: 36 } as const));
+
+/** Número de sección «01…09» (orden de la página). */
+const sectionNo = (id: string) => String(ids.indexOf(id as SectionId) + 1).padStart(2, "0");
+
+/** Pestaña del menú: placa de esquinas cortadas que se desliza (layoutId) + esquinas [ ] al hover. */
 function NavLink({ id, label, active, className, onClick }: { id: string; label: string; active: boolean; className?: string; onClick?: () => void }) {
+  const reduced = useReducedEffects();
   return (
     <a
       href={`#${id}`}
       onClick={onClick}
       aria-current={active ? "true" : undefined}
       className={cn(
-        "nav-link relative flex min-h-10 items-center whitespace-nowrap rounded-full px-3 text-[13.5px] font-medium transition-colors",
+        "tab flex min-h-10 items-center whitespace-nowrap pl-3 pr-4 text-[13.5px] font-medium transition-colors",
         active ? "text-[var(--btn-fg)]" : "text-muted hover:text-ink",
         className,
       )}
     >
-      {active && (
-        <motion.span
-          layoutId="nav-pill"
-          transition={{ type: "spring", stiffness: 420, damping: 36 }}
-          className="absolute inset-0 -z-10 rounded-full bg-[image:var(--grad-soft)]"
-        />
-      )}
-      <span className="nav-label relative">{label}</span>
+      {active && <motion.span layoutId="nav-plate" transition={plateMotion(reduced)} className="tab-plate absolute inset-0 -z-10" />}
+      <span className="relative">{label}</span>
+      <span aria-hidden="true" className="tab-idx">
+        {sectionNo(id)}
+      </span>
     </a>
   );
 }
@@ -94,6 +98,7 @@ export default function Navbar() {
   // ≥1400 px caben los 9 enlaces; debajo, los secundarios van en «Más» (un solo dueño de la píldora)
   const wide = useMediaQuery("(min-width: 1400px)");
   const moreActive = !wide && secondary.some((s) => s.id === active);
+  const reduced = useReducedEffects();
 
   const close = useCallback((restoreFocus: boolean) => {
     setOpen(false);
@@ -166,7 +171,7 @@ export default function Navbar() {
         <div className="container-x flex justify-center">
           <nav
             aria-label="Principal"
-            className="nav-capsule pointer-events-auto flex w-full min-w-0 items-center justify-between gap-2 rounded-full p-1.5 lg:w-auto"
+            className="nav-capsule pointer-events-auto flex w-full min-w-0 items-center justify-between gap-2 rounded-[16px] p-1.5 lg:w-auto"
           >
             <a href="#inicio" className="flex min-h-10 min-w-0 items-center gap-2.5 rounded-full pl-0.5 pr-2" aria-label={`${profile.name}, ir al inicio`}>
               <Monogram />
@@ -188,19 +193,14 @@ export default function Navbar() {
                     aria-expanded={more}
                     aria-controls="menu-mas"
                     onClick={() => setMore((m) => !m)}
+                    aria-current={moreActive ? "true" : undefined}
                     className={cn(
-                      "nav-link relative flex min-h-10 items-center gap-1 rounded-full px-3 text-[13.5px] font-medium transition-colors",
+                      "tab flex min-h-10 items-center gap-1 px-3 text-[13.5px] font-medium transition-colors",
                       moreActive ? "text-[var(--btn-fg)]" : "text-muted hover:text-ink",
                     )}
                   >
-                    {moreActive && (
-                      <motion.span
-                        layoutId="nav-pill"
-                        transition={{ type: "spring", stiffness: 420, damping: 36 }}
-                        className="absolute inset-0 -z-10 rounded-full bg-[image:var(--grad-soft)]"
-                      />
-                    )}
-                    <span className="nav-label relative">{moreActive ? secondary.find((s) => s.id === active)?.label : "Más"}</span>
+                    {moreActive && <motion.span layoutId="nav-plate" transition={plateMotion(reduced)} className="tab-plate absolute inset-0 -z-10" />}
+                    <span className="relative">{moreActive ? secondary.find((s) => s.id === active)?.label : "Más"}</span>
                     <ChevronDown aria-hidden="true" className={cn("relative size-4 transition-transform", more && "rotate-180")} />
                   </button>
                   <AnimatePresence>
@@ -220,11 +220,16 @@ export default function Navbar() {
                               onClick={() => setMore(false)}
                               aria-current={active === s.id ? "true" : undefined}
                               className={cn(
-                                "flex min-h-10 items-center rounded-[10px] px-3 text-[14px] transition-colors",
-                                active === s.id ? "bg-[image:var(--grad-soft)] font-medium text-[var(--btn-fg)]" : "text-muted hover:bg-white/[.06] hover:text-ink",
+                                "tab isolate flex min-h-10 items-center justify-between gap-3 px-3 text-[14px] transition-colors",
+                                active === s.id ? "font-medium text-[var(--btn-fg)]" : "text-muted hover:text-ink",
                               )}
                             >
+                              {/* la placa va en una capa interna: el clip-path no recorta el anillo de foco */}
+                              {active === s.id && <span aria-hidden="true" className="tab-plate absolute inset-0 -z-10" />}
                               {s.label}
+                              <span aria-hidden="true" className={cn("font-mono text-[10px]", active === s.id ? "opacity-70" : "text-muted")}>
+                                {sectionNo(s.id)}
+                              </span>
                             </a>
                           </li>
                         ))}
@@ -237,7 +242,7 @@ export default function Navbar() {
             </ul>
 
             <div className="flex shrink-0 items-center gap-1.5">
-              <a href="/cv.pdf" download className="btn btn-primary min-h-10 rounded-full px-4">
+              <a href="/cv.pdf" download className="btn btn-primary min-h-10 px-4">
                 CV <ArrowDownToLine aria-hidden="true" />
               </a>
               <button
@@ -247,7 +252,7 @@ export default function Navbar() {
                 aria-expanded={open}
                 aria-controls="menu-movil"
                 aria-label="Abrir menú"
-                className="grid size-10 place-items-center rounded-full border border-line-2 bg-white/[.08] text-ink lg:hidden"
+                className="grid size-10 place-items-center rounded-[12px] border border-line-2 bg-white/[.08] text-ink lg:hidden"
               >
                 <Menu aria-hidden="true" className="size-5" />
               </button>
@@ -278,7 +283,7 @@ export default function Navbar() {
                 type="button"
                 onClick={() => close(true)}
                 aria-label="Cerrar menú"
-                className="grid size-11 place-items-center rounded-full border border-line-2"
+                className="grid size-11 place-items-center rounded-[12px] border border-line-2"
               >
                 <X aria-hidden="true" className="size-5" />
               </button>
@@ -300,8 +305,15 @@ export default function Navbar() {
                       aria-current={active === s.id ? "true" : undefined}
                       className="flex min-h-14 items-center justify-between py-2 text-[clamp(1.4rem,6.5vw,2.1rem)] font-semibold tracking-[-0.03em]"
                     >
-                      <span className={active === s.id ? "grad-text" : "text-ink/80"}>{s.label}</span>
-                      <span className="font-mono text-xs text-muted">{String(i + 1).padStart(2, "0")}</span>
+                      <span className={active === s.id ? "text-ink" : "text-ink/80"}>{s.label}</span>
+                      <span
+                        className={cn(
+                          "font-mono text-xs",
+                          active === s.id ? "tab-plate px-2.5 py-1.5 font-semibold text-[var(--btn-fg)]" : "px-2.5 text-muted",
+                        )}
+                      >
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
                     </a>
                   </motion.li>
                 ))}
