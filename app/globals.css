@@ -760,7 +760,9 @@ main > section:not(#inicio):nth-of-type(odd) {
 /* ───────────── Intro (pantalla en la sala oscura) ───────────── */
 :root[data-intro="webgl"] { overflow: hidden; }
 /* Tapa negra desde el primer pintado hasta que monta el overlay (evita parpadeo) */
-:root[data-intro="webgl"] body::before {
+/* Tapa oscura desde el primer pintado hasta que monta la intro (después la intro cubre todo y, en
+   el zoom final, deja ver el sitio real a través de la pantalla de la tablet) */
+:root[data-intro="webgl"]:not([data-intro-mounted]) body::before {
   content: "";
   position: fixed;
   inset: 0;

@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, PerformanceMonitor, RoundedBox, useTexture } from "@react-three/drei";
-import { Suspense, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { introDir } from "@/lib/keys";
 
@@ -12,13 +12,32 @@ function introBase() {
   return `/intro/${introDir(d.lang, d.dataset.theme ?? "dark")}`;
 }
 
-/* Línea de tiempo (s) */
-const T = { fadeIn: 0.8, drift: 3.2, zoom: 4.4 };
+/**
+ * Línea de tiempo (s, desde que la escena está lista). Todo con ease-in-out:
+ *  fade   aparece la sala (el rayo barre el piso)
+ *  drift  la cámara orbita a la deriva mientras el sitio hace scroll dentro de la pantalla
+ *  turn   la tablet gira a frontal y la cámara se coloca de frente (la pantalla ocupa SMID del alto)
+ *  dolly  la cámara entra en línea recta hasta que la pantalla llena exactamente la ventana
+ *  cross  la pantalla se vuelve transparente y deja ver EL SITIO REAL, escalado por CSS al mismo
+ *         rectángulo en cada frame (elemento compartido): al terminar, la pantalla ES el inicio.
+ */
+type Timeline = { fade: number; drift: number; turn: [number, number]; dolly: [number, number]; cross: [number, number] };
+const TL_DESKTOP: Timeline = { fade: 0.9, drift: 3.0, turn: [2.4, 3.6], dolly: [3.6, 5.0], cross: [3.75, 4.35] };
+const TL_MOBILE: Timeline = { fade: 0.8, drift: 2.6, turn: [2.0, 3.1], dolly: [3.1, 4.3], cross: [3.2, 3.75] };
+/** Fin de la animación (la intro se retira en ese instante, sin fundido: ya es el sitio). */
+export const introEnd = (mobile: boolean) => (mobile ? TL_MOBILE : TL_DESKTOP).dolly[1];
+const SMID = 0.52;
 const FOV = 35;
-/** Geometría por formato: escritorio = tablet horizontal; celular = tablet vertical, cámara más cerca. */
-type Geo = { W: number; H: number; Y: number; r0: number; r1: number; y0: number; y1: number };
-const DESKTOP: Geo = { W: 3.2, H: 2.0, Y: 0.3, r0: 8.6, r1: 7.0, y0: 2.5, y1: 1.6 };
-const MOBILE: Geo = { W: 1.48, H: 3.2, Y: 0.62, r0: 7.4, r1: 6.4, y0: 2.1, y1: 1.4 };
+/**
+ * Geometría por formato: escritorio = tablet horizontal; celular = tablet vertical, cámara más cerca.
+ * El ANCHO de la pantalla se calcula con la proporción real de la ventana (H × aspecto): así, al
+ * final del zoom, la pantalla cubre la ventana exactamente y el sitio real encaja sin bordes.
+ */
+type Geo = { H: number; Y: number; r0: number; r1: number; y0: number; y1: number; aspect: [number, number] };
+const DESKTOP: Geo = { H: 2.0, Y: 0.3, r0: 8.6, r1: 7.0, y0: 2.5, y1: 1.6, aspect: [1.25, 2.4] };
+const MOBILE: Geo = { H: 3.2, Y: 0.62, r0: 9.4, r1: 8.2, y0: 2.4, y1: 1.6, aspect: [0.42, 0.8] };
+/** Momento de la pantalla que se informa a la intro en cada frame del zoom final. */
+export type Handoff = { scale: number; reveal: number };
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -86,6 +105,28 @@ const uvVertex = /* glsl */ `
   varying vec2 vUv;
   void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
 `;
+/*
+ * Pantalla: sitio en scroll (A) → Hero (B) → transparente. Escribe color y alfa premultiplicados
+ * sin mezcla: con uReveal = 1 la pantalla es un agujero en el canvas y se ve el DOM real detrás.
+ */
+const screenFragment = /* glsl */ `
+  uniform sampler2D mapA;
+  uniform sampler2D mapB;
+  uniform vec4 uvA; // repeat.xy, offset.xy
+  uniform vec4 uvB;
+  uniform float uMix;
+  uniform float uDim;
+  uniform float uReveal;
+  varying vec2 vUv;
+  void main() {
+    vec3 a = texture2D(mapA, vUv * uvA.xy + uvA.zw).rgb * uDim;
+    vec3 b = texture2D(mapB, vUv * uvB.xy + uvB.zw).rgb;
+    gl_FragColor = vec4(mix(a, b, uMix), 1.0);
+    #include <colorspace_fragment>
+    float k = 1.0 - uReveal;
+    gl_FragColor = vec4(gl_FragColor.rgb * k, k);
+  }
+`;
 /* Sombra de contacto falsa */
 const shadowFragment = /* glsl */ `
   varying vec2 vUv;
@@ -95,11 +136,26 @@ const shadowFragment = /* glsl */ `
   }
 `;
 
-function World({ onTick, onReady, mobile }: { onTick: (t: number) => void; onReady?: () => void; mobile: boolean }) {
+function World({
+  onTick,
+  onReady,
+  onHandoff,
+  mobile,
+}: {
+  onTick: (t: number) => void;
+  onReady?: () => void;
+  onHandoff?: (h: Handoff) => void;
+  mobile: boolean;
+}) {
   const G = mobile ? MOBILE : DESKTOP;
-  const SCREEN_W = G.W;
+  const TL = mobile ? TL_MOBILE : TL_DESKTOP;
+  const size = useThree((st) => st.size);
+  // pantalla con la proporción de la ventana (fijada al montar: la intro dura ~5 s)
+  const [aspect] = useState(() => clamp(size.width / Math.max(1, size.height), G.aspect[0], G.aspect[1]));
   const SCREEN_H = G.H;
+  const SCREEN_W = G.H * aspect;
   const DEVICE_Y = G.Y;
+  const SCREEN_Z = 0.062;
   // A: página completa (scroll dentro de la pantalla) · B: Hero nítido para el cierre del zoom.
   // Celular: captura móvil del Hero (390×844 a 3×) en ambas.
   const base = introBase();
@@ -108,12 +164,8 @@ function World({ onTick, onReady, mobile }: { onTick: (t: number) => void; onRea
   );
   const maxAniso = useThree((st) => st.gl.capabilities.getMaxAnisotropy());
 
-  const { texA, texB, ry } = useMemo(() => {
-    const fit = (t: THREE.Texture) => {
-      const img = t.image as { width: number; height: number };
-      return (SCREEN_H / SCREEN_W) * (img.width / img.height);
-    };
-    const setup = (t: THREE.Texture, repeatY: number) => {
+  const screenMat = useMemo(() => {
+    const setup = (t: THREE.Texture) => {
       t.colorSpace = THREE.SRGBColorSpace;
       t.anisotropy = maxAniso; // anisotropía máxima del equipo
       t.magFilter = THREE.LinearFilter; // filtrado lineal (sin pixelado al acercar)
@@ -121,15 +173,35 @@ function World({ onTick, onReady, mobile }: { onTick: (t: number) => void; onRea
       t.generateMipmaps = true;
       t.wrapS = THREE.ClampToEdgeWrapping;
       t.wrapT = THREE.ClampToEdgeWrapping;
-      t.repeat.set(1, Math.min(1, repeatY));
-      t.offset.set(0, 1 - Math.min(1, repeatY));
       t.needsUpdate = true;
       return t;
     };
-    const ra = fit(scrollTex);
-    const b = heroTex === scrollTex ? heroTex.clone() : heroTex;
-    return { texA: setup(scrollTex, ra), texB: setup(b, fit(b)), ry: Math.min(1, ra) };
-  }, [scrollTex, heroTex, maxAniso, SCREEN_H, SCREEN_W]);
+    const dims = (t: THREE.Texture) => t.image as { width: number; height: number };
+    // A: ancho completo, se recorre en vertical desde arriba
+    const a = dims(scrollTex);
+    const ra = Math.min(1, (SCREEN_H / SCREEN_W) * (a.width / a.height));
+    // B: «cover» centrado en horizontal y anclado arriba (el Hero empieza arriba)
+    const bImg = dims(heroTex);
+    const tb = bImg.width / bImg.height;
+    const rbx = tb > aspect ? aspect / tb : 1;
+    const rby = tb > aspect ? 1 : tb / aspect;
+    return new THREE.ShaderMaterial({
+      vertexShader: uvVertex,
+      fragmentShader: screenFragment,
+      uniforms: {
+        mapA: { value: setup(scrollTex) },
+        mapB: { value: setup(heroTex === scrollTex ? heroTex.clone() : heroTex) },
+        uvA: { value: new THREE.Vector4(1, ra, 0, 1 - ra) },
+        uvB: { value: new THREE.Vector4(rbx, rby, (1 - rbx) / 2, 1 - rby) },
+        uMix: { value: 0 },
+        uDim: { value: 0.25 },
+        uReveal: { value: 0 },
+      },
+      blending: THREE.NoBlending, // escribe el alfa tal cual: el «agujero» deja ver el DOM
+      toneMapped: false,
+    });
+  }, [scrollTex, heroTex, maxAniso, SCREEN_H, SCREEN_W, aspect]);
+  const raA = (screenMat.uniforms.uvA.value as THREE.Vector4).y;
 
   const floorMat = useMemo(
     () =>
@@ -168,10 +240,11 @@ function World({ onTick, onReady, mobile }: { onTick: (t: number) => void; onRea
   }, []);
 
   const device = useRef<THREE.Group>(null);
-  const matB = useRef<THREE.MeshBasicMaterial>(null);
-  const matA = useRef<THREE.MeshBasicMaterial>(null);
   const start = useRef<number | null>(null);
-  const tmp = useMemo(() => ({ drift: new THREE.Vector3(), end: new THREE.Vector3(), look: new THREE.Vector3() }), []);
+  const tmp = useMemo(
+    () => ({ drift: new THREE.Vector3(), mid: new THREE.Vector3(), cam: new THREE.Vector3(), look: new THREE.Vector3(), lookMid: new THREE.Vector3() }),
+    [],
+  );
 
   useFrame((state) => {
     const now = state.clock.elapsedTime;
@@ -179,47 +252,56 @@ function World({ onTick, onReady, mobile }: { onTick: (t: number) => void; onRea
       start.current = now;
       onReady?.(); // primer frame con la textura lista
     }
-    const t = (now - start.current) * (mobile ? 4.4 / 3 : 1);
+    const t = now - start.current;
     onTick(t);
+    const tan = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
+    /** Distancia de la cámara a la que la pantalla ocupa la fracción `s` del alto de la ventana. */
+    const distFor = (s: number) => SCREEN_H / (2 * tan * s);
 
-    // 0–0.8 s: fundido desde negro + el rayo barre el piso
-    const f = easeOut(clamp(t / T.fadeIn));
+    // Sala: fundido desde negro + el rayo barre el piso
+    const f = easeOut(clamp(t / TL.fade));
     floorMat.uniforms.uFade.value = f;
-    floorMat.uniforms.uSweep.value = lerp(-7, 0, easeOut(clamp(t / 1.3)));
+    floorMat.uniforms.uSweep.value = lerp(-7, 0, easeOut(clamp(t / (TL.fade + 0.5))));
     beamMat.uniforms.uOpacity.value = 0.16 * easeOut(clamp((t - 0.3) / 0.9));
     state.gl.toneMappingExposure = 0.2 + 0.85 * f;
 
-    // 0.8–3.2 s: cámara a la deriva (órbita suave + leve dolly)
-    const k = easeInOut(clamp(t / T.drift));
+    // Deriva: órbita suave + leve dolly
+    const k = easeInOut(clamp(t / TL.drift));
     const a = lerp(-0.42, 0.24, k);
     const r = lerp(G.r0, G.r1, k);
     tmp.drift.set(Math.sin(a) * r, lerp(G.y0, G.y1, k), Math.cos(a) * r);
 
-    // 3.2–4.4 s: la pantalla gira a frontal y la cámara entra hasta llenar el viewport
-    const z = easeInOut(clamp((t - T.drift) / (T.zoom - T.drift)));
-    const aspect = state.size.width / state.size.height;
-    const tan = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
-    const dEnd = Math.min(SCREEN_H / 2 / tan, SCREEN_W / 2 / (tan * aspect)) * 0.97;
-    tmp.end.set(0, DEVICE_Y, dEnd + 0.06);
-    state.camera.position.lerpVectors(tmp.drift, tmp.end, z);
-    tmp.look.set(0, lerp(0.2, DEVICE_Y, z), 0);
+    // Giro a frontal: la cámara se coloca de frente a la pantalla (ocupa SMID del alto)
+    const u1 = easeInOut(clamp((t - TL.turn[0]) / (TL.turn[1] - TL.turn[0])));
+    tmp.mid.set(0, DEVICE_Y, SCREEN_Z + distFor(SMID));
+    // Entrada en línea recta: se interpola la ESCALA de la pantalla (no la distancia): zoom parejo
+    const u2 = easeInOut(clamp((t - TL.dolly[0]) / (TL.dolly[1] - TL.dolly[0])));
+    const scale = lerp(SMID, 1, u2);
+    if (u2 > 0) tmp.cam.set(0, DEVICE_Y, SCREEN_Z + distFor(scale));
+    else tmp.cam.lerpVectors(tmp.drift, tmp.mid, u1);
+    state.camera.position.copy(tmp.cam);
+    tmp.lookMid.set(0, DEVICE_Y, 0);
+    tmp.look.set(0, 0.2, 0).lerp(tmp.lookMid, u1);
     state.camera.lookAt(tmp.look);
 
-    // Dispositivo: flota, se inclina con el puntero y termina frontal
+    // Dispositivo: flota y se inclina con el puntero; frontal y quieto al terminar el giro
     const g = device.current;
     if (g) {
       const p = state.pointer;
-      g.rotation.x = lerp(-0.52 + p.y * 0.1, 0, z);
-      g.rotation.y = lerp(0.4 + p.x * 0.16, 0, z);
-      g.rotation.z = lerp(0.05, 0, z);
-      g.position.y = lerp(DEVICE_Y + 0.08 + Math.sin(now * 1.3) * 0.05, DEVICE_Y, z);
+      g.rotation.x = lerp(-0.52 + p.y * 0.1, 0, u1);
+      g.rotation.y = lerp(0.4 + p.x * 0.16, 0, u1);
+      g.rotation.z = lerp(0.05, 0, u1);
+      g.position.y = lerp(DEVICE_Y + 0.08 + Math.sin(now * 1.3) * 0.05, DEVICE_Y, u1);
     }
 
-    // El sitio hace scroll solo dentro de la pantalla; al final se ve el inicio (= Hero real)
-    const sc = easeInOut(clamp((t - 0.5) / 2.9));
-    texA.offset.y = 1 - ry - sc * (1 - ry); // la textura ya está recortada a la parte que se recorre
-    if (matA.current) matA.current.color.setScalar(0.25 + 0.75 * f);
-    if (matB.current) matB.current.opacity = easeInOut(clamp((t - 3.25) / 0.7));
+    // Pantalla: scroll del sitio → Hero → transparente (se ve el sitio real detrás)
+    const sc = easeInOut(clamp((t - 0.5) / (TL.drift - 0.4)));
+    (screenMat.uniforms.uvA.value as THREE.Vector4).w = 1 - raA - sc * (1 - raA);
+    screenMat.uniforms.uDim.value = 0.25 + 0.75 * f;
+    screenMat.uniforms.uMix.value = easeInOut(clamp((t - (TL.turn[0] + 0.3)) / 0.7));
+    const reveal = easeInOut(clamp((t - TL.cross[0]) / (TL.cross[1] - TL.cross[0])));
+    screenMat.uniforms.uReveal.value = reveal;
+    if (u2 > 0 || reveal > 0) onHandoff?.({ scale, reveal });
   });
 
   return (
@@ -249,17 +331,22 @@ function World({ onTick, onReady, mobile }: { onTick: (t: number) => void; onRea
         <RoundedBox args={[SCREEN_W + 0.22, SCREEN_H + 0.22, 0.12]} radius={0.1} smoothness={5}>
           <meshStandardMaterial color="#101116" metalness={0.85} roughness={0.26} envMapIntensity={1.2} />
         </RoundedBox>
-        <mesh position={[0, 0, 0.062]}>
+        <mesh position={[0, 0, SCREEN_Z]} material={screenMat}>
           <planeGeometry args={[SCREEN_W, SCREEN_H]} />
-          <meshBasicMaterial ref={matA} map={texA} toneMapped={false} />
-        </mesh>
-        <mesh position={[0, 0, 0.063]}>
-          <planeGeometry args={[SCREEN_W, SCREEN_H]} />
-          <meshBasicMaterial ref={matB} map={texB} toneMapped={false} transparent opacity={0} />
         </mesh>
       </group>
     </>
   );
+}
+
+/** Celular: 30 fps (la escena solo se dibuja cuando se pide un frame). */
+function FrameCap({ fps }: { fps: number }) {
+  const invalidate = useThree((st) => st.invalidate);
+  useEffect(() => {
+    const id = window.setInterval(() => invalidate(), 1000 / fps);
+    return () => window.clearInterval(id);
+  }, [invalidate, fps]);
+  return null;
 }
 
 // Precarga: las texturas se piden en cuanto se importa la escena; la animación arranca con todo listo.
@@ -273,23 +360,30 @@ export default function IntroScene({
   onTick,
   onFail,
   onReady,
+  onHandoff,
 }: {
   onTick: (t: number) => void;
   onFail: () => void;
   onReady?: () => void;
+  onHandoff?: (h: Handoff) => void;
 }) {
   const mobile = typeof window !== "undefined" && window.innerWidth < 768;
   const G = mobile ? MOBILE : DESKTOP;
   return (
     <Canvas
+      // resolución real de la pantalla (devicePixelRatio con tope 2) y antialiasing
       dpr={[1, 2]}
+      frameloop={mobile ? "demand" : "always"}
       camera={{ fov: FOV, position: [0, G.y0, G.r0], near: 0.1, far: 60 }}
-      gl={{ antialias: true, powerPreference: "high-performance" }}
-      onCreated={({ gl }) => gl.setClearColor("#0b0b0d")}
+      gl={{ antialias: true, alpha: true, premultipliedAlpha: true, powerPreference: "high-performance" }}
+      onCreated={({ gl }) => gl.setClearColor("#0b0b0d", 1)}
     >
-      <PerformanceMonitor onDecline={onFail} />
+      {mobile && <FrameCap fps={30} />}
+      {/* Si el equipo no da abasto, se entra al sitio. En celular el tope es 30 fps a propósito:
+          los umbrales se ajustan a ese tope (si no, 30 fps contaría como «lento» y cortaría la intro). */}
+      <PerformanceMonitor onDecline={onFail} bounds={(refresh) => (mobile ? [18, 26] : [Math.min(45, refresh * 0.75), Math.min(55, refresh * 0.9)])} />
       <Suspense fallback={null}>
-        <World onTick={onTick} onReady={onReady} mobile={mobile} />
+        <World onTick={onTick} onReady={onReady} onHandoff={onHandoff} mobile={mobile} />
       </Suspense>
     </Canvas>
   );

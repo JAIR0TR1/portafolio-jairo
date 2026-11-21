@@ -15,8 +15,8 @@ import sharp from "sharp";
 import { mkdir } from "node:fs/promises";
 
 const base = (process.argv[2] ?? "http://localhost:3000").replace(/\/$/, "");
-const SCROLL_W = 1200;
-const SCROLL_MAX_H = 4400; // solo la parte que recorre la intro: textura liviana, carga rápida
+const SCROLL_W = 1800; // nítida a mitad de la animación (la pantalla llega a ~900 px css × dpr 2)
+const SCROLL_MAX_H = 6600; // misma porción de página que antes (≤ 8192, límite de textura de las GPU)
 
 const VARIANTS = [
   { lang: "es", theme: "dark", dir: "" },

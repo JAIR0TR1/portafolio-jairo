@@ -81,7 +81,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <ScrollProgress />
         <Aurora />
         <I18nProvider lang={lang} t={t}>
-          <Providers>{children}</Providers>
+          {/* #site: la página entera; la intro la escala hasta que coincide con la pantalla de la tablet */}
+          <Providers>
+            <div id="site">{children}</div>
+          </Providers>
         </I18nProvider>
       </body>
     </html>

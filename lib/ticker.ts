@@ -38,8 +38,19 @@ function measure(now: number) {
   count = 0;
 }
 
+/** Durante la intro 3D (hasta el zoom final) el Hero no se anima: toda la CPU va a la escena. */
+function introRunning() {
+  const d = document.documentElement.dataset;
+  return d.intro === "webgl" && d.introHandoff === undefined;
+}
+
 function loop(now: number) {
   raf = 0;
+  if (introRunning()) {
+    prev = 0;
+    raf = requestAnimationFrame(loop);
+    return;
+  }
   measure(now);
   active.forEach((fn) => fn(now));
   if (active.size) raf = requestAnimationFrame(loop);
