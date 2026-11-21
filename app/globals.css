@@ -232,6 +232,8 @@
 /* ───────────────────────── base ───────────────────────── */
 
 html {
+  /* barra de desplazamiento con los colores del tema (oscuro y claro) */
+  scrollbar-color: color-mix(in srgb, var(--text) 28%, transparent) var(--bg);
   background: var(--color-bg);
   color-scheme: dark;
   background-color: var(--bg);
@@ -466,6 +468,7 @@ footer[id] {
   .field:hover { border-color: color-mix(in srgb, var(--text) 35%, transparent); }
   .field:focus-visible {
     outline: none;
+    transition-duration: 0s; /* el anillo de foco aparece al instante (al salir sí se desvanece) */
     border-color: var(--accent);
     box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent);
   }
@@ -853,13 +856,6 @@ main > section:not(#inicio):nth-of-type(odd) {
   background:
     radial-gradient(ellipse 80% 50% at 100% 0%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
     var(--bg);
-}
-/* Texto con el degradado del modo (títulos destacados) */
-.grad-text {
-  background: var(--grad-soft);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 
 /* Footer: degradado hacia un tono profundo del tema + nombre gigante en contorno */

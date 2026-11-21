@@ -106,7 +106,7 @@ export default function Testimonials() {
           </button>
           <div className="flex gap-1.5" aria-hidden="true">
             {Array.from({ length: total }, (_, i) => (
-              <span key={i} className={cn("h-1.5 rounded-full transition-all", i === current ? "w-6 bg-accent" : "w-1.5 bg-line-2")} />
+              <span key={i} className={cn("h-1.5 rounded-full transition-colors", i === current ? "w-6 bg-accent" : "w-1.5 bg-line-2")} />
             ))}
           </div>
           <button type="button" onClick={() => go(current + 1)} className="btn btn-secondary btn-sm size-11 p-0" aria-label={t.testimonials.next}>
