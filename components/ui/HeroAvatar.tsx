@@ -7,6 +7,7 @@ import { MODES, holdCycle, useModeState, type ModeId } from "@/lib/mode";
 import { EASE, useMediaQuery, useReducedEffects } from "@/lib/effects";
 import { heroJump, heroPointer } from "@/lib/heroMotion";
 import { createTask } from "@/lib/ticker";
+import { trackRect } from "@/lib/rectCache";
 import { CircuitFigure, JairoAligned, ModeFigure, RobotAligned } from "./ModeAvatar";
 import { HeroOrbit } from "./HeroOrbit";
 import { cn } from "@/lib/cn";
@@ -55,13 +56,14 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
   const rotateY = useTransform(sx, (v) => v * TILT);
   const rotateX = useTransform(sy, (v) => v * -TILT);
 
-  /** Publica el puntero en las dos capas (motion values) y en la sección (CSS vars). */
+  /**
+   * Publica el puntero en las dos capas (motion values): inclinación del personaje aquí y
+   * parallax de la palabra en HeroTitle. Rendimiento: antes eran variables CSS en #inicio,
+   * que obligaban a recalcular el estilo de todo el Hero en cada movimiento del mouse.
+   */
   const setParallax = (nx: number, ny: number) => {
     heroPointer.x.set(nx);
     heroPointer.y.set(ny);
-    const sec = figRef.current?.closest<HTMLElement>("#inicio");
-    sec?.style.setProperty("--px", nx.toFixed(3));
-    sec?.style.setProperty("--py", ny.toFixed(3));
   };
 
   // El modo solo cambia cuando el usuario pulsa Jairo / Desarrollador / IA (sin ciclo automático).
@@ -89,25 +91,33 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
     const sec = fig?.closest<HTMLElement>("#inicio");
     if (!fig || !sec) return;
     let frame = 0;
-    let last: PointerEvent | null = null;
+    // Lectura en el evento (layout limpio) y escritura en el frame: nunca se fuerza un
+    // recálculo de estilo/layout dentro del requestAnimationFrame.
+    const p = { dx: 0, dy: 0, w: 1, h: 1, rx: 0.5 };
     const apply = () => {
       frame = 0;
-      if (!last) return;
-      const r = fig.getBoundingClientRect();
-      const dx = last.clientX - (r.left + r.width / 2);
-      const dy = last.clientY - (r.top + r.height * 0.2);
-      sec.style.setProperty("--lx", clamp(dx / (r.width * 1.4), -1, 1).toFixed(3));
-      sec.style.setProperty("--ly", clamp(dy / (r.height * 0.6), -1, 1).toFixed(3));
-      setParallax(clamp(dx / (window.innerWidth / 2), -1, 1), clamp(dy / (window.innerHeight / 2), -1, 1));
-      split.current.target = clamp((last.clientX - r.left) / r.width, 0.18, 0.82);
+      const lx = clamp(p.dx / (p.w * 1.4), -1, 1);
+      const ly = clamp(p.dy / (p.h * 0.6), -1, 1);
+      // ojos de ambas capas: solo transform (compositor), sin variables heredadas
+      const look = `translate(${(lx * 13).toFixed(2)}%, ${(ly * 16).toFixed(2)}%)`;
+      sec.querySelectorAll<HTMLElement>(".robot-eyes .eyes-look").forEach((el) => (el.style.transform = look));
+      setParallax(clamp(p.dx / (window.innerWidth / 2), -1, 1), clamp(p.dy / (window.innerHeight / 2), -1, 1));
+      split.current.target = clamp(p.rx, 0.18, 0.82);
       split.current.lastInput = performance.now();
     };
+    const rect = trackRect(fig);
     const onMove = (e: PointerEvent) => {
-      last = e;
+      const r = rect.get();
+      p.dx = e.clientX - (r.left + r.width / 2);
+      p.dy = e.clientY - (r.top + r.height * 0.2);
+      p.w = r.width || 1;
+      p.h = r.height || 1;
+      p.rx = (e.clientX - r.left) / p.w;
       if (!frame) frame = requestAnimationFrame(apply);
     };
     window.addEventListener("pointermove", onMove, { passive: true });
     return () => {
+      rect.stop();
       window.removeEventListener("pointermove", onMove);
       cancelAnimationFrame(frame);
     };
@@ -188,15 +198,19 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
 
   const handlers = isBase
     ? {
+        // data-fig-hover en #inicio: el robot revelado también sonríe. Reemplaza a un
+        // :has(:hover) que invalidaba el estilo de todo el Hero con cada cambio de hover.
         onPointerEnter: (e: ReactPointerEvent) => {
           if (e.pointerType !== "mouse") return;
           hovering.current = true;
           holdCycle(true);
+          figRef.current?.closest<HTMLElement>("#inicio")?.setAttribute("data-fig-hover", "");
         },
         onPointerLeave: (e: ReactPointerEvent) => {
           if (e.pointerType !== "mouse") return;
           hovering.current = false;
           holdCycle(false);
+          figRef.current?.closest<HTMLElement>("#inicio")?.removeAttribute("data-fig-hover");
         },
         onPointerDown,
         onPointerMove,
@@ -242,7 +256,7 @@ export function HeroAvatar({ variant = "base" }: { variant?: HeroVariant }) {
       <div className={cn("relative z-10 h-full", !reduced && "idle-float")}>
         <div className={cn("h-full", !reduced && "idle-breathe")}>
           <div className={cn("h-full", !reduced && "idle-sway")}>
-            <motion.div style={reduced ? undefined : { rotateX, rotateY, transformPerspective: 1100 }} className="relative h-full">
+            <motion.div style={reduced ? undefined : { rotateX, rotateY, transformPerspective: 1100 }} className="relative h-full will-change-transform">
               <motion.div
                 style={{ y: heroJump }}
                 role={isBase ? "img" : undefined}

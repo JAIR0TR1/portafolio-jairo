@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useReducedEffects } from "@/lib/effects";
 import { simplex3 } from "@/lib/simplex";
 import { createTask } from "@/lib/ticker";
+import { trackRect } from "@/lib/rectCache";
 
 const POINTS = 40; // puntos del contorno
 const FOLLOW = 0.12; // lerp hacia el puntero (por frame a 60 fps)
@@ -50,6 +51,17 @@ export function HeroBlob() {
       t: 0,
       z: 0, // tiempo del ruido (avanza más rápido al moverse)
       last: 0,
+      // geometría de la tarjeta en caché: se lee en los eventos (layout limpio), nunca en el frame
+      rl: 0,
+      rt: 0,
+      rw: 1,
+    };
+    const cardRect = trackRect(card);
+    const readCard = () => {
+      const r = cardRect.get();
+      st.rl = r.left;
+      st.rt = r.top;
+      st.rw = r.width;
     };
     const xs = new Float32Array(POINTS);
     const ys = new Float32Array(POINTS);
@@ -62,9 +74,8 @@ export function HeroBlob() {
       const f = dt * 60; // frames de 60 fps transcurridos
       st.t += dt;
 
-      const r = card.getBoundingClientRect();
-      const tx = st.cx - r.left;
-      const ty = st.cy - r.top;
+      const tx = st.cx - st.rl;
+      const ty = st.cy - st.rt;
 
       // seguimiento con lerp independiente de los fps
       const k = 1 - Math.pow(1 - FOLLOW, f);
@@ -94,7 +105,7 @@ export function HeroBlob() {
       const uy = speed > 0.01 ? st.vy / speed : 0;
       st.z += dt * (0.32 + stretch * 0.9);
       const breath = 1 + Math.sin(st.t * 1.5) * 0.035 * (1 - stretch);
-      const R = radius(r.width) * st.s * breath;
+      const R = radius(st.rw) * st.s * breath;
 
       for (let i = 0; i < POINTS; i++) {
         const a = (i / POINTS) * Math.PI * 2;
@@ -154,10 +165,10 @@ export function HeroBlob() {
     const start = (x: number, y: number) => {
       st.cx = x;
       st.cy = y;
+      readCard();
       if (st.s < 0.02) {
-        const r = card.getBoundingClientRect();
-        st.x = x - r.left;
-        st.y = y - r.top;
+        st.x = x - st.rl;
+        st.y = y - st.rt;
         st.vx = st.vy = 0;
       }
       st.active = true;
@@ -177,6 +188,10 @@ export function HeroBlob() {
       if (!st.active) start(e.clientX, e.clientY);
       st.cx = e.clientX;
       st.cy = e.clientY;
+      readCard();
+    };
+    const onScroll = () => {
+      if (st.active || st.s > 0) readCard();
     };
     const onLeave = (e: PointerEvent) => {
       if (e.pointerType === "mouse") end();
@@ -209,6 +224,7 @@ export function HeroBlob() {
       if (!st.active) return;
       st.cx = t.clientX;
       st.cy = t.clientY;
+      readCard();
     };
     const onTouchEnd = (e: TouchEvent) => {
       if (e.touches.length === 0) end();
@@ -221,6 +237,7 @@ export function HeroBlob() {
     card.addEventListener("touchmove", onTouchMove, { passive: true });
     card.addEventListener("touchend", onTouchEnd, { passive: true });
     card.addEventListener("touchcancel", onTouchEnd, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     const io = new IntersectionObserver(([entry]) => {
       st.onScreen = entry.isIntersecting;
@@ -245,6 +262,8 @@ export function HeroBlob() {
       card.removeEventListener("touchmove", onTouchMove);
       card.removeEventListener("touchend", onTouchEnd);
       card.removeEventListener("touchcancel", onTouchEnd);
+      window.removeEventListener("scroll", onScroll);
+      cardRect.stop();
       hide();
     };
   }, [reduced]);

@@ -28,10 +28,8 @@ function Scene({ variant }: { variant: HeroVariant }) {
   return (
     <>
       <div className="hero-in absolute inset-x-0 top-[36%] z-0 -translate-y-1/2" style={{ ["--i" as string]: 1 }}>
-        {/* la palabra se mueve un poco en sentido contrario al personaje (profundidad) */}
-        <div className="hero-word-parallax">
-          <HeroTitle />
-        </div>
+        {/* la palabra se mueve un poco en sentido contrario al personaje (profundidad): ver HeroTitle */}
+        <HeroTitle />
       </div>
       <div className="hero-in absolute inset-0 z-10 flex items-end justify-center md:items-stretch" style={{ ["--i" as string]: 2 }}>
         <HeroAvatar variant={variant} />
