@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { isLang, type Lang } from "@/lib/i18n";
 import { getDict } from "@/lib/dictionaries";
+import { LOGO_J, LOGO_PLATE, LOGO_SPARK, LOGO_STROKE, LOGO_V } from "@/components/ui/Logo";
 
 const size = { width: 1200, height: 630 };
 
@@ -33,22 +34,19 @@ export default async function OpengraphImage({ params }: { params: Promise<{ lan
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 20, fontSize: 28, color: "#A3A1A8" }}>
-          <div
-            style={{
-              width: 64,
-              height: 64,
-              borderRadius: 16,
-              background: "linear-gradient(120deg, #FF5A1F, #FFB020)",
-              color: "#0B0B0D",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontWeight: 700,
-              fontSize: 26,
-            }}
-          >
-            JV
-          </div>
+          {/* logotipo J+V (mismos trazos que components/ui/Logo.tsx) */}
+          <svg width="64" height="64" viewBox="0 0 48 48">
+            <defs>
+              <linearGradient id="s" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stopColor="#2F6BFF" />
+                <stop offset="1" stopColor="#1D3D9E" />
+              </linearGradient>
+            </defs>
+            <path d={LOGO_PLATE} fill="url(#s)" />
+            <path d={LOGO_J} fill="none" stroke="#F5F3F0" strokeWidth={LOGO_STROKE} />
+            <path d={LOGO_V} fill="none" stroke="#F5F3F0" strokeWidth={LOGO_STROKE} />
+            <path d={LOGO_SPARK} fill="none" stroke="#FF8A1F" strokeWidth={LOGO_STROKE} />
+          </svg>
           {t.meta.ogKicker}
         </div>
         <div style={{ display: "flex", flexDirection: "column" }}>

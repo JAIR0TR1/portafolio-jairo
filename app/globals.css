@@ -876,6 +876,16 @@ main > section:not(#inicio):nth-of-type(odd) {
 /* Logos de marca muy claros (JavaScript, Tailwind…): un poco más oscuros sobre crema */
 :root[data-theme="light"] svg[data-light-logo] { filter: brightness(0.78) saturate(1.25); }
 
+/* Logo: el trazo J+V se dibuja una vez al cargar y la chispa enciende al final (solo transform/opacity
+   y stroke-dashoffset del SVG; nada con reduced-motion, «Reducir efectos» ni la pausa global) */
+@keyframes logo-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes logo-spark { 0% { opacity: 0; transform: translate(-1.5px, 3.5px); } 60% { opacity: 1; } 100% { opacity: 1; transform: none; } }
+.logo-animated .logo-stroke { stroke-dasharray: 1; animation: logo-draw 0.5s cubic-bezier(0.65, 0, 0.35, 1) 0.15s both; }
+.logo-animated .logo-v { animation-delay: 0.5s; }
+.logo-animated .logo-spark { animation: logo-spark 0.4s var(--ease-out-expo) 0.95s both; }
+@media (prefers-reduced-motion: reduce) { .logo-animated :is(.logo-stroke, .logo-spark) { animation: none !important; } }
+:root:is([data-effects="reduced"], [data-anim="paused"]) .logo-animated :is(.logo-stroke, .logo-spark) { animation: none !important; }
+
 /* Foto de Sobre mí: tal cual, marco de 20 px con borde de 1 px en el pastel del modo */
 .photo-frame { border: 1px solid var(--accent); background: var(--color-card); }
 

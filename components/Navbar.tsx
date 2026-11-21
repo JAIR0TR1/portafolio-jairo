@@ -7,6 +7,7 @@ import { profile, sections, socials, type SectionId } from "@/data/profile";
 import { SocialGlyph } from "@/components/ui/BrandIcons";
 import { ReduceEffectsToggle } from "@/components/ui/FooterControls";
 import { LangSwitch, ThemeSwitch } from "@/components/ui/Prefs";
+import { Logo } from "@/components/ui/Logo";
 import { useI18n } from "@/components/ui/I18nProvider";
 import { fmt, tx } from "@/lib/i18n";
 import { EASE, useMediaQuery, usePlateMotion } from "@/lib/effects";
@@ -48,18 +49,9 @@ function useScrollSpy() {
   return active;
 }
 
-function Monogram({ className }: { className?: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        "grid size-9 place-items-center rounded-full bg-[image:var(--grad-soft)] font-mono text-[13px] font-semibold tracking-tight text-[var(--btn-fg)]",
-        className,
-      )}
-    >
-      {profile.initials}
-    </span>
-  );
+/** Logotipo J+V (variante «mark»): decorativo, el enlace lleva el nombre accesible. */
+function Monogram({ className, animated }: { className?: string; animated?: boolean }) {
+  return <Logo animated={animated} className={cn("size-9", className)} />;
 }
 
 /** Número de sección «01…09» (orden de la página). */
@@ -176,7 +168,7 @@ export default function Navbar() {
             className="nav-capsule pointer-events-auto flex w-full min-w-0 items-center justify-between gap-2 rounded-[16px] p-1.5 lg:w-auto"
           >
             <a href="#inicio" className="flex min-h-10 min-w-0 items-center gap-2.5 rounded-full pl-0.5 pr-2" aria-label={fmt(t.nav.home, { name: profile.name })}>
-              <Monogram />
+              <Monogram animated />
               <span className="hidden text-[15px] font-semibold tracking-tight min-[360px]:inline">Jairo</span>
             </a>
 
