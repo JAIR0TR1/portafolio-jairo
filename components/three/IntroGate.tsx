@@ -11,8 +11,8 @@ import type { Handoff } from "./IntroScene";
 // three / R3F solo se descargan si la intro 3D se va a mostrar.
 const IntroScene = dynamic(() => import("./IntroScene"), { ssr: false, loading: () => null });
 
-/** Fin de la animación en s (= TL.dolly[1] de IntroScene: escritorio 5.0 · celular 4.3). */
-const endAt = () => (window.innerWidth < 768 ? 4.3 : 5.0);
+/** Fin de la animación en s (= `total` de la geometría en IntroScene: escritorio 5.2 · celular 4.6). */
+const endAt = () => (window.innerWidth < 768 ? 4.6 : 5.2); // = MOBILE/DESKTOP.total en IntroScene
 /** La tarjeta con el nombre (mientras carga la escena) se ve como máximo 1.5 s; después se entra al sitio. */
 const NAME_MAX = 1500;
 
@@ -134,7 +134,7 @@ export function IntroGate() {
     if (!handoffRef.current) {
       handoffRef.current = true;
       document.documentElement.dataset.introHandoff = ""; // el Hero vuelve a animarse (lib/ticker.ts)
-      el.style.willChange = "transform";
+      // (will-change ya está puesto desde el montaje: el sitio quedó rasterizado a escala 1)
       el.style.transformOrigin = `50% ${window.scrollY + window.innerHeight / 2}px`;
       setHandoff(true);
     }
@@ -144,6 +144,10 @@ export function IntroGate() {
   useEffect(() => {
     if (!active) return;
     document.documentElement.dataset.introMounted = "1";
+    // El sitio se prepara en su propia capa A ESCALA 1 antes de achicarlo: así se ve nítido en
+    // todo el zoom final (si se crea la capa ya pequeña, se rasteriza borroso y «enfoca» al final).
+    const siteEl = site();
+    if (siteEl) siteEl.style.willChange = "transform";
     skipRef.current?.focus({ preventScroll: true });
     const enterTimer = window.setTimeout(() => setCanEnter(true), 2000);
     const onKey = (e: KeyboardEvent) => {

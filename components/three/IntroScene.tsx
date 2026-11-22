@@ -13,35 +13,42 @@ function introBase() {
 }
 
 /**
- * Línea de tiempo (s, desde que la escena está lista). Todo con ease-in-out:
- *  fade   aparece la sala (el rayo barre el piso)
- *  drift  la cámara orbita a la deriva mientras el sitio hace scroll dentro de la pantalla
- *  turn   la tablet gira a frontal y la cámara se coloca de frente (la pantalla ocupa SMID del alto)
- *  dolly  la cámara entra en línea recta hasta que la pantalla llena exactamente la ventana
- *  cross  la pantalla se vuelve transparente y deja ver EL SITIO REAL, escalado por CSS al mismo
- *         rectángulo en cada frame (elemento compartido): al terminar, la pantalla ES el inicio.
+ * Trayectoria: UNA sola curva continua (Catmull-Rom centrípeta) desde la deriva alrededor de la
+ * tablet hasta que su pantalla llena la ventana, recorrida por longitud de arco con UN único
+ * ease-in-out en toda la duración. Así la cámara nunca se detiene entre «fases» (antes había
+ * tres tramos con su propio ease y la cámara frenaba a cero dos veces: se sentía a tirones).
+ * Los últimos puntos están sobre el eje de la pantalla: el tramo final es una entrada recta y
+ * frontal. Todo lo demás (giro de la tablet, texturas, transparencia) depende del mismo avance
+ * o de la escala real de la pantalla, nunca de relojes sueltos.
  */
-type Timeline = { fade: number; drift: number; turn: [number, number]; dolly: [number, number]; cross: [number, number] };
-const TL_DESKTOP: Timeline = { fade: 0.9, drift: 3.0, turn: [2.4, 3.6], dolly: [3.6, 5.0], cross: [3.75, 4.35] };
-const TL_MOBILE: Timeline = { fade: 0.8, drift: 2.6, turn: [2.0, 3.1], dolly: [3.1, 4.3], cross: [3.2, 3.75] };
+type Geo = {
+  H: number;
+  Y: number;
+  /** escala de la pantalla (fracción del alto de la ventana) durante la deriva */
+  sDrift: number;
+  y0: number;
+  y1: number;
+  aspect: [number, number];
+  /** duración total del vuelo (s) */
+  total: number;
+  fade: number;
+};
+const DESKTOP: Geo = { H: 2.0, Y: 0.3, sDrift: 0.34, y0: 2.6, y1: 1.3, aspect: [1.25, 2.4], total: 5.2, fade: 0.9 };
+const MOBILE: Geo = { H: 3.2, Y: 0.62, sDrift: 0.5, y0: 2.4, y1: 1.4, aspect: [0.42, 0.8], total: 4.6, fade: 0.8 };
 /** Fin de la animación (la intro se retira en ese instante, sin fundido: ya es el sitio). */
-export const introEnd = (mobile: boolean) => (mobile ? TL_MOBILE : TL_DESKTOP).dolly[1];
-const SMID = 0.52;
+export const introEnd = (mobile: boolean) => (mobile ? MOBILE : DESKTOP).total;
 const FOV = 35;
-/**
- * Geometría por formato: escritorio = tablet horizontal; celular = tablet vertical, cámara más cerca.
- * El ANCHO de la pantalla se calcula con la proporción real de la ventana (H × aspecto): así, al
- * final del zoom, la pantalla cubre la ventana exactamente y el sitio real encaja sin bordes.
- */
-type Geo = { H: number; Y: number; r0: number; r1: number; y0: number; y1: number; aspect: [number, number] };
-const DESKTOP: Geo = { H: 2.0, Y: 0.3, r0: 8.6, r1: 7.0, y0: 2.5, y1: 1.6, aspect: [1.25, 2.4] };
-const MOBILE: Geo = { H: 3.2, Y: 0.62, r0: 9.4, r1: 8.2, y0: 2.4, y1: 1.6, aspect: [0.42, 0.8] };
 /** Momento de la pantalla que se informa a la intro en cada frame del zoom final. */
 export type Handoff = { scale: number; reveal: number };
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+/** Ease del vuelo completo: arranque y llegada suaves, velocidad continua en todo el trayecto. */
+const easeFlight = (t: number) => 0.5 - 0.5 * Math.cos(Math.PI * t);
+const smooth = (a: number, b: number, v: number) => {
+  const x = clamp((v - a) / (b - a));
+  return x * x * (3 - 2 * x);
+};
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
 /* ─────────── Piso de concreto procedural + franja del rayo de luz ─────────── */
@@ -148,7 +155,6 @@ function World({
   mobile: boolean;
 }) {
   const G = mobile ? MOBILE : DESKTOP;
-  const TL = mobile ? TL_MOBILE : TL_DESKTOP;
   const size = useThree((st) => st.size);
   // pantalla con la proporción de la ventana (fijada al montar: la intro dura ~5 s)
   const [aspect] = useState(() => clamp(size.width / Math.max(1, size.height), G.aspect[0], G.aspect[1]));
@@ -241,12 +247,27 @@ function World({
 
   const device = useRef<THREE.Group>(null);
   const start = useRef<number | null>(null);
-  const tmp = useMemo(
-    () => ({ drift: new THREE.Vector3(), mid: new THREE.Vector3(), cam: new THREE.Vector3(), look: new THREE.Vector3(), lookMid: new THREE.Vector3() }),
-    [],
-  );
+  const tmp = useMemo(() => ({ cam: new THREE.Vector3(), look: new THREE.Vector3(), tilt: { x: 0, y: 0 } }), []);
 
-  useFrame((state) => {
+  /** Vuelo: una sola curva; los tres últimos puntos van sobre el eje frontal de la pantalla. */
+  const flight = useMemo(() => {
+    const tan = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
+    /** distancia de la cámara a la que la pantalla ocupa la fracción `s` del alto de la ventana */
+    const at = (s: number) => SCREEN_Z + SCREEN_H / (2 * tan * s);
+    const R = at(G.sDrift);
+    const orbit = (angle: number, r: number, y: number) => new THREE.Vector3(Math.sin(angle) * r, y, Math.cos(angle) * r);
+    const points = [
+      orbit(-0.46, R * 1.14, G.y0),
+      orbit(-0.12, R * 1.1, lerp(G.y0, G.y1, 0.45)),
+      orbit(0.24, R * 1.03, G.y1),
+      new THREE.Vector3(0, DEVICE_Y, at(G.sDrift + 0.06)), // ya de frente
+      new THREE.Vector3(0, DEVICE_Y, at(0.62)), // entrada recta
+      new THREE.Vector3(0, DEVICE_Y, at(1)), // la pantalla llena la ventana
+    ];
+    return { curve: new THREE.CatmullRomCurve3(points, false, "centripetal"), axisZ: at(0.62), tan };
+  }, [G, SCREEN_H, DEVICE_Y]);
+
+  useFrame((state, delta) => {
     const now = state.clock.elapsedTime;
     if (start.current === null) {
       start.current = now;
@@ -254,54 +275,49 @@ function World({
     }
     const t = now - start.current;
     onTick(t);
-    const tan = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
-    /** Distancia de la cámara a la que la pantalla ocupa la fracción `s` del alto de la ventana. */
-    const distFor = (s: number) => SCREEN_H / (2 * tan * s);
 
     // Sala: fundido desde negro + el rayo barre el piso
-    const f = easeOut(clamp(t / TL.fade));
+    const f = easeOut(clamp(t / G.fade));
     floorMat.uniforms.uFade.value = f;
-    floorMat.uniforms.uSweep.value = lerp(-7, 0, easeOut(clamp(t / (TL.fade + 0.5))));
+    floorMat.uniforms.uSweep.value = lerp(-7, 0, easeOut(clamp(t / (G.fade + 0.5))));
     beamMat.uniforms.uOpacity.value = 0.16 * easeOut(clamp((t - 0.3) / 0.9));
     state.gl.toneMappingExposure = 0.2 + 0.85 * f;
 
-    // Deriva: órbita suave + leve dolly
-    const k = easeInOut(clamp(t / TL.drift));
-    const a = lerp(-0.42, 0.24, k);
-    const r = lerp(G.r0, G.r1, k);
-    tmp.drift.set(Math.sin(a) * r, lerp(G.y0, G.y1, k), Math.cos(a) * r);
-
-    // Giro a frontal: la cámara se coloca de frente a la pantalla (ocupa SMID del alto)
-    const u1 = easeInOut(clamp((t - TL.turn[0]) / (TL.turn[1] - TL.turn[0])));
-    tmp.mid.set(0, DEVICE_Y, SCREEN_Z + distFor(SMID));
-    // Entrada en línea recta: se interpola la ESCALA de la pantalla (no la distancia): zoom parejo
-    const u2 = easeInOut(clamp((t - TL.dolly[0]) / (TL.dolly[1] - TL.dolly[0])));
-    const scale = lerp(SMID, 1, u2);
-    if (u2 > 0) tmp.cam.set(0, DEVICE_Y, SCREEN_Z + distFor(scale));
-    else tmp.cam.lerpVectors(tmp.drift, tmp.mid, u1);
+    // Cámara: avance único sobre la curva (longitud de arco), siempre mirando a la tablet
+    const u = easeFlight(clamp(t / G.total));
+    flight.curve.getPointAt(u, tmp.cam);
     state.camera.position.copy(tmp.cam);
-    tmp.lookMid.set(0, DEVICE_Y, 0);
-    tmp.look.set(0, 0.2, 0).lerp(tmp.lookMid, u1);
+    const k = smooth(0.25, 0.72, u); // la tablet se pone de frente con el mismo avance
+    tmp.look.set(0, lerp(0.15, DEVICE_Y, k), 0);
     state.camera.lookAt(tmp.look);
 
-    // Dispositivo: flota y se inclina con el puntero; frontal y quieto al terminar el giro
+    // Escala real de la pantalla (fracción del alto de la ventana): manda texturas y transparencia
+    const dist = tmp.cam.distanceTo(tmp.look) - SCREEN_Z;
+    const scale = clamp(SCREEN_H / (2 * flight.tan * Math.max(dist, 1e-3)), 0, 1);
+    const onAxis = tmp.cam.z <= flight.axisZ + 1e-3;
+
+    // Tablet: flota e inclina con el puntero (amortiguado) hasta quedar frontal y quieta
     const g = device.current;
     if (g) {
-      const p = state.pointer;
-      g.rotation.x = lerp(-0.52 + p.y * 0.1, 0, u1);
-      g.rotation.y = lerp(0.4 + p.x * 0.16, 0, u1);
-      g.rotation.z = lerp(0.05, 0, u1);
-      g.position.y = lerp(DEVICE_Y + 0.08 + Math.sin(now * 1.3) * 0.05, DEVICE_Y, u1);
+      const damp = 1 - Math.exp(-delta * 4);
+      tmp.tilt.x += (state.pointer.x - tmp.tilt.x) * damp;
+      tmp.tilt.y += (state.pointer.y - tmp.tilt.y) * damp;
+      const free = 1 - k;
+      g.rotation.x = (-0.5 + tmp.tilt.y * 0.08) * free;
+      g.rotation.y = (0.38 + tmp.tilt.x * 0.12) * free;
+      g.rotation.z = 0.05 * free;
+      g.position.y = DEVICE_Y + (0.08 + Math.sin(now * 1.3) * 0.05) * free;
     }
 
-    // Pantalla: scroll del sitio → Hero → transparente (se ve el sitio real detrás)
-    const sc = easeInOut(clamp((t - 0.5) / (TL.drift - 0.4)));
+    // Pantalla: scroll del sitio → Hero → transparente (deja ver el sitio real detrás)
+    const sc = smooth(0.06, 0.5, u);
     (screenMat.uniforms.uvA.value as THREE.Vector4).w = 1 - raA - sc * (1 - raA);
     screenMat.uniforms.uDim.value = 0.25 + 0.75 * f;
-    screenMat.uniforms.uMix.value = easeInOut(clamp((t - (TL.turn[0] + 0.3)) / 0.7));
-    const reveal = easeInOut(clamp((t - TL.cross[0]) / (TL.cross[1] - TL.cross[0])));
+    screenMat.uniforms.uMix.value = smooth(0.42, 0.56, u);
+    // la transparencia empieza solo con la cámara ya sobre el eje: el sitio encaja como rectángulo
+    const reveal = onAxis ? smooth(0.62, 0.76, scale) : 0;
     screenMat.uniforms.uReveal.value = reveal;
-    if (u2 > 0 || reveal > 0) onHandoff?.({ scale, reveal });
+    if (reveal > 0) onHandoff?.({ scale: u >= 1 ? 1 : scale, reveal });
   });
 
   return (
@@ -374,7 +390,7 @@ export default function IntroScene({
       // resolución real de la pantalla (devicePixelRatio con tope 2) y antialiasing
       dpr={[1, 2]}
       frameloop={mobile ? "demand" : "always"}
-      camera={{ fov: FOV, position: [0, G.y0, G.r0], near: 0.1, far: 60 }}
+      camera={{ fov: FOV, position: [0, G.y0, 10], near: 0.1, far: 80 }} // la curva coloca la cámara desde el primer frame
       gl={{ antialias: true, alpha: true, premultipliedAlpha: true, powerPreference: "high-performance" }}
       onCreated={({ gl }) => gl.setClearColor("#0b0b0d", 1)}
     >
