@@ -21,11 +21,11 @@ const EYES_B: Eyes = { cx: 45.36, cy: 20.25, gap: 6.65, w: 1.87, h: 3.44, rot: 0
 export type PoseId = "base" | "saludo" | "senala" | "laptop" | "pulgar";
 
 export const poses: Record<PoseId, { src: string; eyes: Eyes; alt: string }> = {
-  base: { src: "/avatar/robot.webp", eyes: EYES_A, alt: "Robot de Jairo" },
-  saludo: { src: "/avatar/robot-saludo.webp", eyes: EYES_A, alt: "Robot de Jairo saludando" },
-  senala: { src: "/avatar/robot-senala.webp", eyes: EYES_A, alt: "Robot de Jairo señalando el contenido" },
-  laptop: { src: "/avatar/robot-laptop.webp", eyes: EYES_B, alt: "Robot de Jairo con una laptop" },
-  pulgar: { src: "/avatar/robot-pulgar.webp", eyes: EYES_B, alt: "Robot de Jairo con el pulgar arriba" },
+  base: { src: "/avatar/robot.webp", eyes: EYES_A, alt: "Mi robot" },
+  saludo: { src: "/avatar/robot-saludo.webp", eyes: EYES_A, alt: "Mi robot saludando" },
+  senala: { src: "/avatar/robot-senala.webp", eyes: EYES_A, alt: "Mi robot señalando el contenido" },
+  laptop: { src: "/avatar/robot-laptop.webp", eyes: EYES_B, alt: "Mi robot con una laptop" },
+  pulgar: { src: "/avatar/robot-pulgar.webp", eyes: EYES_B, alt: "Mi robot con el pulgar arriba" },
 };
 
 export const JAIRO_SRC = "/avatar/jairo.webp";
@@ -60,14 +60,14 @@ export const sectionRobot: Record<string, { pose: PoseId; expression: Expression
 
 /** Burbuja corta del robot en cada sección (celular). */
 export const sectionBubble: Record<string, Tx> = {
-  "sobre-mi": { es: "¡Hola! Este es Jairo", en: "Hi! This is Jairo" },
-  proyectos: { es: "Esto es lo que he construido", en: "Here's what he's built" },
-  experiencia: { es: "Aquí está el recorrido", en: "Here's the journey" },
-  emprendimiento: { es: "Su negocio en Pasto", en: "His business in Pasto" },
-  testimonios: { es: "Lo que dicen de él", en: "What people say" },
+  "sobre-mi": { es: "¡Hola! Soy Jairo", en: "Hi! I'm Jairo" },
+  proyectos: { es: "Esto es lo que he construido", en: "Here's what I've built" },
+  experiencia: { es: "Este es mi recorrido", en: "Here's my journey" },
+  emprendimiento: { es: "Mi negocio en Pasto", en: "My business in Pasto" },
+  testimonios: { es: "Lo que dicen de mí", en: "What people say about me" },
   "trabaja-conmigo": { es: "¿Agendamos tu proyecto?", en: "Shall we book your project?" },
-  contacto: { es: "Aquí lo encuentras", en: "Here's how to reach him" },
-  habilidades: { es: "Su stack, por capas", en: "His stack, layer by layer" },
+  contacto: { es: "Aquí me encuentras", en: "Here's how to reach me" },
+  habilidades: { es: "Mi stack, por capas", en: "My stack, layer by layer" },
 };
 
 export type AvatarMode = {
@@ -113,7 +113,7 @@ export const avatarModes: Record<ModeId, AvatarMode> = {
         "Entrepreneurial mindset",
       ],
     },
-    alt: { es: "Ilustración 3D de Jairo con sudadera negra", en: "3D illustration of Jairo in a black hoodie" },
+    alt: { es: "Yo, en ilustración 3D con sudadera negra", en: "Me, as a 3D illustration in a black hoodie" },
   },
   dev: {
     word: { es: "Código", en: "Code" },
@@ -166,7 +166,7 @@ export const avatarModes: Record<ModeId, AvatarMode> = {
         "Deploying on Vercel",
       ],
     },
-    alt: { es: "Robot de Jairo con casco y visor", en: "Jairo's robot with a helmet and visor" },
+    alt: { es: "Mi robot con casco y visor", en: "My robot with a helmet and visor" },
   },
   ai: {
     word: { es: "Jairo.IA", en: "Jairo.AI" },
@@ -197,6 +197,6 @@ export const avatarModes: Record<ModeId, AvatarMode> = {
         "Human judgment and ethics",
       ],
     },
-    alt: { es: "Jairo.IA: Jairo mitad persona y mitad robot", en: "Jairo.AI: Jairo, half human and half robot" },
+    alt: { es: "Jairo.IA: yo, mitad persona y mitad robot", en: "Jairo.AI: me, half human and half robot" },
   },
 };
