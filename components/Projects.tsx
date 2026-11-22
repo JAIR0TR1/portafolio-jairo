@@ -72,10 +72,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             {title}
           </h3>
         </div>
-        <p
-          className="line-clamp-2 min-h-[3.25em] text-pretty text-body text-muted"
-          title={description}
-        >
+        <p className="min-h-[3.25em] text-pretty text-body text-muted">
           {description}
         </p>
         <ul className="flex flex-wrap gap-1.5" aria-label={t.projects.techs}>

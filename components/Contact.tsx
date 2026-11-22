@@ -143,7 +143,7 @@ export default function Contact() {
                         href={s.href}
                         target={isMail ? undefined : "_blank"}
                         rel={isMail ? undefined : "noopener noreferrer"}
-                        className="block truncate text-body underline-offset-4 hover:underline"
+                        className="block text-body underline-offset-4 [overflow-wrap:anywhere] hover:underline"
                       >
                         {s.handle}
                         {!isMail && <span className="sr-only"> {dict.common.newTab}</span>}
@@ -156,7 +156,7 @@ export default function Contact() {
                         className="btn btn-secondary btn-sm shrink-0"
                         aria-label={t.copyEmail}
                       >
-                        <Copy aria-hidden="true" /> {t.copy}
+                        <Copy aria-hidden="true" /> <span className="max-[400px]:sr-only">{t.copy}</span>
                       </button>
                     ) : (
                       <a href={s.href} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm shrink-0" aria-label={fmt(t.openAria, { label })}>

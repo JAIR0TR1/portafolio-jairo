@@ -114,7 +114,7 @@
   --metal-stroke: rgb(255 255 255 / 0.16);
   --acute: linear-gradient(180deg, #f7f7f8, #d9dde3);
   --contact: radial-gradient(closest-side, rgb(0 0 0 / 0.85), rgb(0 0 0 / 0.35) 55%, transparent);
-  --ambient-filter: var(--ambient-filter);
+  --ambient-filter: blur(40px) brightness(0.35);
   /* Capa revelada por la mancha: el tema contrario (claro sobre el oscuro y viceversa) */
   --inv-bg: #f7f5f0;
   --inv-text: #0b0b0d;
@@ -909,7 +909,8 @@ main > section:not(#inicio):nth-of-type(odd) {
 .logo-ring-stage { --ring-r: clamp(220px, 34vw, 280px); }
 @keyframes ring-spin { to { transform: rotateY(360deg); } }
 .logo-ring { transform-style: preserve-3d; animation: ring-spin 40s linear infinite; }
-.logo-ring-stage:hover .logo-ring { animation-play-state: paused; }
+/* pausa al pasar el mouse (solo con mouse: en táctil el :hover queda pegado tras tocar y la rueda se detenía) */
+@media (hover: hover) and (pointer: fine) { .logo-ring-stage:hover .logo-ring { animation-play-state: paused; } }
 .logo-ring-item { box-shadow: var(--shadow); }
 :root[data-effects="reduced"] .logo-ring { animation: none; }
 @media (prefers-reduced-motion: reduce) { .logo-ring { animation: none; } }
@@ -928,6 +929,8 @@ body, section, footer, .glass, .btn, .chip, .field, .nav-capsule {
   border-radius: 50%;
   pointer-events: none;
 }
+/* hasta que HeroOrbit la mide y la ubica (estilo en línea), no se pinta: sin salto de diseño (CLS) */
+.orbit-line:not([style*="width"]) { visibility: hidden; }
 .orbit-label {
   position: absolute;
   left: 0;

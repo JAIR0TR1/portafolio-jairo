@@ -14,7 +14,6 @@ import { EASE, useMediaQuery, usePlateMotion } from "@/lib/effects";
 import { cn } from "@/lib/cn";
 
 const ids = sections.map((s) => s.id);
-const primary = sections.filter((s) => s.primary);
 const secondary = sections.filter((s) => !s.primary);
 
 /** Sección activa = la última cuyo borde superior pasó el 40 % de la ventana. */
@@ -173,14 +172,14 @@ export default function Navbar() {
             </a>
 
             <ul className="isolate hidden items-center lg:flex">
-              {(wide ? sections : primary).map((s) => (
-                <li key={s.id}>
-                  <NavLink id={s.id} label={tx(s.label, lang)} active={active === s.id} />
+              {/* Todas las secciones se dibujan siempre y el ancho lo decide CSS (≥ 1400 px: todas; menos: los
+                  secundarios van en «Más»). Antes lo decidía JS al hidratar y la cápsula saltaba de ancho (CLS). */}
+              {sections.map((s) => (
+                <li key={s.id} className={s.primary ? undefined : "hidden min-[1400px]:block"}>
+                  <NavLink id={s.id} label={tx(s.label, lang)} active={active === s.id && (s.primary || wide)} />
                 </li>
               ))}
-              {/* En pantallas medianas, los secundarios van en «Más» */}
-              {!wide && (
-              <li className="relative">
+              <li className="relative min-[1400px]:hidden">
                 <div ref={moreRef}>
                   <button
                     type="button"
@@ -232,7 +231,6 @@ export default function Navbar() {
                   </AnimatePresence>
                 </div>
               </li>
-              )}
             </ul>
 
             <div className="flex shrink-0 items-center gap-1.5">

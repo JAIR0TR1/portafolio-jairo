@@ -56,7 +56,7 @@ export default function Experience() {
                       aria-checked={on}
                       onClick={() => setFilter(o.id)}
                       className={cn(
-                        "relative min-h-11 rounded-full px-4 text-small transition-colors",
+                        "relative min-h-11 rounded-full px-4 text-small transition-colors lg:max-xl:px-3",
                         on ? "font-medium text-[var(--btn-fg)]" : "text-muted hover:text-ink",
                       )}
                     >
