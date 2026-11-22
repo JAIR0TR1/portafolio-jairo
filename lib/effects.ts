@@ -38,8 +38,13 @@ export function setReduceEffects(value: boolean) {
   const d = document.documentElement.dataset;
   d.effects = value ? "reduced" : "full";
   // sincronizado con la pausa de animaciones: reducir efectos = pausar; quitarlo = reanudar
-  if (value) d.anim = "paused";
-  else if (!window.matchMedia(RM_QUERY).matches) delete d.anim;
+  if (value) {
+    d.anim = "paused";
+    delete d.animAuto;
+  } else if (!window.matchMedia(RM_QUERY).matches) {
+    delete d.anim;
+    delete d.animAuto;
+  } else d.animAuto = ""; // sigue la pausa automática por prefers-reduced-motion (el anillo gira lento)
   try {
     localStorage.setItem("jv-pausa", value ? "1" : "0");
   } catch {

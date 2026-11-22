@@ -3,7 +3,8 @@ import { TechIcon } from "./TechIcon";
 
 /**
  * Anillo 3D de logos (CSS, sin WebGL) que gira despacio; recuperado de la versión anterior.
- * Se pausa al pasar el mouse y queda quieto con reduced-motion / «Reducir efectos».
+ * Gira siempre (más lento con reduced-motion); solo se detiene con «Pausar animaciones» o «Reducir
+ * efectos». El logo bajo el mouse crece (propiedad scale) sin detener el giro (globals.css).
  */
 export function LogoRing({ skills, label }: { skills: Skill[]; label: string }) {
   const step = 360 / skills.length;

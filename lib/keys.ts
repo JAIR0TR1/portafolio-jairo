@@ -56,7 +56,7 @@ if(localStorage.getItem('${EFFECTS_KEY}')==='1')d.dataset.effects='reduced';
 var m=localStorage.getItem('${MODE_KEY}');if(m==='dev'||m==='ai')d.dataset.mode=m;
 var r=s.getItem('${INTRO_REPLAY_KEY}')==='1';s.removeItem('${INTRO_REPLAY_KEY}');
 var rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
-var pa=localStorage.getItem('${PAUSE_KEY}');if(pa==='1'||d.dataset.effects==='reduced'||rm)d.dataset.anim='paused';
+var pa=localStorage.getItem('${PAUSE_KEY}');if(pa==='1'||d.dataset.effects==='reduced'||rm){d.dataset.anim='paused';if(pa!=='1'&&d.dataset.effects!=='reduced')d.dataset.animAuto='';}
 var lp=location.pathname;
 if((lp==='/'||lp==='/en'||lp==='/en/')&&!s.getItem('${INTRO_KEY}')&&d.dataset.effects!=='reduced'&&!rm){
 var c=document.createElement('canvas'),o={failIfMajorPerformanceCaveat:true},g=c.getContext('webgl2',o)||c.getContext('webgl',o);

@@ -73,7 +73,10 @@
     "cvText": "My education, projects and tools, ready to review or download.",
     "cvDialog": "Résumé · {name}",
     "cvFrame": "Résumé of {name} (PDF)",
-    "cvClose": "Close résumé"
+    "cvClose": "Close résumé",
+    "cvImage": "Résumé of {name}",
+    "cvDownloadPdf": "Download PDF",
+    "cvOpenPdf": "Open PDF"
   },
   "projects": {
     "eyebrow": "Projects",

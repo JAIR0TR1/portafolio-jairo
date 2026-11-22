@@ -73,7 +73,10 @@
     "cvText": "Mi formación, proyectos y tecnologías, listos para revisar o descargar.",
     "cvDialog": "Hoja de vida · {name}",
     "cvFrame": "Hoja de vida de {name} (PDF)",
-    "cvClose": "Cerrar hoja de vida"
+    "cvClose": "Cerrar hoja de vida",
+    "cvImage": "Hoja de vida de {name}",
+    "cvDownloadPdf": "Descargar PDF",
+    "cvOpenPdf": "Abrir PDF"
   },
   "projects": {
     "eyebrow": "Proyectos",

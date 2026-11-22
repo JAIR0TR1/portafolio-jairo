@@ -908,12 +908,23 @@ main > section:not(#inicio):nth-of-type(odd) {
 /* Habilidades: anillo 3D de logos (protagonista de la sección) */
 .logo-ring-stage { --ring-r: clamp(220px, 34vw, 280px); }
 @keyframes ring-spin { to { transform: rotateY(360deg); } }
+/* Gira SIEMPRE (también con el mouse encima). Solo se detiene con «Pausar animaciones» (data-anim) o
+   «Reducir efectos» (data-effects). Con prefers-reduced-motion gira más lento en vez de apagarse
+   (decisión del usuario); el !important le gana a la regla global que acorta todas las animaciones. */
 .logo-ring { transform-style: preserve-3d; animation: ring-spin 40s linear infinite; }
-/* pausa al pasar el mouse (solo con mouse: en táctil el :hover queda pegado tras tocar y la rueda se detenía) */
-@media (hover: hover) and (pointer: fine) { .logo-ring-stage:hover .logo-ring { animation-play-state: paused; } }
-.logo-ring-item { box-shadow: var(--shadow); }
-:root[data-effects="reduced"] .logo-ring { animation: none; }
-@media (prefers-reduced-motion: reduce) { .logo-ring { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .logo-ring { animation: ring-spin 80s linear infinite !important; } }
+:root[data-effects="reduced"] .logo-ring { animation: none !important; }
+/* Logo bajo el mouse: crece y sobresale mientras el anillo sigue girando. Se usa la propiedad
+   independiente scale (el transform en línea ya lleva rotateY + translateZ). */
+.logo-ring-item {
+  box-shadow: var(--shadow);
+  pointer-events: auto;
+  transition: scale 0.25s ease, box-shadow 0.25s ease;
+}
+.logo-ring-item:hover {
+  scale: 1.35;
+  box-shadow: 0 14px 34px -8px rgb(0 0 0 / 0.55), 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent), 0 0 26px -4px color-mix(in srgb, var(--accent) 45%, transparent);
+}
 
 /* Cambio de modo: colores que transicionan en 600 ms (además de las variables registradas) */
 body, section, footer, .glass, .btn, .chip, .field, .nav-capsule {
@@ -961,9 +972,12 @@ body, section, footer, .glass, .btn, .chip, .field, .nav-capsule {
 .intro-name { animation: intro-name 2.4s ease-in-out infinite; }
 
 /* Pausa global (WCAG 2.2.2): el movimiento automático queda quieto donde está */
-:root[data-anim="paused"] :is(.idle-float, .idle-breathe, .idle-sway, .animate-float, .logo-ring, .hybrid-spark, .circuit-scan, .minibot-bob) {
+:root[data-anim="paused"] :is(.idle-float, .idle-breathe, .idle-sway, .animate-float, .hybrid-spark, .circuit-scan, .minibot-bob) {
   animation-play-state: paused !important;
 }
+/* El anillo de logos solo se detiene si el usuario pulsó «Pausar animaciones»: no con la pausa automática
+   que pone el arranque por prefers-reduced-motion (data-anim-auto); en ese caso gira lento (80 s). */
+:root[data-anim="paused"]:not([data-anim-auto]) .logo-ring { animation-play-state: paused !important; }
 
 /* ───────────── Celular ───────────── */
 @media (max-width: 767px) {
