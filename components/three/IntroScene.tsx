@@ -267,11 +267,42 @@ function World({
     return { curve: new THREE.CatmullRomCurve3(points, false, "centripetal"), axisZ: at(0.62), tan };
   }, [G, SCREEN_H, DEVICE_Y]);
 
+  // Preparación fuera de la línea de tiempo (el lienzo sigue invisible): subir las texturas a la GPU y
+  // compilar los shaders antes del primer cuadro visible. Si no, ese trabajo (cientos de ms) cae en el
+  // primer cuadro de la animación y el vuelo arranca con un salto.
+  const gl = useThree((st) => st.gl);
+  const scene = useThree((st) => st.scene);
+  const camera = useThree((st) => st.camera);
+  const warm = useRef<"pending" | "compiled">("pending");
+  const settle = useRef(0);
+  const warmFrom = useRef(0);
+  useEffect(() => {
+    let alive = true;
+    warmFrom.current = performance.now();
+    gl.initTexture(screenMat.uniforms.mapA.value as THREE.Texture);
+    gl.initTexture(screenMat.uniforms.mapB.value as THREE.Texture);
+    const done = () => alive && (warm.current = "compiled");
+    gl.compileAsync(scene, camera).then(done, done);
+    return () => {
+      alive = false;
+    };
+  }, [gl, scene, camera, screenMat]);
+
   useFrame((state, delta) => {
     const now = state.clock.elapsedTime;
     if (start.current === null) {
+      // dos cuadros limpios tras compilar (el primero también hornea el Environment): luego arranca el reloj.
+      // Tope de 0.5 s de espera: la tarjeta del nombre no puede pasar de 1.5 s (IntroGate), así que en un
+      // equipo lento se arranca igual antes que saltarse la intro.
+      const waited = performance.now() - warmFrom.current > 500;
+      if ((warm.current !== "compiled" && !waited) || ++settle.current < 3) {
+        flight.curve.getPointAt(0, tmp.cam);
+        state.camera.position.copy(tmp.cam);
+        state.camera.lookAt(0, 0.15, 0);
+        return;
+      }
       start.current = now;
-      onReady?.(); // primer frame con la textura lista
+      onReady?.(); // primer cuadro visible: todo ya está en la GPU
     }
     const t = now - start.current;
     onTick(t);
