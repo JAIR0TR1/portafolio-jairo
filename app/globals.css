@@ -873,15 +873,22 @@ main > section:not(#inicio):nth-of-type(odd) {
 /* Logos de marca muy claros (JavaScript, Tailwind…): un poco más oscuros sobre crema */
 :root[data-theme="light"] svg[data-light-logo] { filter: brightness(0.78) saturate(1.25); }
 
-/* Logo: el trazo J+V se dibuja una vez al cargar y la chispa enciende al final (solo transform/opacity
-   y stroke-dashoffset del SVG; nada con reduced-motion, «Reducir efectos» ni la pausa global) */
-@keyframes logo-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-@keyframes logo-spark { 0% { opacity: 0; transform: translate(-1.5px, 3.5px); } 60% { opacity: 1; } 100% { opacity: 1; transform: none; } }
-.logo-animated .logo-stroke { stroke-dasharray: 1; animation: logo-draw 0.5s cubic-bezier(0.65, 0, 0.35, 1) 0.15s both; }
-.logo-animated .logo-v { animation-delay: 0.5s; }
-.logo-animated .logo-spark { animation: logo-spark 0.4s var(--ease-out-expo) 0.95s both; }
-@media (prefers-reduced-motion: reduce) { .logo-animated :is(.logo-stroke, .logo-spark) { animation: none !important; } }
-:root:is([data-effects="reduced"], [data-anim="paused"]) .logo-animated :is(.logo-stroke, .logo-spark) { animation: none !important; }
+/* Logo «JV · Forja»: versión normal en tema claro y un 3 % más fina en oscuro (irradiación) */
+.logo-on-dark { display: none; }
+:root:not([data-theme="light"]) .logo-jv .logo-on-light { display: none; }
+:root:not([data-theme="light"]) .logo-jv .logo-on-dark { display: inline; }
+/* Entrada única: las hojas de la V llegan, la J sube y la chispa enciende al final (solo transform/opacity) */
+@keyframes logo-vl { from { opacity: 0; transform: translate(-10%, -8%); } }
+@keyframes logo-vr { from { opacity: 0; transform: translate(10%, -8%); } }
+@keyframes logo-j { from { opacity: 0; transform: translateY(12%); } }
+@keyframes logo-spark { 0% { opacity: 0; transform: scale(0.2); } 60% { opacity: 1; transform: scale(1.25); } 100% { opacity: 1; transform: none; } }
+.logo-animated :is(.logo-j, .logo-vl, .logo-vr, .logo-spark) { transform-box: fill-box; transform-origin: center; }
+.logo-animated .logo-vl { animation: logo-vl 0.55s var(--ease-out-expo) 0.1s both; }
+.logo-animated .logo-vr { animation: logo-vr 0.55s var(--ease-out-expo) 0.18s both; }
+.logo-animated .logo-j { animation: logo-j 0.55s var(--ease-out-expo) 0.26s both; }
+.logo-animated .logo-spark { animation: logo-spark 0.45s var(--ease-out-expo) 0.62s both; }
+@media (prefers-reduced-motion: reduce) { .logo-animated :is(.logo-j, .logo-vl, .logo-vr, .logo-spark) { animation: none !important; } }
+:root:is([data-effects="reduced"], [data-anim="paused"]) .logo-animated :is(.logo-j, .logo-vl, .logo-vr, .logo-spark) { animation: none !important; }
 
 /* Foto de Sobre mí: tal cual, marco de 20 px con borde de 1 px en el pastel del modo */
 .photo-frame { border: 1px solid var(--accent); background: var(--color-card); }

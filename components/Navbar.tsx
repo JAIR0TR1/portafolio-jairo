@@ -51,7 +51,7 @@ function useScrollSpy() {
 
 /** Logotipo J+V (variante «mark»): decorativo, el enlace lleva el nombre accesible. */
 function Monogram({ className, animated }: { className?: string; animated?: boolean }) {
-  return <Logo animated={animated} className={cn("size-9", className)} />;
+  return <Logo animated={animated} className={cn("h-7 w-auto", className)} />;
 }
 
 /** Número de sección «01…09» (orden de la página). */

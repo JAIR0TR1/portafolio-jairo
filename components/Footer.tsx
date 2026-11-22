@@ -19,7 +19,7 @@ export default async function Footer() {
       <div className="container-x grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-12">
         <div className="lg:col-span-5">
           <p className="flex items-center gap-3 font-display text-lg font-medium tracking-[-0.02em]">
-            <Logo className="size-10" />
+            <Logo className="h-8 w-auto" />
             {profile.name}
           </p>
           <p className="mt-4 max-w-sm text-pretty text-muted">

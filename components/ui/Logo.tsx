@@ -1,87 +1,88 @@
 import { useId } from "react";
 import { cn } from "@/lib/cn";
+import geometry from "./logo-geometry.json";
 
 /**
- * Logotipo de Jairo Vallejo: monograma J+V en una placa de esquinas cortadas (la misma forma de
- * las pestañas del sitio). La J y la V comparten trazo: el brazo izquierdo de la V nace en el
- * remate de la J, sobre su asta. El brazo derecho de la V se corta y termina en una «chispa»
- * en degradado fuego (#FF5A1F→#FFB020).
+ * Logo «JV · Forja» de Jairo Vallejo (kit completo en brand/, guía en brand/GUIA-DE-USO.md).
+ * La J de acero y una V de dos hojas a 75° que no llegan a tocarse; donde se encontrarían, salta la
+ * chispa. Colores: J y nombre = currentColor (siguen al tema) · V = azul acero · chispa = fuego.
  *
- * Variantes:
- *  - "mark": placa azul acero (#2F6BFF→#1D3D9E), trazo claro y chispa de fuego. Igual en ambos temas.
- *  - "lockup": la placa + «JAIRO VALLEJO» en Michroma (el texto toma currentColor: sigue al tema).
- *  - "mono": una sola tinta (currentColor) para fondos claros, impresión o sellos.
- * Retícula de 48 × 48 y trazo de 4.4 (2.2 px a 24 px). `animated`: el trazo se dibuja una vez al
- * cargar (CSS; nada con prefers-reduced-motion, «Reducir efectos» ni la pausa global).
+ *  - size "sm" (por defecto): corte pequeño, trazo más grueso y chispa más grande. Para 40 px o menos
+ *    (encabezado, menú, footer, favicon).
+ *  - size "lg": maestro; en tema oscuro cambia solo a la versión un 3 % más fina (irradiación).
+ *  - variant "lockup": símbolo + «JAIRO VALLEJO» (Michroma convertida a trazos).
+ *  - animated: entrada única (hojas → J → chispa), solo transform/opacity; nada con
+ *    prefers-reduced-motion, «Reducir efectos» ni la pausa global (globals.css).
  */
-export type LogoVariant = "mark" | "lockup" | "mono";
-
-/** Placa: esquinas superior izquierda e inferior derecha cortadas (como .tab-plate). */
-export const LOGO_PLATE = "M9 0H48V39L39 48H0V9Z";
-/** J: remate, asta y gancho. */
-export const LOGO_J = "M12 12H19V29C19 36 11.5 37.5 9.5 32.5";
-/** V: nace bajo el remate de la J, baja al vértice y sube hasta el corte. */
-export const LOGO_V = "M19.6 13.4L28.5 35L35.6 18.6";
-/** Chispa: el tramo del brazo derecho de la V después del corte. */
-export const LOGO_SPARK = "M37.4 14.5L39.6 9.4";
-export const LOGO_STROKE = 4.4;
+type Geo = { J: string; VL: string; VR: string; spark: string; box: number[] };
+const G = geometry as { master: Geo; reversed: Geo; small: Geo; wordmark: { d: string; width: number; capH: number } };
 
 export function Logo({
   variant = "mark",
+  size = "sm",
   className,
   animated = false,
   title,
 }: {
-  variant?: LogoVariant;
+  variant?: "mark" | "lockup";
+  size?: "sm" | "lg";
   className?: string;
   animated?: boolean;
   /** Nombre accesible; sin él, el logo es decorativo (aria-hidden). */
   title?: string;
 }) {
-  const uid = useId().replace(/:/g, "");
-  const steel = `logo-steel-${uid}`;
-  const fire = `logo-fire-${uid}`;
-  const mono = variant === "mono";
+  const uid = useId().replaceAll(":", "");
+  const fire = `jv-fire-${uid}`;
+  const base = size === "sm" ? G.small : G.master;
+  const [x0, y0, w, h] = base.box;
+  const pad = h * 0.04;
   const lockup = variant === "lockup";
-  const ink = mono ? "currentColor" : "#F5F3F0";
-  const line = { fill: "none", stroke: ink, strokeWidth: LOGO_STROKE, strokeLinecap: "butt", strokeLinejoin: "miter" } as const;
+  // nombre: altura de mayúscula = 38 % del monograma, centrado en su cuerpo; separación = 1.3 × asta
+  const cap = h * 0.38;
+  const wmScale = cap / G.wordmark.capH;
+  const gap = 40;
+  const totalW = w + (lockup ? gap + G.wordmark.width * wmScale : 0);
+  const viewBox = `${x0 - pad} ${y0 - pad} ${totalW + 2 * pad} ${h + 2 * pad}`;
 
-  const mark = (
-    <svg
-      viewBox="0 0 48 48"
-      className={cn("logo-mark shrink-0", animated && "logo-animated", lockup ? "h-full w-auto" : className)}
-      role={title && !lockup ? "img" : undefined}
-      aria-label={title && !lockup ? title : undefined}
-      aria-hidden={title && !lockup ? undefined : true}
-    >
-      {!mono && (
-        <defs>
-          <linearGradient id={steel} x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#2F6BFF" />
-            <stop offset="1" stopColor="#1D3D9E" />
-          </linearGradient>
-          <linearGradient id={fire} x1="37.4" y1="14.5" x2="39.6" y2="9.4" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#FF5A1F" />
-            <stop offset="1" stopColor="#FFB020" />
-          </linearGradient>
-        </defs>
-      )}
-      {mono ? (
-        <path d={LOGO_PLATE} fill="none" stroke="currentColor" strokeWidth="2.4" transform="translate(1.2 1.2) scale(0.95)" />
-      ) : (
-        <path d={LOGO_PLATE} fill={`url(#${steel})`} />
-      )}
-      <path className="logo-stroke logo-j" d={LOGO_J} pathLength={1} {...line} />
-      <path className="logo-stroke logo-v" d={LOGO_V} pathLength={1} {...line} />
-      <path className="logo-spark" d={LOGO_SPARK} {...line} stroke={mono ? "currentColor" : `url(#${fire})`} />
-    </svg>
+  const shapes = (g: Geo, cls?: string) => (
+    <g className={cls}>
+      <path className="logo-j" fill="currentColor" d={g.J} />
+      <path className="logo-vl" fill="var(--logo-steel, #2F6BFF)" d={g.VL} />
+      <path className="logo-vr" fill="var(--logo-steel, #2F6BFF)" d={g.VR} />
+      <path className="logo-spark" fill={`url(#${fire})`} d={g.spark} />
+    </g>
   );
 
-  if (!lockup) return mark;
   return (
-    <span role={title ? "img" : undefined} aria-label={title} aria-hidden={title ? undefined : true} className={cn("inline-flex items-center gap-[0.5em]", className)}>
-      {mark}
-      <span className="font-hero whitespace-nowrap text-[0.36em] uppercase leading-none tracking-[0.04em] text-current">Jairo Vallejo</span>
-    </span>
+    <svg
+      viewBox={viewBox}
+      className={cn("logo-jv shrink-0", animated && "logo-animated", className)}
+      role={title ? "img" : undefined}
+      aria-label={title}
+      aria-hidden={title ? undefined : true}
+    >
+      <defs>
+        <linearGradient id={fire} x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" stopColor="#FF5A1F" />
+          <stop offset="1" stopColor="#FFB020" />
+        </linearGradient>
+      </defs>
+      {size === "lg" ? (
+        <>
+          {shapes(G.master, "logo-on-light")}
+          {shapes(G.reversed, "logo-on-dark")}
+        </>
+      ) : (
+        shapes(G.small)
+      )}
+      {lockup && (
+        <path
+          className="logo-name"
+          fill="currentColor"
+          transform={`translate(${x0 + w + gap} ${y0 + (h - cap) / 2}) scale(${wmScale.toFixed(5)})`}
+          d={G.wordmark.d}
+        />
+      )}
+    </svg>
   );
 }

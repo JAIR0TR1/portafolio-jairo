@@ -1,7 +1,11 @@
 import { ImageResponse } from "next/og";
 import { isLang, type Lang } from "@/lib/i18n";
 import { getDict } from "@/lib/dictionaries";
-import { LOGO_J, LOGO_PLATE, LOGO_SPARK, LOGO_STROKE, LOGO_V } from "@/components/ui/Logo";
+import logoGeometry from "@/components/ui/logo-geometry.json";
+
+const LOGO_REV = logoGeometry.reversed;
+const [lx, ly, lw, lh] = LOGO_REV.box;
+const LOGO_VIEWBOX = `${lx - 6} ${ly - 6} ${lw + 12} ${lh + 12}`;
 
 const size = { width: 1200, height: 630 };
 
@@ -34,18 +38,12 @@ export default async function OpengraphImage({ params }: { params: Promise<{ lan
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 20, fontSize: 28, color: "#A3A1A8" }}>
-          {/* logotipo J+V (mismos trazos que components/ui/Logo.tsx) */}
-          <svg width="64" height="64" viewBox="0 0 48 48">
-            <defs>
-              <linearGradient id="s" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-                <stop offset="0" stopColor="#2F6BFF" />
-                <stop offset="1" stopColor="#1D3D9E" />
-              </linearGradient>
-            </defs>
-            <path d={LOGO_PLATE} fill="url(#s)" />
-            <path d={LOGO_J} fill="none" stroke="#F5F3F0" strokeWidth={LOGO_STROKE} />
-            <path d={LOGO_V} fill="none" stroke="#F5F3F0" strokeWidth={LOGO_STROKE} />
-            <path d={LOGO_SPARK} fill="none" stroke="#FF8A1F" strokeWidth={LOGO_STROKE} />
+          {/* logo «JV · Forja», versión invertida (fondo oscuro), misma geometría que components/ui/Logo.tsx */}
+          <svg width="90" height="63" viewBox={LOGO_VIEWBOX}>
+            <path d={LOGO_REV.J} fill="#F5F3F0" />
+            <path d={LOGO_REV.VL} fill="#2F6BFF" />
+            <path d={LOGO_REV.VR} fill="#2F6BFF" />
+            <path d={LOGO_REV.spark} fill="#FF5A1F" />
           </svg>
           {t.meta.ogKicker}
         </div>
