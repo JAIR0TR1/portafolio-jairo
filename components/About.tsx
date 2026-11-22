@@ -88,7 +88,7 @@ export default async function About() {
               </div>
               <div className="flex flex-wrap gap-2">
                 <CvViewer />
-                <a href={profile.cv.href} download={profile.cv.fileName} className="btn btn-primary">
+                <a href={profile.cv.href} download={profile.cv.fileName} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
                   {t.common.downloadCv} <ArrowDownToLine aria-hidden="true" />
                 </a>
               </div>

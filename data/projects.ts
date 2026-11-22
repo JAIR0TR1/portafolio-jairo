@@ -22,7 +22,7 @@ const GH = "https://github.com/JAIR0TR1";
 
 // Capturas reales en public/images/proyectos/ (1280×800, webp 85) para los proyectos con demo;
 // los demás muestran una portada ilustrada con su nombre y el ícono de su tecnología.
-// TODO(Jairo): repositorio y demo de Cazador de Objetos, StudyFlow y Library Management System.
+// Sin repositorio ni demo publicados todavía: StudyFlow y Library Management System (la tarjeta no muestra enlaces).
 // Proyecto adicional: agrégalo al final de esta lista (se mostrará solo cuando exista).
 export const projects: Project[] = [
   {
@@ -71,6 +71,7 @@ export const projects: Project[] = [
       en: "Mobile app built with Expo that turns looking for objects into a game.",
     },
     tags: ["Expo", "React Native", "TypeScript"],
+    github: `${GH}/cazador-de-objetos`,
     status: "en-desarrollo",
     year: 2026,
   },

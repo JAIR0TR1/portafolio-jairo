@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowDownToLine, ChevronDown, Menu, X } from "lucide-react";
+import { ArrowDownToLine, Menu, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { profile, sections, socials, type SectionId } from "@/data/profile";
 import { SocialGlyph } from "@/components/ui/BrandIcons";
@@ -10,11 +10,10 @@ import { LangSwitch, ThemeSwitch } from "@/components/ui/Prefs";
 import { Logo } from "@/components/ui/Logo";
 import { useI18n } from "@/components/ui/I18nProvider";
 import { fmt, tx } from "@/lib/i18n";
-import { EASE, useMediaQuery, usePlateMotion } from "@/lib/effects";
+import { EASE, usePlateMotion } from "@/lib/effects";
 import { cn } from "@/lib/cn";
 
 const ids = sections.map((s) => s.id);
-const secondary = sections.filter((s) => !s.primary);
 
 /** Sección activa = la última cuyo borde superior pasó el 40 % de la ventana. */
 function useScrollSpy() {
@@ -82,14 +81,8 @@ function NavLink({ id, label, active, className, onClick }: { id: string; label:
 export default function Navbar() {
   const active = useScrollSpy();
   const [open, setOpen] = useState(false);
-  const [more, setMore] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
-  const moreRef = useRef<HTMLDivElement>(null);
-  // ≥1400 px caben los 9 enlaces; debajo, los secundarios van en «Más» (un solo dueño de la píldora)
-  const wide = useMediaQuery("(min-width: 1400px)");
-  const moreActive = !wide && secondary.some((s) => s.id === active);
-  const plate = usePlateMotion();
   const { lang, t } = useI18n();
 
   const close = useCallback((restoreFocus: boolean) => {
@@ -131,31 +124,12 @@ export default function Navbar() {
   // Si se agranda la ventana con la hoja abierta, se cierra sola.
   useEffect(() => {
     if (!open) return;
-    const mq = window.matchMedia("(min-width: 1024px)");
+    const mq = window.matchMedia("(min-width: 1400px)");
     const onChange = () => mq.matches && setOpen(false);
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
   }, [open]);
 
-  // «Más»: cierra con Esc o clic fuera.
-  useEffect(() => {
-    if (!more) return;
-    const onDown = (e: PointerEvent) => {
-      if (!moreRef.current?.contains(e.target as Node)) setMore(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setMore(false);
-        moreRef.current?.querySelector<HTMLElement>("button")?.focus();
-      }
-    };
-    document.addEventListener("pointerdown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("pointerdown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [more]);
 
   return (
     <>
@@ -172,65 +146,13 @@ export default function Navbar() {
             </a>
 
             <ul className="isolate hidden items-center lg:flex">
-              {/* Todas las secciones se dibujan siempre y el ancho lo decide CSS (≥ 1400 px: todas; menos: los
-                  secundarios van en «Más»). Antes lo decidía JS al hidratar y la cápsula saltaba de ancho (CLS). */}
+              {/* ≥ 1400 px: todas las secciones en línea. 1024–1399 px: las principales en línea y el resto en el
+                  botón de menú (la misma hoja del celular). Lo decide CSS: sin saltos de ancho al hidratar (CLS). */}
               {sections.map((s) => (
                 <li key={s.id} className={s.primary ? undefined : "hidden min-[1400px]:block"}>
-                  <NavLink id={s.id} label={tx(s.label, lang)} active={active === s.id && (s.primary || wide)} />
+                  <NavLink id={s.id} label={tx(s.label, lang)} active={active === s.id} />
                 </li>
               ))}
-              <li className="relative min-[1400px]:hidden">
-                <div ref={moreRef}>
-                  <button
-                    type="button"
-                    aria-expanded={more}
-                    aria-controls="menu-mas"
-                    onClick={() => setMore((m) => !m)}
-                    aria-current={moreActive ? "true" : undefined}
-                    className={cn(
-                      "tab flex min-h-10 items-center gap-1 px-3 text-[13.5px] font-medium transition-colors",
-                      moreActive ? "text-[var(--btn-fg)]" : "text-muted hover:text-ink",
-                    )}
-                  >
-                    {moreActive && <motion.span layoutId="nav-plate" transition={plate} className="tab-plate absolute inset-0 -z-10" />}
-                    <span className="relative">{moreActive ? tx(secondary.find((s) => s.id === active)!.label, lang) : t.nav.more}</span>
-                    <ChevronDown aria-hidden="true" className={cn("relative size-4 transition-transform", more && "rotate-180")} />
-                  </button>
-                  <AnimatePresence>
-                    {more && (
-                      <motion.ul
-                        id="menu-mas"
-                        initial={{ opacity: 0, y: -6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
-                        transition={{ duration: 0.2, ease: EASE }}
-                        className="nav-capsule nav-dropdown absolute right-0 top-[calc(100%+10px)] flex w-52 flex-col gap-1 rounded-[16px] p-1.5"
-                      >
-                        {secondary.map((s) => (
-                          <li key={s.id}>
-                            <a
-                              href={`#${s.id}`}
-                              onClick={() => setMore(false)}
-                              aria-current={active === s.id ? "true" : undefined}
-                              className={cn(
-                                "tab isolate flex min-h-10 items-center justify-between gap-3 px-3 text-[14px] transition-colors",
-                                active === s.id ? "font-medium text-[var(--btn-fg)]" : "text-muted hover:text-ink",
-                              )}
-                            >
-                              {/* la placa va en una capa interna: el clip-path no recorta el anillo de foco */}
-                              {active === s.id && <span aria-hidden="true" className="tab-plate absolute inset-0 -z-10" />}
-                              {tx(s.label, lang)}
-                              <span aria-hidden="true" className={cn("font-mono text-[10px]", active === s.id ? "opacity-70" : "text-muted")}>
-                                {sectionNo(s.id)}
-                              </span>
-                            </a>
-                          </li>
-                        ))}
-                      </motion.ul>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </li>
             </ul>
 
             <div className="flex shrink-0 items-center gap-1.5">
@@ -239,7 +161,7 @@ export default function Navbar() {
                 <ThemeSwitch variant="compact" />
                 <LangSwitch variant="compact" />
               </div>
-              <a href={profile.cv.href} download={profile.cv.fileName} className="btn btn-primary min-h-10 px-4" aria-label={t.common.downloadCv}>
+              <a href={profile.cv.href} download={profile.cv.fileName} target="_blank" rel="noopener noreferrer" className="btn btn-primary min-h-10 px-4" aria-label={t.common.downloadCv}>
                 {t.nav.cv} <ArrowDownToLine aria-hidden="true" />
               </a>
               <button
@@ -249,7 +171,7 @@ export default function Navbar() {
                 aria-expanded={open}
                 aria-controls="menu-movil"
                 aria-label={t.nav.openMenu}
-                className="grid size-10 place-items-center rounded-[12px] border border-line-2 bg-ink/[.06] text-ink lg:hidden"
+                className="grid size-10 place-items-center rounded-[12px] border border-line-2 bg-ink/[.06] text-ink min-[1400px]:hidden"
               >
                 <Menu aria-hidden="true" className="size-5" />
               </button>
@@ -270,7 +192,7 @@ export default function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="menu-sheet fixed inset-0 z-[80] flex flex-col overflow-y-auto lg:hidden"
+            className="menu-sheet fixed inset-0 z-[80] flex flex-col overflow-y-auto min-[1400px]:hidden"
           >
             <div className="container-x relative flex h-[var(--header-h)] items-center justify-between">
               <span className="flex items-center gap-2.5 font-semibold">
@@ -319,12 +241,13 @@ export default function Navbar() {
 
             <div className="container-x relative flex flex-col items-start gap-3 pt-6">
               <p className="text-label text-muted">{t.prefs.title}</p>
-              <ThemeSwitch variant="full" />
-              <LangSwitch variant="full" />
+              {/* celular y tablet: aquí · escritorio: ya están en el encabezado */}
+              <ThemeSwitch variant="full" className="lg:hidden" />
+              <LangSwitch variant="full" className="lg:hidden" />
               <ReduceEffectsToggle />
             </div>
             <div className="container-x relative flex flex-wrap items-center gap-2 pb-8 pt-2">
-              <a href={profile.cv.href} download={profile.cv.fileName} className="btn btn-primary">
+              <a href={profile.cv.href} download={profile.cv.fileName} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
                 {t.common.downloadCv} <ArrowDownToLine aria-hidden="true" />
               </a>
               {socials.map((s) => (

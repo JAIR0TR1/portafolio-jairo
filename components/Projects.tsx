@@ -109,11 +109,6 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
               {t.projects.demo} <ArrowUpRight aria-hidden="true" />
             </a>
           )}
-          {!project.github && !project.demo && (
-            <span className="text-label text-muted">
-              {t.projects.linksSoon}
-            </span>
-          )}
         </div>
       </div>
     </article>

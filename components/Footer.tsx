@@ -2,7 +2,7 @@ import { ArrowUp } from "lucide-react";
 import { profile, sections, socials } from "@/data/profile";
 import { SocialGlyph } from "@/components/ui/BrandIcons";
 import { ReduceEffectsToggle, ReplayIntroButton } from "@/components/ui/FooterControls";
-import { LangSwitch, ThemeSwitch } from "@/components/ui/Prefs";
+import { ThemeSwitch } from "@/components/ui/Prefs";
 import { Logo } from "@/components/ui/Logo";
 import { tx } from "@/lib/i18n";
 import { getI18n } from "@/lib/dictionaries";
@@ -61,13 +61,10 @@ export default async function Footer() {
           </ul>
           <h2 className="text-label mb-3 mt-8 text-muted">{t.prefs.title}</h2>
           <div className="flex flex-col items-start gap-3">
-            {/* celular y tablet: con nombres · escritorio (columna angosta): compactos, como en el menú */}
+            {/* el idioma se elige solo en el encabezado (escritorio) o en el menú (celular): sin selector duplicado.
+                celular y tablet: tema con nombres · escritorio (columna angosta): compacto, como en el menú */}
             <ThemeSwitch variant="full" className="lg:hidden" />
-            <LangSwitch variant="full" className="lg:hidden" />
-            <div className="flex gap-1.5 max-lg:hidden">
-              <ThemeSwitch variant="compact" />
-              <LangSwitch variant="compact" />
-            </div>
+            <ThemeSwitch variant="compact" className="max-lg:hidden" />
             <div className="flex flex-col">
               <ReduceEffectsToggle />
               <ReplayIntroButton />
