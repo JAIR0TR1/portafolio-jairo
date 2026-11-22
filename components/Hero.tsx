@@ -108,7 +108,7 @@ export default async function Hero() {
                 </h1>
                 <p className="max-w-[44ch] text-pretty text-body text-muted max-lg:order-4 lg:mt-2">{tx(profile.heroRole, lang)}</p>
                 <div className="grid gap-2 max-lg:order-6 max-lg:mt-3 sm:flex sm:flex-wrap lg:mt-5">
-                  <a href="/cv.pdf" download className="btn btn-primary">
+                  <a href={profile.cv.href} download={profile.cv.fileName} className="btn btn-primary">
                     {t.common.downloadCv} <ArrowDownToLine aria-hidden="true" />
                   </a>
                   <a href="#trabaja-conmigo" className="btn btn-secondary">

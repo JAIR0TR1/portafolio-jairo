@@ -42,6 +42,8 @@ export const profile = {
   codingSince: 2024,
   /** Foto real: si el archivo no existe en public/, el marco se oculta (ver About). */
   photo: "/images/jairo-foto.jpg",
+  /** Hoja de vida: un solo archivo para todos los botones; se descarga con este nombre. */
+  cv: { href: "/cv.pdf", fileName: "CV-Jairo-Vallejo.pdf" },
   email: "jairoval1000@gmail.com",
   whatsapp: WHATSAPP,
   whatsappHref: `https://wa.me/${WHATSAPP}?text=Hola%20Jairo%2C%20vi%20tu%20portafolio`,

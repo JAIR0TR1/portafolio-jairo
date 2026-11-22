@@ -241,7 +241,7 @@ export default function Navbar() {
                 <ThemeSwitch variant="compact" />
                 <LangSwitch variant="compact" />
               </div>
-              <a href="/cv.pdf" download className="btn btn-primary min-h-10 px-4" aria-label={t.common.downloadCv}>
+              <a href={profile.cv.href} download={profile.cv.fileName} className="btn btn-primary min-h-10 px-4" aria-label={t.common.downloadCv}>
                 {t.nav.cv} <ArrowDownToLine aria-hidden="true" />
               </a>
               <button
@@ -326,7 +326,7 @@ export default function Navbar() {
               <ReduceEffectsToggle />
             </div>
             <div className="container-x relative flex flex-wrap items-center gap-2 pb-8 pt-2">
-              <a href="/cv.pdf" download className="btn btn-primary">
+              <a href={profile.cv.href} download={profile.cv.fileName} className="btn btn-primary">
                 {t.common.downloadCv} <ArrowDownToLine aria-hidden="true" />
               </a>
               {socials.map((s) => (
