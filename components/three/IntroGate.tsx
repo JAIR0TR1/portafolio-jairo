@@ -11,8 +11,8 @@ import type { Handoff } from "./IntroScene";
 // three / R3F solo se descargan si la intro 3D se va a mostrar.
 const IntroScene = dynamic(() => import("./IntroScene"), { ssr: false, loading: () => null });
 
-/** Fin de la animación en s (= `total` de la geometría en IntroScene: escritorio 5.2 · celular 4.6). */
-const endAt = () => (window.innerWidth < 768 ? 4.6 : 5.2); // = MOBILE/DESKTOP.total en IntroScene
+/** Fin de la animación en s (= `total` de la geometría en IntroScene: escritorio 4.5 · celular 4.6). */
+const endAt = () => (window.innerWidth < 768 ? 4.6 : 4.5); // = MOBILE/DESKTOP.total en IntroScene
 /** La tarjeta con el nombre (mientras carga la escena) se ve como máximo 1.5 s; después se entra al sitio. */
 const NAME_MAX = 1500;
 
@@ -133,7 +133,7 @@ export function IntroGate() {
     if (!el || leavingRef.current) return;
     if (!handoffRef.current) {
       handoffRef.current = true;
-      document.documentElement.dataset.introHandoff = ""; // el Hero vuelve a animarse (lib/ticker.ts)
+      document.documentElement.dataset.introHandoff = ""; // estado del traspaso (pruebas y depuración)
       // (will-change ya está puesto desde el montaje: el sitio quedó rasterizado a escala 1)
       el.style.transformOrigin = `50% ${window.scrollY + window.innerHeight / 2}px`;
       setHandoff(true);

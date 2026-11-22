@@ -7,6 +7,7 @@
 // En cada una:
 //  - site.webp: el Hero actual a 2880×1800 (1440×900 con deviceScaleFactor 2, modo Jairo),
 //    calidad 92. Es lo que se ve al final del zoom, cuando la pantalla llena el viewport: debe ser nítido.
+//  - site-wide.webp: el Hero en 16:9 (1920×1080 a 1.5×) para ventanas anchas.
 //  - site-scroll.webp: la página completa para el scroll dentro de la pantalla.
 //  - site-mobile.webp: el Hero móvil (390×844 a 3×) para la tablet vertical en celular.
 // Uso: node scripts/make-intro-texture.mjs [url]   (después: reiniciar `npm start`, hay archivos nuevos en public/)
@@ -57,6 +58,11 @@ for (const v of VARIANTS) {
   const page = await open(browser, v, { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
   await sharp(await page.screenshot({ type: "png" })).webp({ quality: 92, effort: 6 }).toFile(out(v.dir, "site.webp"));
 
+  // 1b) Hero en 16:9 (1920×1080 a 1.5× = 2880×1620) para ventanas anchas (introHeroFile en lib/keys.ts)
+  const wide = await open(browser, v, { viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1.5 });
+  await sharp(await wide.screenshot({ type: "png" })).webp({ quality: 92, effort: 6 }).toFile(out(v.dir, "site-wide.webp"));
+  await wide.context().close();
+
   // 2) Página completa para el scroll dentro de la tablet
   const h = await page.evaluate(() => document.documentElement.scrollHeight);
   for (let y = 0; y < h; y += 350) {
@@ -76,6 +82,6 @@ for (const v of VARIANTS) {
   const m = await open(browser, v, { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
   await sharp(await m.screenshot({ type: "png" })).webp({ quality: 92, effort: 6 }).toFile(out(v.dir, "site-mobile.webp"));
 
-  console.log(`public/intro/${v.dir || ""}{site, site-scroll, site-mobile}.webp · ${v.lang} · ${v.theme}`);
+  console.log(`public/intro/${v.dir || ""}{site, site-wide, site-scroll, site-mobile}.webp · ${v.lang} · ${v.theme}`);
 }
 await browser.close();

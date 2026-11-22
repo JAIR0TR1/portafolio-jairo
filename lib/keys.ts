@@ -22,6 +22,17 @@ export function introDir(lang: string, theme: string) {
 }
 
 /**
+ * Captura del Hero para la pantalla de la tablet en escritorio, según la proporción de la ventana
+ * (la que más se parece al sitio real que aparece al final del zoom): 16:9 → site-wide.webp
+ * (1920×1080), vertical → site-mobile.webp, el resto → site.webp (1440×900). El script de arranque
+ * repite esta regla para la precarga.
+ */
+export function introHeroFile(width: number, height: number) {
+  const r = width / Math.max(1, height);
+  return r >= 1.7 ? "site-wide.webp" : r < 1 ? "site-mobile.webp" : "site.webp";
+}
+
+/**
  * Tema antes del primer pintado (sin parpadeo): lee la preferencia guardada, resuelve
  * «sistema» con prefers-color-scheme y deja data-theme / data-theme-pref en <html>.
  * Con «sistema», sigue los cambios del sistema operativo aunque el selector no esté montado.
@@ -52,6 +63,6 @@ var c=document.createElement('canvas'),o={failIfMajorPerformanceCaveat:true},g=c
 if(g){var di=g.getExtension('WEBGL_debug_renderer_info'),rn=di?String(g.getParameter(di.UNMASKED_RENDERER_WEBGL)):'';if(/swiftshader|llvmpipe|softpipe|software|basic render/i.test(rn)){if(g.getExtension('WEBGL_lose_context'))g.getExtension('WEBGL_lose_context').loseContext();g=null;}}
 if(g){d.dataset.intro='webgl';d.dataset.introKind='webgl';if(g.getExtension('WEBGL_lose_context'))g.getExtension('WEBGL_lose_context').loseContext();
 var en=d.lang==='en',li=d.dataset.theme==='light',ib='/intro/'+(en&&li?'en-light/':en?'en/':li?'light/':'');
-(innerWidth<768?[ib+'site-mobile.webp']:[ib+'site.webp',ib+'site-scroll.webp']).forEach(function(u){var l=document.createElement('link');l.rel='preload';l.as='image';l.crossOrigin='anonymous';l.href=u;l.fetchPriority='high';document.head.appendChild(l);});
+(innerWidth<768?[ib+'site-mobile.webp']:[ib+(innerWidth/innerHeight>=1.7?'site-wide.webp':innerWidth<innerHeight?'site-mobile.webp':'site.webp'),ib+'site-scroll.webp']).forEach(function(u){var l=document.createElement('link');l.rel='preload';l.as='image';l.crossOrigin='anonymous';l.href=u;l.fetchPriority='high';document.head.appendChild(l);});
 setTimeout(function(){if(d.dataset.intro&&!d.dataset.introMounted){try{s.setItem('${INTRO_KEY}','1')}catch(e){}delete d.dataset.intro;delete d.dataset.introKind;}},8000);
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&d.dataset.intro&&!d.dataset.introMounted){try{s.setItem('${INTRO_KEY}','1')}catch(x){}delete d.dataset.intro;delete d.dataset.introKind;}});}}}catch(e){}`;

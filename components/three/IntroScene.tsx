@@ -4,7 +4,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, PerformanceMonitor, RoundedBox, useTexture } from "@react-three/drei";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { introDir } from "@/lib/keys";
+import { introDir, introHeroFile } from "@/lib/keys";
 
 /** Capturas del sitio en el idioma y tema actuales (public/intro/…). */
 function introBase() {
@@ -13,7 +13,7 @@ function introBase() {
 }
 
 /**
- * Trayectoria: UNA sola curva continua (Catmull-Rom centrípeta) desde la deriva alrededor de la
+ * Celular. Trayectoria: UNA sola curva continua (Catmull-Rom centrípeta) desde la deriva alrededor de la
  * tablet hasta que su pantalla llena la ventana, recorrida por longitud de arco con UN único
  * ease-in-out en toda la duración. Así la cámara nunca se detiene entre «fases» (antes había
  * tres tramos con su propio ease y la cámara frenaba a cero dos veces: se sentía a tirones).
@@ -33,8 +33,29 @@ type Geo = {
   total: number;
   fade: number;
 };
-const DESKTOP: Geo = { H: 2.0, Y: 0.3, sDrift: 0.34, y0: 2.6, y1: 1.3, aspect: [1.25, 2.4], total: 5.2, fade: 0.9 };
+const DESKTOP: Geo = { H: 2.0, Y: 0.3, sDrift: 0.34, y0: 2.5, y1: 1.6, aspect: [0.6, 2.4], total: 4.5, fade: 0.8 };
 const MOBILE: Geo = { H: 3.2, Y: 0.62, sDrift: 0.5, y0: 2.4, y1: 1.4, aspect: [0.42, 0.8], total: 4.6, fade: 0.8 };
+
+/**
+ * Escritorio: la coreografía de la intro original (antes de la Fase 5), que es la que mejor se veía.
+ *  - Deriva: la cámara orbita la tablet de −0.42 a 0.24 rad, radio 8.6 → 7.0, altura 2.5 → 1.6.
+ *  - Giro + entrada: la tablet gira hasta quedar de frente mientras la cámara entra hasta que la
+ *    pantalla llena la ventana.
+ * Cambios respecto a la original, solo para que sea continua:
+ *  - Las dos fases se solapan (antes la cámara frenaba a cero a los 3.2 s entre una y otra).
+ *  - La cámara llega al eje frontal de la pantalla en el 70 % de la entrada y el resto es una entrada
+ *    recta: la pantalla es un rectángulo exacto y se funde con el sitio real (Handoff).
+ */
+const DESK = {
+  drift: 3.4, // s: deriva (ease-in-out propio)
+  zoomAt: 2.6, // s: empieza el giro + entrada (se solapa con el final de la deriva)
+  zoom: 1.9, // s: duración del giro + entrada (termina en DESKTOP.total = 4.5 s)
+  axis: 0.7, // fracción de la entrada en la que cámara y tablet quedan alineadas de frente
+  angle: [-0.42, 0.24],
+  radius: [8.6, 7.0],
+} as const;
+/** ease-in-out cúbico (el de la intro original) */
+const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 /** Fin de la animación (la intro se retira en ese instante, sin fundido: ya es el sitio). */
 export const introEnd = (mobile: boolean) => (mobile ? MOBILE : DESKTOP).total;
 const FOV = 35;
@@ -166,7 +187,9 @@ function World({
   // Celular: captura móvil del Hero (390×844 a 3×) en ambas.
   const base = introBase();
   const [scrollTex, heroTex] = useTexture(
-    mobile ? [`${base}site-mobile.webp`, `${base}site-mobile.webp`] : [`${base}site-scroll.webp`, `${base}site.webp`],
+    mobile
+      ? [`${base}site-mobile.webp`, `${base}site-mobile.webp`]
+      : [`${base}site-scroll.webp`, `${base}${introHeroFile(size.width, size.height)}`],
   );
   const maxAniso = useThree((st) => st.gl.capabilities.getMaxAnisotropy());
 
@@ -267,6 +290,22 @@ function World({
     return { curve: new THREE.CatmullRomCurve3(points, false, "centripetal"), axisZ: at(0.62), tan };
   }, [G, SCREEN_H, DEVICE_Y]);
 
+  /**
+   * Escritorio: posición de la cámara en el instante t (s). Deriva orbital + entrada; la entrada
+   * lleva la cámara al eje frontal (x = 0, altura de la tablet) en DESK.axis y termina con la
+   * pantalla llenando exactamente el alto de la ventana. Todas las curvas son C¹: nunca hay
+   * cambios bruscos de velocidad.
+   */
+  const deskCam = (t: number, out: THREE.Vector3) => {
+    const k = easeInOut(clamp(t / DESK.drift));
+    const z = easeInOut(clamp((t - DESK.zoomAt) / DESK.zoom));
+    const a = smooth(0, DESK.axis, z);
+    const ang = lerp(DESK.angle[0], DESK.angle[1], k);
+    const r = lerp(DESK.radius[0], DESK.radius[1], k);
+    const endZ = SCREEN_Z + SCREEN_H / (2 * flight.tan);
+    return out.set(Math.sin(ang) * r * (1 - a), lerp(lerp(G.y0, G.y1, k), DEVICE_Y, a), lerp(Math.cos(ang) * r, endZ, z));
+  };
+
   // Preparación fuera de la línea de tiempo (el lienzo sigue invisible): subir las texturas a la GPU y
   // compilar los shaders antes del primer cuadro visible. Si no, ese trabajo (cientos de ms) cae en el
   // primer cuadro de la animación y el vuelo arranca con un salto.
@@ -296,9 +335,10 @@ function World({
       // equipo lento se arranca igual antes que saltarse la intro.
       const waited = performance.now() - warmFrom.current > 500;
       if ((warm.current !== "compiled" && !waited) || ++settle.current < 3) {
-        flight.curve.getPointAt(0, tmp.cam);
+        if (mobile) flight.curve.getPointAt(0, tmp.cam);
+        else deskCam(0, tmp.cam);
         state.camera.position.copy(tmp.cam);
-        state.camera.lookAt(0, 0.15, 0);
+        state.camera.lookAt(0, mobile ? 0.15 : 0.2, 0);
         return;
       }
       start.current = now;
@@ -314,41 +354,63 @@ function World({
     beamMat.uniforms.uOpacity.value = 0.16 * easeOut(clamp((t - 0.3) / 0.9));
     state.gl.toneMappingExposure = 0.2 + 0.85 * f;
 
-    // Cámara: avance único sobre la curva (longitud de arco), siempre mirando a la tablet
-    const u = easeFlight(clamp(t / G.total));
-    flight.curve.getPointAt(u, tmp.cam);
+    // Cámara, giro de la tablet y pantalla. Todo es función del tiempo transcurrido (no de los fps).
+    let front: number; // 0 = tablet inclinada (deriva) · 1 = de frente y quieta
+    let scroll: number; // recorrido del sitio dentro de la pantalla
+    let mix: number; // sitio en scroll → Hero
+    let done: boolean; // la pantalla ya llena la ventana
+    if (mobile) {
+      // Celular: avance único sobre la curva (longitud de arco), siempre mirando a la tablet
+      const u = easeFlight(clamp(t / G.total));
+      flight.curve.getPointAt(u, tmp.cam);
+      front = smooth(0.25, 0.72, u);
+      tmp.look.set(0, lerp(0.15, DEVICE_Y, front), 0);
+      scroll = smooth(0.06, 0.5, u);
+      mix = smooth(0.42, 0.56, u);
+      done = u >= 1;
+    } else {
+      deskCam(t, tmp.cam);
+      front = smooth(0, DESK.axis, easeInOut(clamp((t - DESK.zoomAt) / DESK.zoom)));
+      tmp.look.set(0, lerp(0.2, DEVICE_Y, front), 0);
+      scroll = easeInOut(clamp((t - 0.5) / 2.9));
+      mix = easeInOut(clamp((t - 2.9) / 0.6));
+      done = t >= G.total;
+    }
     state.camera.position.copy(tmp.cam);
-    const k = smooth(0.25, 0.72, u); // la tablet se pone de frente con el mismo avance
-    tmp.look.set(0, lerp(0.15, DEVICE_Y, k), 0);
     state.camera.lookAt(tmp.look);
 
-    // Escala real de la pantalla (fracción del alto de la ventana): manda texturas y transparencia
+    // Escala real de la pantalla (fracción del alto de la ventana): manda la transparencia
     const dist = tmp.cam.distanceTo(tmp.look) - SCREEN_Z;
-    const scale = clamp(SCREEN_H / (2 * flight.tan * Math.max(dist, 1e-3)), 0, 1);
-    const onAxis = tmp.cam.z <= flight.axisZ + 1e-3;
+    const scale = done ? 1 : clamp(SCREEN_H / (2 * flight.tan * Math.max(dist, 1e-3)), 0, 1);
+    const onAxis = mobile ? tmp.cam.z <= flight.axisZ + 1e-3 : front >= 1;
 
-    // Tablet: flota e inclina con el puntero (amortiguado) hasta quedar frontal y quieta
+    // Tablet: flota e inclina con el puntero (amortiguado con delta: igual a 30 o 144 fps) hasta quedar
+    // de frente y quieta
     const g = device.current;
     if (g) {
       const damp = 1 - Math.exp(-delta * 4);
       tmp.tilt.x += (state.pointer.x - tmp.tilt.x) * damp;
       tmp.tilt.y += (state.pointer.y - tmp.tilt.y) * damp;
-      const free = 1 - k;
-      g.rotation.x = (-0.5 + tmp.tilt.y * 0.08) * free;
-      g.rotation.y = (0.38 + tmp.tilt.x * 0.12) * free;
+      const free = 1 - front;
+      if (mobile) {
+        g.rotation.x = (-0.5 + tmp.tilt.y * 0.08) * free;
+        g.rotation.y = (0.38 + tmp.tilt.x * 0.12) * free;
+      } else {
+        g.rotation.x = (-0.52 + tmp.tilt.y * 0.1) * free;
+        g.rotation.y = (0.4 + tmp.tilt.x * 0.16) * free;
+      }
       g.rotation.z = 0.05 * free;
       g.position.y = DEVICE_Y + (0.08 + Math.sin(now * 1.3) * 0.05) * free;
     }
 
     // Pantalla: scroll del sitio → Hero → transparente (deja ver el sitio real detrás)
-    const sc = smooth(0.06, 0.5, u);
-    (screenMat.uniforms.uvA.value as THREE.Vector4).w = 1 - raA - sc * (1 - raA);
+    (screenMat.uniforms.uvA.value as THREE.Vector4).w = 1 - raA - scroll * (1 - raA);
     screenMat.uniforms.uDim.value = 0.25 + 0.75 * f;
-    screenMat.uniforms.uMix.value = smooth(0.42, 0.56, u);
+    screenMat.uniforms.uMix.value = mix;
     // la transparencia empieza solo con la cámara ya sobre el eje: el sitio encaja como rectángulo
-    const reveal = onAxis ? smooth(0.62, 0.76, scale) : 0;
+    const reveal = onAxis ? (mobile ? smooth(0.62, 0.76, scale) : smooth(0.8, 0.93, scale)) : 0;
     screenMat.uniforms.uReveal.value = reveal;
-    if (reveal > 0) onHandoff?.({ scale: u >= 1 ? 1 : scale, reveal });
+    if (reveal > 0) onHandoff?.({ scale, reveal });
   });
 
   return (
@@ -400,7 +462,7 @@ function FrameCap({ fps }: { fps: number }) {
 if (typeof window !== "undefined") {
   const base = introBase();
   if (window.innerWidth < 768) useTexture.preload(`${base}site-mobile.webp`);
-  else useTexture.preload([`${base}site-scroll.webp`, `${base}site.webp`]);
+  else useTexture.preload([`${base}site-scroll.webp`, `${base}${introHeroFile(window.innerWidth, window.innerHeight)}`]);
 }
 
 export default function IntroScene({

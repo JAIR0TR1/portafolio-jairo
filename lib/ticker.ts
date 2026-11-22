@@ -38,10 +38,13 @@ function measure(now: number) {
   count = 0;
 }
 
-/** Durante la intro 3D (hasta el zoom final) el Hero no se anima: toda la CPU va a la escena. */
+/**
+ * Durante la intro 3D el Hero no se anima: toda la CPU va a la escena. Incluye el zoom final
+ * (el sitio real ya se ve en la pantalla, quieto como en la captura): reanudar ahí metía trabajo
+ * en el traspaso y podía dar un cuadro largo justo cuando la pantalla se funde con el sitio.
+ */
 function introRunning() {
-  const d = document.documentElement.dataset;
-  return d.intro === "webgl" && d.introHandoff === undefined;
+  return document.documentElement.dataset.intro === "webgl";
 }
 
 function loop(now: number) {
