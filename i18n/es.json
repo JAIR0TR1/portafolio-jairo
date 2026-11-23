@@ -96,6 +96,9 @@
     "emptyHint": "Prueba con otra tecnología o mira todos.",
     "seeAll": "Ver todos los proyectos",
     "shotAlt": "Captura de {title}",
+    "logoAlt": "Logo de {title}",
+    "zoomShot": "Ampliar la captura de {title}",
+    "closeShot": "Cerrar la captura",
     "tags": { "Estructuras de datos": "Estructuras de datos" }
   },
   "experience": {

@@ -96,6 +96,9 @@
     "emptyHint": "Try another technology or see them all.",
     "seeAll": "See all projects",
     "shotAlt": "Screenshot of {title}",
+    "logoAlt": "{title} logo",
+    "zoomShot": "Enlarge the {title} screenshot",
+    "closeShot": "Close screenshot",
     "tags": { "Estructuras de datos": "Data structures" }
   },
   "experience": {

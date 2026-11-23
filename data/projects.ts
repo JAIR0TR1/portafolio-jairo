@@ -16,7 +16,21 @@ export type Project = {
   status?: "publicado" | "en-desarrollo";
   year?: number;
   accent?: string;
+  /**
+   * Vista previa de los proyectos destacados: logo real de la app y captura principal (WebP en
+   * public/proyectos/<slug>/). La forma decide cómo se enmarca la captura en la tarjeta.
+   */
+  preview?: {
+    logo: string;
+    shot: string;
+    width: number;
+    height: number;
+    shape: "desktop" | "watch" | "phone";
+  };
 };
+
+/** Destacados: siempre de primeros y en este orden (también con un filtro activo). */
+export const FEATURED = ["escudo-guardian", "brasa", "cazador"] as const;
 
 const GH = "https://github.com/JAIR0TR1";
 
@@ -34,6 +48,7 @@ export const projects: Project[] = [
     },
     tags: ["Electron", "React", "TypeScript", "Gemini"],
     github: `${GH}/DDIS-GUARDIAN-SHIELD`,
+    preview: { logo: "/proyectos/escudo-guardian/logo.webp", shot: "/proyectos/escudo-guardian/captura.webp", width: 1375, height: 902, shape: "desktop" },
     status: "publicado",
     year: 2026,
   },
@@ -46,7 +61,21 @@ export const projects: Project[] = [
     },
     tags: ["Kotlin", "Wear OS", "Compose"],
     github: `${GH}/brasa-wear-os`,
+    preview: { logo: "/proyectos/brasa/logo.webp", shot: "/proyectos/brasa/captura.webp", width: 454, height: 454, shape: "watch" },
     status: "publicado",
+    year: 2026,
+  },
+  {
+    id: "cazador",
+    title: { es: "Cazador de Objetos", en: "Cazador de Objetos" },
+    description: {
+      es: "App móvil hecha con Expo que convierte la búsqueda de objetos en un juego.",
+      en: "Mobile app built with Expo that turns looking for objects into a game.",
+    },
+    tags: ["Expo", "React Native", "TypeScript"],
+    github: `${GH}/cazador-de-objetos`,
+    preview: { logo: "/proyectos/cazador-de-objetos/logo.webp", shot: "/proyectos/cazador-de-objetos/captura.webp", width: 780, height: 1688, shape: "phone" },
+    status: "en-desarrollo",
     year: 2026,
   },
   {
@@ -61,18 +90,6 @@ export const projects: Project[] = [
     demo: "https://taller-reproductor-de-musica-psi.vercel.app",
     image: "/images/proyectos/reproductor-de-musica.webp",
     status: "publicado",
-    year: 2026,
-  },
-  {
-    id: "cazador",
-    title: { es: "Cazador de Objetos", en: "Cazador de Objetos" },
-    description: {
-      es: "App móvil hecha con Expo que convierte la búsqueda de objetos en un juego.",
-      en: "Mobile app built with Expo that turns looking for objects into a game.",
-    },
-    tags: ["Expo", "React Native", "TypeScript"],
-    github: `${GH}/cazador-de-objetos`,
-    status: "en-desarrollo",
     year: 2026,
   },
   {

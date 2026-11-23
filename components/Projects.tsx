@@ -3,16 +3,24 @@
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowUpRight, SearchX } from "lucide-react";
 import { useMemo, useState } from "react";
-import { projects, type Project } from "@/data/projects";
+import { FEATURED, projects as data, type Project } from "@/data/projects";
 import { sectionIndex } from "@/data/profile";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProjectCover } from "@/components/ui/ProjectCover";
+import { ProjectPreview } from "@/components/ui/ProjectPreview";
 import { GithubIcon } from "@/components/ui/BrandIcons";
 import { TechIcon, tagToIcon } from "@/components/ui/TechIcon";
 import { EASE } from "@/lib/effects";
 import { cn } from "@/lib/cn";
 import { fmt, tx } from "@/lib/i18n";
 import { useI18n } from "@/components/ui/I18nProvider";
+
+/** Destacados (FEATURED) siempre de primeros y en su orden; el resto conserva el orden de data/projects.ts. */
+const rank = (id: string) => {
+  const i = (FEATURED as readonly string[]).indexOf(id);
+  return i < 0 ? FEATURED.length : i;
+};
+const projects = [...data].sort((a, b) => rank(a.id) - rank(b.id));
 
 /** Valor interno del filtro «todos» (la etiqueta visible sale del diccionario). */
 const ALL = "*";
@@ -41,7 +49,11 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   return (
     <article className="glass spotlight group flex h-full flex-col overflow-hidden">
       <div className="relative aspect-[16/10] overflow-hidden rounded-t-[19px] border-b border-line">
-        <ProjectCover project={project} title={title} alt={fmt(t.projects.shotAlt, { title })} priority={index < 2} />
+        {project.preview ? (
+          <ProjectPreview preview={project.preview} title={title} priority={index < 2} />
+        ) : (
+          <ProjectCover project={project} title={title} alt={fmt(t.projects.shotAlt, { title })} priority={index < 2} />
+        )}
         <span
           className={cn(
             "chip absolute left-3 top-3 bg-bg/70 backdrop-blur-sm",
