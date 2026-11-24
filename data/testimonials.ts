@@ -12,6 +12,34 @@ export type Testimonial = {
   foto?: string;
 };
 
-// TODO(Jairo): agregar mínimo 3 testimonios REALES con permiso de cada persona (la guía lo exige).
-// Mientras la lista esté vacía, la sección muestra 3 tarjetas «Próximamente».
-export const testimonials: Testimonial[] = [];
+// Testimonios reales que Jairo recibió (nov 2026), con ortografía corregida y sin cambiar lo que dicen.
+// Si la lista queda vacía, la sección muestra 3 tarjetas «Próximamente».
+export const testimonials: Testimonial[] = [
+  {
+    nombre: "Gabriel Guerrero",
+    relacion: { es: "Compañero de Ingeniería de Software", en: "Software Engineering classmate" },
+    texto: {
+      es: "Bro, tu portafolio está muy chévere, eres muy bueno. Te voy a recomendar. ¡Trabajemos juntos en un proyecto!",
+      en: "Bro, your portfolio is really cool, you're very good. I'm going to recommend you. Let's work together on a project!",
+    },
+    tipo: "academico",
+  },
+  {
+    nombre: "Juan Quintero",
+    relacion: { es: "Interesado en un portafolio web", en: "Interested in a portfolio website" },
+    texto: {
+      es: "Bro, necesito un portafolio como el tuyo, ¡muy chimba! ¿Cuánto vale?",
+      en: "Bro, I need a portfolio like yours, it's awesome! How much does it cost?",
+    },
+    tipo: "cliente",
+  },
+  {
+    nombre: "Diego Espinoza",
+    relacion: { es: "Cliente de @jairovende_", en: "@jairovende_ customer" },
+    texto: {
+      es: "Muy chimba el iPhone, ¡recomendadísimo!",
+      en: "The iPhone is awesome, highly recommended!",
+    },
+    tipo: "cliente",
+  },
+];
