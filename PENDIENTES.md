@@ -8,7 +8,7 @@ npm run check:content -- --write
 
 ## Lo más importante (antes de entregar)
 
-1. **3 testimonios reales con permiso** → `data/testimonials.ts` (campos `nombre`, `relacion`, `texto`, `tipo: "cliente" | "academico"`). La guía exige mínimo 3. Mientras la lista esté vacía, la sección muestra 3 tarjetas «Próximamente» (solo aceptable en la rama `minimal`).
+1. ~~**3 testimonios reales**~~ ✔ Gabriel Guerrero, Juan Quintero y Diego Espinoza en `data/testimonials.ts` (nov 2026). Confirma que cada uno acepta salir con su nombre.
 2. **CV real** → reemplaza `public/cv.pdf` (el actual es de relleno: dice "CV pendiente"). Se usa en «Descargar CV» y en el modal «Ver hoja de vida».
 3. **Proyecto adicional** → agrégalo al final de `projects` en `data/projects.ts` (no se muestran tarjetas vacías).
 4. **Proyectos**:
@@ -29,7 +29,5 @@ npm run check:content -- --write
 <!-- AUTO:INICIO -->
 | Archivo | Línea | Qué falta |
 | --- | --- | --- |
-| `data/projects.ts` | 20 | repositorio y demo de Cazador de Objetos, StudyFlow y Library Management System. |
-| `data/testimonials.ts` | 11 | agregar mínimo 3 testimonios REALES con permiso de cada persona (la guía lo exige). |
 | `scripts/make-cv.mjs` | 1 | reemplazar por tu CV real. |
 <!-- AUTO:FIN -->
