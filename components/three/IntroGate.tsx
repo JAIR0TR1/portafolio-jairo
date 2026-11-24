@@ -13,8 +13,11 @@ const IntroScene = dynamic(() => import("./IntroScene"), { ssr: false, loading: 
 
 /** Fin de la animación en s (= `total` de la geometría en IntroScene: escritorio 4.5 · celular 4.6). */
 const endAt = () => (window.innerWidth < 768 ? 4.6 : 4.5); // = MOBILE/DESKTOP.total en IntroScene
-/** La tarjeta con el nombre (mientras carga la escena) se ve como máximo 1.5 s; después se entra al sitio. */
-const NAME_MAX = 1500;
+/**
+ * La tarjeta con el nombre (mientras carga la escena) se ve como máximo 4 s; después se entra al sitio.
+ * Con 1.5 s la intro nunca salía en Vercel: solo el chunk de three.js (≈ 270 KB) llega a ~1.5 s.
+ */
+const NAME_MAX = 4000;
 
 // La escena se pide en cuanto este módulo carga (antes del primer render) si habrá intro.
 if (typeof document !== "undefined" && document.documentElement.dataset.intro === "webgl") void import("./IntroScene");
@@ -198,7 +201,7 @@ export function IntroGate() {
         </SceneBoundary>
       </div>
 
-      {/* Mientras carga la escena (máx. 1.5 s): solo el fondo con el nombre */}
+      {/* Mientras carga la escena (máx. 4 s): solo el fondo con el nombre */}
       {!ready && (
         <p aria-hidden="true" className="intro-name absolute inset-0 grid place-items-center px-6 text-center font-hero text-[clamp(14px,2.2vw,22px)] uppercase tracking-[0.18em] text-ink">
           Jairo Andrés Vallejo Burbano
