@@ -4,7 +4,7 @@ Portafolio personal de **Jairo Andrés Vallejo Burbano**, estudiante de Ingenier
 
 > Dirección de arte **"Obsidian Aurora"**: fondo negro obsidiana con azul, violeta y magenta usados como luz (glows, bordes y halos), más vidrio y un 3D sutil.
 
-**Sitio en vivo:** https://portafolio-jairo-self.vercel.app
+**Sitio en vivo:** https://landing-page-jairo-vallejo.vercel.app
 
 ![Inicio en escritorio](docs/capturas/1440-inicio.jpg)
 
