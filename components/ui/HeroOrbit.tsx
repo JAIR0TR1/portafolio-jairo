@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useMediaQuery, useReducedEffects } from "@/lib/effects";
 import { cn } from "@/lib/cn";
 import { createTask } from "@/lib/ticker";
+import { trackRect } from "@/lib/rectCache";
 
 const ROTATE_MS = 8000; // si hay más etiquetas que lugares, las extra entran cada 8 s
 const PERIOD = 55; // segundos por vuelta
@@ -68,12 +69,36 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
     const inner = rings === 1 ? n : Math.round(n * 0.42);
     const springs = Array.from({ length: n }, () => ({ ox: 0, oy: 0, vx: 0, vy: 0 }));
     const geo = { W: 0, H: 0, SW: 0, off: 0, cx: 0, cy: 0, rx: [0, 0], ry: [0, 0] };
+    // cursor en coordenadas del personaje (se calcula en el evento, no dentro del frame)
     const cursor = { x: -9999, y: -9999 };
     let t = 0;
     let last = 0;
     let onScreen = true;
+    // Rendimiento: etiquetas de ambas capas y su tamaño en caché. Antes se leían offsetWidth/
+    // offsetHeight en cada frame entre escrituras → un recálculo de layout forzado por etiqueta.
+    let groups: HTMLElement[][] = [];
+    let sizes: { w: number; h: number }[] = [];
+    const collect = () => {
+      groups = Array.from({ length: n }, () => []);
+      hero.querySelectorAll<HTMLElement>("[data-orbit-i]").forEach((el) => {
+        const i = Number(el.dataset.orbitI);
+        if (i < n) groups[i].push(el);
+        if (!born.has(el)) born.set(el, performance.now());
+      });
+      sizes = groups.map((g) => ({ w: g[0]?.offsetWidth ?? 0, h: g[0]?.offsetHeight ?? 0 }));
+    };
+    // Fundido de entrada de cada etiqueta (600 ms), calculado aquí: así solo se escribe
+    // `opacity` en línea (camino rápido del navegador) en vez de una variable CSS por frame.
+    const born = new WeakMap<HTMLElement, number>();
+    const revealed = hero.querySelector<HTMLElement>("[data-hero-revealed]");
+    const fadeOf = (el: HTMLElement, now: number) => {
+      if (reduced) return 1;
+      const k = Math.min(1, (now - (born.get(el) ?? now)) / 600);
+      return k * (2 - k); // ease-out
+    };
 
     const measure = () => {
+      collect();
       geo.W = fig.clientWidth;
       geo.H = fig.clientHeight;
       geo.SW = stage.clientWidth;
@@ -103,12 +128,7 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
     };
 
     const place = () => {
-      const groups: HTMLElement[][] = Array.from({ length: n }, () => []);
-      hero.querySelectorAll<HTMLElement>("[data-orbit-i]").forEach((el) => {
-        const i = Number(el.dataset.orbitI);
-        if (i < n) groups[i].push(el);
-      });
-      const r = fig.getBoundingClientRect();
+      const now = performance.now();
       const omega = (2 * Math.PI) / PERIOD;
       const P: { x: number; y: number; sin: number; w: number; h: number }[] = [];
       for (let i = 0; i < n; i++) {
@@ -120,9 +140,8 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
         const sin = Math.sin(theta);
         let x = geo.cx + geo.rx[ring] * Math.cos(theta);
         const y = geo.cy + geo.ry[ring] * sin;
-        const h = groups[i][0]?.offsetHeight ?? 0;
+        const { w, h } = sizes[i] ?? { w: 0, h: 0 };
         // que la etiqueta quepa completa en el escenario
-        const w = groups[i][0]?.offsetWidth ?? 0;
         const minX = -geo.off + w / 2 + 4;
         const maxX = geo.SW - geo.off - w / 2 - 4;
         x = Math.min(maxX, Math.max(minX, x));
@@ -156,8 +175,8 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
         let tx = 0;
         let ty = 0;
         if (!reduced && finePointer && !mobile) {
-          const dx = r.left + x + s.ox - cursor.x;
-          const dy = r.top + y + s.oy - cursor.y;
+          const dx = x + s.ox - cursor.x;
+          const dy = y + s.oy - cursor.y;
           const d = Math.hypot(dx, dy);
           if (d < REPEL && d > 0.1) {
             tx = (dx / d) * (REPEL - d) * 0.7;
@@ -173,11 +192,15 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
         const opacity = 0.45 + 0.55 * depth;
         const isHot = hot.current.index === i;
         for (const el of groups[i]) {
+          // la copia revelada solo se ve dentro de la mancha: oculta, no se mueve (la mitad del trabajo)
+          if (revealed && revealed.style.visibility !== "visible" && revealed.contains(el)) continue;
           el.style.transform = `translate3d(${(x + s.ox).toFixed(1)}px, ${(y + s.oy).toFixed(1)}px, 0) translate(-50%, -50%) scale(${(isHot ? 1.06 : scale).toFixed(3)})`;
-          el.style.setProperty("--o", isHot ? "1" : opacity.toFixed(3));
-          el.style.zIndex = sin < 0 && !isHot ? "5" : "20";
-          if (isHot) el.dataset.hot = "";
-          else delete el.dataset.hot;
+          // solo transform/opacity cambian en cada frame; z-index y data-hot, únicamente si cambian
+          const op = ((isHot ? 1 : opacity) * fadeOf(el, now)).toFixed(2);
+          if (el.style.opacity !== op) el.style.opacity = op;
+          const z = sin < 0 && !isHot ? "5" : "20";
+          if (el.style.zIndex !== z) el.style.zIndex = z;
+          if (isHot !== el.hasAttribute("data-hot")) el.toggleAttribute("data-hot", isHot);
         }
       }
     };
@@ -224,13 +247,23 @@ export function HeroOrbit({ notes, modeId, isBase }: { notes: string[]; modeId: 
     const onVis = () => {
       if (!document.hidden) run();
     };
+    const figRect = trackRect(fig);
     const onMove = (e: PointerEvent) => {
-      cursor.x = e.clientX;
-      cursor.y = e.clientY;
+      const r = figRect.get(); // sin leer el layout durante la animación
+      cursor.x = e.clientX - r.left;
+      cursor.y = e.clientY - r.top;
     };
+    const onScroll = () => (cursor.x = cursor.y = -9999);
+    // la capa revelada y las fuentes pueden llegar un poco después: se vuelve a medir
+    const late = window.setTimeout(measure, 300);
+    document.fonts?.ready.then(() => measure());
     document.addEventListener("visibilitychange", onVis);
     window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
+      window.clearTimeout(late);
+      figRect.stop();
+      window.removeEventListener("scroll", onScroll);
       task.stop();
       ro.disconnect();
       io.disconnect();

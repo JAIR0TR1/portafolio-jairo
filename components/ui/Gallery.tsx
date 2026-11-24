@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useRef, useState } from "react";
+import { fmt } from "@/lib/i18n";
+import { useI18n } from "./I18nProvider";
 
 export type GalleryImage = { src: string; alt: string };
 
@@ -27,6 +29,7 @@ export function Gallery({
   fit?: "object-cover" | "object-contain";
 }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const { t } = useI18n();
   const [i, setI] = useState(0);
   const swipe = useRef({ x: 0, y: 0 });
   const go = (n: number) => setI((n + images.length) % images.length);
@@ -44,7 +47,7 @@ export function Gallery({
                 ref.current?.showModal();
               }}
               className={`group relative block w-full overflow-hidden rounded-[20px] border border-line bg-card ${aspect}`}
-              aria-label={`Ampliar: ${img.alt}`}
+              aria-label={fmt(t.gallery.enlarge, { alt: img.alt })}
             >
               <Image src={img.src} alt={img.alt} fill sizes="(min-width: 1024px) 320px, 45vw" className={`${fit} transition-transform duration-500 group-hover:scale-[1.03]`} />
             </button>
@@ -87,16 +90,16 @@ export function Gallery({
               <span className="flex gap-2">
                 {images.length > 1 && (
                   <>
-                    <button type="button" onClick={() => go(i - 1)} className="btn btn-secondary btn-sm" aria-label="Imagen anterior">
+                    <button type="button" onClick={() => go(i - 1)} className="btn btn-secondary btn-sm" aria-label={t.gallery.prev}>
                       <ChevronLeft aria-hidden="true" />
                     </button>
-                    <button type="button" onClick={() => go(i + 1)} className="btn btn-secondary btn-sm" aria-label="Imagen siguiente">
+                    <button type="button" onClick={() => go(i + 1)} className="btn btn-secondary btn-sm" aria-label={t.gallery.next}>
                       <ChevronRight aria-hidden="true" />
                     </button>
                   </>
                 )}
-                <button type="button" onClick={() => ref.current?.close()} className="btn btn-secondary btn-sm" aria-label="Cerrar">
-                  <X aria-hidden="true" /> Cerrar
+                <button type="button" onClick={() => ref.current?.close()} className="btn btn-secondary btn-sm" aria-label={t.common.close}>
+                  <X aria-hidden="true" /> {t.common.close}
                 </button>
               </span>
             </figcaption>

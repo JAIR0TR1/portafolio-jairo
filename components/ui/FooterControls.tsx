@@ -4,10 +4,12 @@ import { RotateCcw } from "lucide-react";
 import { setReduceEffects, useUserReducedEffects } from "@/lib/effects";
 
 import { INTRO_KEY, INTRO_REPLAY_KEY } from "@/lib/keys";
+import { useI18n } from "./I18nProvider";
 
 /** Toggle "Reducir efectos" (se guarda en localStorage). */
 export function ReduceEffectsToggle() {
   const on = useUserReducedEffects();
+  const { t } = useI18n();
   return (
     <button
       type="button"
@@ -18,19 +20,20 @@ export function ReduceEffectsToggle() {
     >
       <span
         aria-hidden="true"
-        className={`relative h-6 w-10 rounded-full border transition-colors ${on ? "border-ink bg-ink/20" : "border-line bg-white/5"}`}
+        className={`relative h-6 w-10 rounded-full border transition-colors ${on ? "border-ink bg-ink/20" : "border-line bg-ink/5"}`}
       >
         <span
           className={`absolute left-0 top-0.5 size-[18px] rounded-full bg-ink transition-transform duration-300 ${on ? "translate-x-[18px]" : "translate-x-0.5"}`}
         />
       </span>
-      Reducir efectos
+      {t.prefs.reduceEffects}
     </button>
   );
 }
 
 /** Vuelve a mostrar la intro (F4). */
 export function ReplayIntroButton() {
+  const { t } = useI18n();
   return (
     <button
       type="button"
@@ -46,7 +49,7 @@ export function ReplayIntroButton() {
       }}
       className="flex min-h-11 items-center gap-3 text-sm text-muted transition-colors hover:text-ink"
     >
-      <RotateCcw aria-hidden="true" className="size-4" /> Ver intro otra vez
+      <RotateCcw aria-hidden="true" className="size-4" /> {t.prefs.replayIntro}
     </button>
   );
 }

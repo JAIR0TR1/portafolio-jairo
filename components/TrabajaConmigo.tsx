@@ -10,6 +10,8 @@ import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { WhatsappIcon } from "@/components/ui/BrandIcons";
 import { EASE } from "@/lib/effects";
 import { cn } from "@/lib/cn";
+import { LOCALE, fmt, tx, type Dict, type Lang } from "@/lib/i18n";
+import { useI18n } from "@/components/ui/I18nProvider";
 
 const serviceIcons = [LayoutTemplate, Code2, PenTool, Server, Store];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -24,36 +26,49 @@ function today() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function validate(f: Fields): Partial<Record<Key, string>> {
+function validate(f: Fields, t: Dict["work"]): Partial<Record<Key, string>> {
   const e: Partial<Record<Key, string>> = {};
-  if (f.name.trim().length < 2) e.name = "Escribe tu nombre (mínimo 2 letras).";
-  if (!f.email.trim()) e.email = "Escribe tu correo para poder responderte.";
-  else if (!EMAIL_RE.test(f.email.trim())) e.email = "Revisa el correo: debe verse como nombre@dominio.com.";
-  if (!f.service) e.service = "Elige el servicio que necesitas.";
-  if (!f.date) e.date = "Elige la fecha en que te gustaría empezar.";
-  else if (f.date < today()) e.date = "La fecha no puede ser anterior a hoy.";
-  if (f.description.trim().length < 10) e.description = "Cuéntame un poco más (mínimo 10 caracteres).";
+  if (f.name.trim().length < 2) e.name = t.errName;
+  if (!f.email.trim()) e.email = t.errEmailEmpty;
+  else if (!EMAIL_RE.test(f.email.trim())) e.email = t.errEmail;
+  if (!f.service) e.service = t.errService;
+  if (!f.date) e.date = t.errDate;
+  else if (f.date < today()) e.date = t.errDatePast;
+  if (f.description.trim().length < 10) e.description = t.errDescription;
   return e;
 }
 
-/** «2026-11-20» → «20 de noviembre de 2026». */
-function longDate(iso: string) {
+/** «2026-11-20» → «20 de noviembre de 2026» / «November 20, 2026». */
+function longDate(iso: string, lang: Lang) {
   const [y, m, d] = iso.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" });
+  return new Date(y, m - 1, d).toLocaleDateString(LOCALE[lang], { day: "numeric", month: "long", year: "numeric" });
 }
 
-function message(f: Fields) {
-  const service = services.find((s) => s.id === f.service)?.title ?? f.service;
-  const budget = f.budget ? ` Presupuesto: ${f.budget}.` : "";
-  return `Hola Jairo, quiero agendar un trabajo: ${service} para ${longDate(f.date)}. ${f.description.trim()}${budget} — ${f.name.trim()}, ${f.email.trim()}`;
+/** Valor del presupuesto elegido (se guarda el índice) en el idioma actual. */
+const budgetLabel = (value: string, lang: Lang) => (value ? tx(budgets[Number(value)], lang) : "");
+
+function message(f: Fields, t: Dict["work"], lang: Lang) {
+  const found = services.find((s) => s.id === f.service);
+  const service = found ? tx(found.title, lang) : f.service;
+  const budget = f.budget ? fmt(t.messageBudget, { budget: budgetLabel(f.budget, lang) }) : "";
+  return fmt(t.message, {
+    service,
+    date: longDate(f.date, lang),
+    description: f.description.trim(),
+    budget,
+    name: f.name.trim(),
+    email: f.email.trim(),
+  });
 }
 
 export default function TrabajaConmigo() {
+  const { lang, t: dict } = useI18n();
+  const t = dict.work;
   const [fields, setFields] = useState<Fields>(EMPTY);
   const [touched, setTouched] = useState<Partial<Record<Key, boolean>>>({});
   const [sent, setSent] = useState<null | "whatsapp" | "correo">(null);
   const uid = useId();
-  const errors = validate(fields);
+  const errors = validate(fields, t);
   const show = (k: Key) => (touched[k] ? errors[k] : undefined);
   const id = (k: Key) => `${uid}-${k}`;
 
@@ -77,15 +92,15 @@ export default function TrabajaConmigo() {
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!check(e.currentTarget)) return;
-    window.open(`https://wa.me/${profile.whatsapp}?text=${encodeURIComponent(message(fields))}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/${profile.whatsapp}?text=${encodeURIComponent(message(fields, t, lang))}`, "_blank", "noopener,noreferrer");
     setSent("whatsapp");
   };
 
   const byEmail = (e: MouseEvent<HTMLButtonElement>) => {
     if (!check(e.currentTarget.form)) return;
-    const service = services.find((s) => s.id === fields.service)?.title ?? "";
-    const subject = encodeURIComponent(`Agendar trabajo: ${service}`);
-    window.location.href = `mailto:${profile.email}?subject=${subject}&body=${encodeURIComponent(message(fields))}`;
+    const found = services.find((s) => s.id === fields.service);
+    const subject = encodeURIComponent(fmt(t.subject, { service: found ? tx(found.title, lang) : "" }));
+    window.location.href = `mailto:${profile.email}?subject=${subject}&body=${encodeURIComponent(message(fields, t, lang))}`;
     setSent("correo");
   };
 
@@ -95,9 +110,9 @@ export default function TrabajaConmigo() {
         <SectionHeading
           id="trabaja-conmigo-title"
           index={sectionIndex("trabaja-conmigo")}
-          eyebrow="Trabaja conmigo"
-          title="¿Tienes un proyecto? Agendemos."
-          description="Elige el servicio y la fecha; el mensaje me llega por WhatsApp o correo."
+          eyebrow={t.eyebrow}
+          title={t.title}
+          description={t.description}
         />
 
         <div className="grid gap-4 lg:grid-cols-12">
@@ -111,8 +126,8 @@ export default function TrabajaConmigo() {
                       <Icon aria-hidden="true" className="size-[18px]" />
                     </span>
                     <div>
-                      <h3 className="text-h3">{s.title}</h3>
-                      <p className="mt-1 text-pretty text-small text-muted">{s.text}</p>
+                      <h3 className="text-h3">{tx(s.title, lang)}</h3>
+                      <p className="mt-1 text-pretty text-small text-muted">{tx(s.text, lang)}</p>
                     </div>
                   </div>
                 </RevealItem>
@@ -136,11 +151,9 @@ export default function TrabajaConmigo() {
                     <span className="grid size-12 place-items-center rounded-full bg-[image:var(--grad-soft)] text-[var(--btn-fg)]">
                       <Check aria-hidden="true" />
                     </span>
-                    <p className="text-xl font-semibold">¡Listo! Tu solicitud está escrita.</p>
+                    <p className="text-xl font-semibold">{t.doneTitle}</p>
                     <p className="text-pretty text-muted">
-                      {sent === "whatsapp"
-                        ? "Se abrió WhatsApp con el mensaje armado: solo dale «Enviar» y te respondo pronto."
-                        : `Se abrió tu app de correo con el mensaje armado: solo dale «Enviar». Si no se abrió, escríbeme a ${profile.email}.`}
+                      {sent === "whatsapp" ? t.doneWhatsapp : fmt(t.doneEmail, { email: profile.email })}
                     </p>
                     <button
                       type="button"
@@ -151,55 +164,55 @@ export default function TrabajaConmigo() {
                         setTouched({});
                       }}
                     >
-                      Agendar otro trabajo
+                      {t.again}
                     </button>
                   </motion.div>
                 ) : (
                   <motion.form key="form" noValidate onSubmit={onSubmit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="grid gap-5 md:grid-cols-2">
                     <p className="text-small text-muted md:col-span-2">
-                      Los campos con <span aria-hidden="true">*</span>
-                      <span className="sr-only">asterisco</span> son obligatorios.
+                      {t.requiredBefore} <span aria-hidden="true">*</span>
+                      <span className="sr-only">{t.requiredSr}</span> {t.requiredAfter}
                     </p>
-                    <Field id={id("name")} label="Nombre" error={show("name")} required>
-                      <input id={id("name")} name="name" type="text" required minLength={2} autoComplete="name" placeholder="¿Cómo te llamas?" value={fields.name} onChange={set("name")} onBlur={blur("name")} className="field" {...aria("name")} />
+                    <Field id={id("name")} label={t.name} error={show("name")} required>
+                      <input id={id("name")} name="name" type="text" required minLength={2} autoComplete="name" placeholder={t.namePh} value={fields.name} onChange={set("name")} onBlur={blur("name")} className="field" {...aria("name")} />
                     </Field>
-                    <Field id={id("email")} label="Correo" error={show("email")} required>
-                      <input id={id("email")} name="email" type="email" required autoComplete="email" inputMode="email" placeholder="tu@correo.com" value={fields.email} onChange={set("email")} onBlur={blur("email")} className="field" {...aria("email")} />
+                    <Field id={id("email")} label={t.email} error={show("email")} required>
+                      <input id={id("email")} name="email" type="email" required autoComplete="email" inputMode="email" placeholder={t.emailPh} value={fields.email} onChange={set("email")} onBlur={blur("email")} className="field" {...aria("email")} />
                     </Field>
-                    <Field id={id("service")} label="Servicio" error={show("service")} required>
+                    <Field id={id("service")} label={t.service} error={show("service")} required>
                       <select id={id("service")} name="service" required value={fields.service} onChange={set("service")} onBlur={blur("service")} className="field" {...aria("service")}>
                         <option value="" disabled>
-                          Elige un servicio
+                          {t.servicePh}
                         </option>
                         {services.map((s) => (
                           <option key={s.id} value={s.id}>
-                            {s.title}
+                            {tx(s.title, lang)}
                           </option>
                         ))}
                       </select>
                     </Field>
-                    <Field id={id("date")} label="Fecha deseada" error={show("date")} required>
+                    <Field id={id("date")} label={t.date} error={show("date")} required>
                       <input id={id("date")} name="date" type="date" required min={today()} value={fields.date} onChange={set("date")} onBlur={blur("date")} className="field" {...aria("date")} />
                     </Field>
-                    <Field id={id("budget")} label="Presupuesto (opcional)" className="md:col-span-2">
+                    <Field id={id("budget")} label={t.budget} className="md:col-span-2">
                       <select id={id("budget")} name="budget" value={fields.budget} onChange={set("budget")} className="field">
-                        <option value="">Prefiero no decirlo</option>
-                        {budgets.map((b) => (
-                          <option key={b} value={b}>
-                            {b}
+                        <option value="">{t.budgetNone}</option>
+                        {budgets.map((b, i) => (
+                          <option key={b.es} value={String(i)}>
+                            {tx(b, lang)}
                           </option>
                         ))}
                       </select>
                     </Field>
-                    <Field id={id("description")} label="Descripción" error={show("description")} className="md:col-span-2" required>
-                      <textarea id={id("description")} name="description" required minLength={10} rows={5} placeholder="¿Qué quieres construir? Objetivo, público y lo que ya tienes." value={fields.description} onChange={set("description")} onBlur={blur("description")} className="field resize-y" {...aria("description")} />
+                    <Field id={id("description")} label={t.details} error={show("description")} className="md:col-span-2" required>
+                      <textarea id={id("description")} name="description" required minLength={10} rows={5} placeholder={t.detailsPh} value={fields.description} onChange={set("description")} onBlur={blur("description")} className="field resize-y" {...aria("description")} />
                     </Field>
                     <div className="flex flex-wrap items-center gap-3 md:col-span-2">
                       <button type="submit" className="btn btn-primary">
-                        <WhatsappIcon /> Agendar por WhatsApp
+                        <WhatsappIcon /> {t.sendWhatsapp}
                       </button>
                       <button type="button" onClick={byEmail} className="btn btn-secondary">
-                        <Mail aria-hidden="true" /> Prefiero por correo
+                        <Mail aria-hidden="true" /> {t.sendEmail}
                       </button>
                     </div>
                   </motion.form>
@@ -222,7 +235,7 @@ function Field({ id, label, error, required, className, children }: { id: string
       {children}
       <AnimatePresence initial={false}>
         {error && (
-          <motion.p id={`${id}-e`} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="flex items-center gap-1.5 text-small text-[#fca5a5]">
+          <motion.p id={`${id}-e`} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="flex items-center gap-1.5 text-small text-danger">
             <AlertCircle aria-hidden="true" className="size-3.5 shrink-0" /> {error}
           </motion.p>
         )}

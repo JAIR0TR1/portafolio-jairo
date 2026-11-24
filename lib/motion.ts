@@ -21,6 +21,7 @@ export function isMotionPaused() {
 
 export function setMotionPaused(paused: boolean, remember = true) {
   const d = document.documentElement.dataset;
+  delete d.animAuto; // ahora la pausa la decide el usuario (ver data-anim-auto en globals.css)
   if (paused) d.anim = "paused";
   else delete d.anim;
   if (remember) {

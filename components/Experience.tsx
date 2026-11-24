@@ -8,15 +8,18 @@ import { sectionIndex } from "@/data/profile";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { EASE, useReducedEffects } from "@/lib/effects";
 import { cn } from "@/lib/cn";
+import { tx } from "@/lib/i18n";
+import { useI18n } from "@/components/ui/I18nProvider";
 
 type Filter = "todo" | Item["type"];
-const options: { id: Filter; label: string }[] = [
-  { id: "todo", label: "Todo" },
-  { id: "academica", label: "Académica" },
-  { id: "laboral", label: "Laboral" },
+const options: { id: Filter; key: "all" | "academic" | "work" }[] = [
+  { id: "todo", key: "all" },
+  { id: "academica", key: "academic" },
+  { id: "laboral", key: "work" },
 ];
 
 export default function Experience() {
+  const { lang, t } = useI18n();
   const [filter, setFilter] = useState<Filter>("todo");
   const reduced = useReducedEffects();
   const listRef = useRef<HTMLDivElement>(null);
@@ -30,13 +33,9 @@ export default function Experience() {
         <SectionHeading
           id="experiencia-title"
           index={sectionIndex("experiencia")}
-          eyebrow="Experiencia"
-          title={
-            <>
-              Lo que he aprendido y hecho.
-            </>
-          }
-          description="Formación y emprendimiento, de lo más reciente a lo más antiguo."
+          eyebrow={t.experience.eyebrow}
+          title={t.experience.title}
+          description={t.experience.description}
         />
 
         <div className="grid gap-10 lg:grid-cols-12">
@@ -44,7 +43,7 @@ export default function Experience() {
             <div className="lg:sticky lg:top-[calc(var(--header-h)+2rem)]">
               <div
                 role="radiogroup"
-                aria-label="Tipo de experiencia"
+                aria-label={t.experience.filter}
                 className="inline-flex rounded-full border border-line p-1"
               >
                 {options.map((o) => {
@@ -57,7 +56,7 @@ export default function Experience() {
                       aria-checked={on}
                       onClick={() => setFilter(o.id)}
                       className={cn(
-                        "relative min-h-11 rounded-full px-4 text-small transition-colors",
+                        "relative min-h-11 rounded-full px-4 text-small transition-colors lg:max-xl:px-3",
                         on ? "font-medium text-[var(--btn-fg)]" : "text-muted hover:text-ink",
                       )}
                     >
@@ -68,15 +67,15 @@ export default function Experience() {
                           transition={{ type: "spring", stiffness: 420, damping: 36 }}
                         />
                       )}
-                      <span className="relative">{o.label}</span>
+                      <span className="relative">{t.experience[o.key]}</span>
                     </button>
                   );
                 })}
               </div>
               <dl className="glass mt-6 grid grid-cols-2 divide-x divide-line overflow-hidden">
                 {[
-                  { icon: GraduationCap, label: "Académica", n: sortedExperience.filter((i) => i.type === "academica").length },
-                  { icon: Briefcase, label: "Laboral", n: sortedExperience.filter((i) => i.type === "laboral").length },
+                  { icon: GraduationCap, label: t.experience.academic, n: sortedExperience.filter((i) => i.type === "academica").length },
+                  { icon: Briefcase, label: t.experience.work, n: sortedExperience.filter((i) => i.type === "laboral").length },
                 ].map(({ icon: Icon, label, n }) => (
                   <div key={label} className="p-5">
                     <dt className="flex items-center gap-2 text-small text-muted">
@@ -104,7 +103,7 @@ export default function Experience() {
                   const Icon = item.type === "academica" ? GraduationCap : Briefcase;
                   return (
                     <motion.li
-                      key={item.title + item.start}
+                      key={item.title.es + item.start}
                       layout
                       initial={{ opacity: 0, y: 16 }}
                       whileInView={{ opacity: 1, y: 0 }}
@@ -119,15 +118,15 @@ export default function Experience() {
                       <article className="glass spotlight p-6">
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                           <span className="chip text-muted">
-                            <time>{item.date}</time>
+                            <time>{tx(item.date, lang)}</time>
                           </span>
                           <span className="text-label text-muted">
-                            {item.type === "academica" ? "Académica" : "Laboral · Emprendimiento"}
+                            {item.type === "academica" ? t.experience.academic : t.experience.workBusiness}
                           </span>
                         </div>
-                        <h3 className="mt-4 text-h3">{item.title}</h3>
-                        <p className="mt-1 text-body text-ink/80">{item.place}</p>
-                        <p className="mt-3 text-pretty text-body text-muted">{item.description}</p>
+                        <h3 className="mt-4 text-h3">{tx(item.title, lang)}</h3>
+                        <p className="mt-1 text-body text-ink/80">{tx(item.place, lang)}</p>
+                        <p className="mt-3 text-pretty text-body text-muted">{tx(item.description, lang)}</p>
                       </article>
                     </motion.li>
                   );

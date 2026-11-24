@@ -10,24 +10,26 @@ import { ModeSelector } from "@/components/ui/ModeSelector";
 import { SocialGlyph } from "@/components/ui/BrandIcons";
 import { IntroGate } from "@/components/three/IntroGate";
 import { RobotCompanion } from "@/components/ui/RobotCompanion";
+import { fmt, tx, type Dict } from "@/lib/i18n";
+import { getI18n } from "@/lib/dictionaries";
 
 /** Cifras reales: se calculan desde data/. */
-const stats = [
-  { value: String(projects.length), label: "Proyectos" },
-  { value: `Desde ${profile.codingSince}`, label: "Programando" },
-  { value: "1", label: "Emprendimiento" },
-  { value: String(aiTools.length), label: "IAs en mi flujo" },
-];
+function stats(t: Dict) {
+  return [
+    { value: String(projects.length), label: t.hero.statProjects },
+    { value: fmt(t.hero.statSince, { year: profile.codingSince }), label: t.hero.statCoding },
+    { value: "1", label: t.hero.statBusiness },
+    { value: String(aiTools.length), label: t.hero.statAi },
+  ];
+}
 
 /** Escena: palabra gigante (atrás) + personaje con su órbita (adelante). */
 function Scene({ variant }: { variant: HeroVariant }) {
   return (
     <>
       <div className="hero-in absolute inset-x-0 top-[36%] z-0 -translate-y-1/2" style={{ ["--i" as string]: 1 }}>
-        {/* la palabra se mueve un poco en sentido contrario al personaje (profundidad) */}
-        <div className="hero-word-parallax">
-          <HeroTitle />
-        </div>
+        {/* la palabra se mueve un poco en sentido contrario al personaje (profundidad): ver HeroTitle */}
+        <HeroTitle />
       </div>
       <div className="hero-in absolute inset-0 z-10 flex items-end justify-center md:items-stretch" style={{ ["--i" as string]: 2 }}>
         <HeroAvatar variant={variant} />
@@ -45,7 +47,8 @@ function Scene({ variant }: { variant: HeroVariant }) {
  * En celular el orden es: escena → chips de modo y pausa → saludo, nombre, rol, frase →
  * botones a ancho completo → cifras.
  */
-export default function Hero() {
+export default async function Hero() {
+  const { lang, t } = await getI18n();
   return (
     <section id="inicio" aria-labelledby="hero-title" className="hero-s relative -mt-[var(--header-h)] overflow-hidden px-2 pb-3 pt-2 md:px-4 md:pb-6 md:pt-3">
       <IntroGate />
@@ -59,11 +62,11 @@ export default function Hero() {
           <div className="absolute left-6 top-[calc(var(--header-h)+2rem)] z-20 hidden flex-col items-center gap-3 xl:flex">
             {railLinks.map((s) => (
               <a
-                key={s.label}
+                key={s.icon}
                 href={s.href}
                 target={s.icon === "mail" ? undefined : "_blank"}
                 rel={s.icon === "mail" ? undefined : "noopener noreferrer"}
-                aria-label={s.icon === "mail" ? `Escribir a ${s.handle}` : `${s.label} (abre en otra pestaña)`}
+                aria-label={s.icon === "mail" ? fmt(t.hero.writeTo, { handle: s.handle }) : fmt(t.hero.external, { label: tx(s.label, lang) })}
                 className="grid size-11 place-items-center rounded-[12px] border border-line-2 text-muted transition-colors hover:border-accent/60 hover:text-ink"
               >
                 <SocialGlyph icon={s.icon} className="size-4" />
@@ -75,7 +78,7 @@ export default function Hero() {
             {/* Fila de ficha */}
             <div className="hero-in flex items-center gap-4 border-b border-line pb-3 text-label text-muted" style={{ ["--i" as string]: 0 }}>
               <span>
-                <span className="text-accent">01</span> / Inicio — Disponible<span className="hidden sm:inline"> para proyectos</span>
+                <span className="text-accent">01</span> / {t.hero.status}<span className="hidden sm:inline">{t.hero.statusMore}</span>
               </span>
             </div>
 
@@ -99,17 +102,17 @@ export default function Hero() {
               style={{ ["--i" as string]: 3 }}
             >
               <div className="max-lg:contents">
-                <p className="text-label text-muted max-lg:order-2 max-lg:mt-5">Hola, soy {profile.shortName}</p>
+                <p className="text-label text-muted max-lg:order-2 max-lg:mt-5">{fmt(t.hero.hello, { name: profile.shortName })}</p>
                 <h1 id="hero-title" className="text-display text-[clamp(1.15rem,0.9rem+0.9vw,1.6rem)] leading-[1.15] max-lg:order-3 lg:mt-3">
                   {profile.name}
                 </h1>
-                <p className="max-w-[44ch] text-pretty text-body text-muted max-lg:order-4 lg:mt-2">{profile.heroRole}</p>
+                <p className="max-w-[44ch] text-pretty text-body text-muted max-lg:order-4 lg:mt-2">{tx(profile.heroRole, lang)}</p>
                 <div className="grid gap-2 max-lg:order-6 max-lg:mt-3 sm:flex sm:flex-wrap lg:mt-5">
-                  <a href="/cv.pdf" download className="btn btn-primary">
-                    Descargar CV <ArrowDownToLine aria-hidden="true" />
+                  <a href={profile.cv.href} download={profile.cv.fileName} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                    {t.common.downloadCv} <ArrowDownToLine aria-hidden="true" />
                   </a>
                   <a href="#trabaja-conmigo" className="btn btn-secondary">
-                    Agendar trabajo <CalendarCheck aria-hidden="true" />
+                    {t.hero.schedule} <CalendarCheck aria-hidden="true" />
                   </a>
                 </div>
               </div>
@@ -121,16 +124,16 @@ export default function Hero() {
                 <div className="max-lg:order-1">
                   <ModeSelector />
                 </div>
-                <p className="max-w-[34ch] text-pretty text-body font-medium text-ink max-lg:order-5">{profile.tagline}</p>
+                <p className="max-w-[34ch] text-pretty text-body font-medium text-ink max-lg:order-5">{tx(profile.tagline, lang)}</p>
                 <a href="#proyectos" className="btn btn-secondary w-full max-lg:order-7 sm:w-fit">
-                  Ver proyectos <ArrowRight aria-hidden="true" />
+                  {t.hero.seeProjects} <ArrowRight aria-hidden="true" />
                 </a>
               </div>
             </div>
 
             {/* Barra de cifras */}
             <dl className="hero-in relative z-30 mt-8 grid grid-cols-2 rounded-[20px] border border-line md:grid-cols-4" style={{ ["--i" as string]: 4 }}>
-              {stats.map((s, i) => (
+              {stats(t).map((s, i) => (
                 <div
                   key={s.label}
                   className={`flex flex-wrap items-baseline gap-x-3 gap-y-1 px-5 py-4 ${i % 2 ? "border-l border-line" : ""} ${i > 1 ? "border-t border-line md:border-t-0" : ""} ${i === 2 ? "md:border-l" : ""}`}

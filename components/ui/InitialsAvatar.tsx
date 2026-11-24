@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/cn";
 
-const gradients = ["from-white/20 to-white/5", "from-white/15 to-white/[.03]", "from-white/25 to-white/[.06]"];
+const gradients = ["from-ink/20 to-ink/5", "from-ink/15 to-ink/[.03]", "from-ink/25 to-ink/[.06]"];
 
 export function initialsOf(name: string) {
   return name
@@ -18,8 +18,11 @@ export function InitialsAvatar({
   src,
   index = 0,
   className,
+  photoAlt,
 }: {
   name: string;
+  /** Texto alternativo de la foto (ya traducido). */
+  photoAlt: string;
   src?: string;
   index?: number;
   className?: string;
@@ -27,12 +30,12 @@ export function InitialsAvatar({
   return (
     <span
       className={cn(
-        "relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br font-mono text-sm font-semibold text-white ring-1 ring-line-2",
+        "relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br font-mono text-sm font-semibold text-ink ring-1 ring-line-2",
         gradients[index % gradients.length],
         className,
       )}
     >
-      {src ? <Image src={src} alt={`Foto de ${name}`} fill sizes="48px" className="object-cover" /> : <span aria-hidden="true">{initialsOf(name)}</span>}
+      {src ? <Image src={src} alt={photoAlt} fill sizes="48px" className="object-cover" /> : <span aria-hidden="true">{initialsOf(name)}</span>}
     </span>
   );
 }

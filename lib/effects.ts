@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 /** Clave en localStorage del toggle "Reducir efectos" (heurística 03). */
 import { EFFECTS_KEY } from "./keys";
@@ -38,8 +38,13 @@ export function setReduceEffects(value: boolean) {
   const d = document.documentElement.dataset;
   d.effects = value ? "reduced" : "full";
   // sincronizado con la pausa de animaciones: reducir efectos = pausar; quitarlo = reanudar
-  if (value) d.anim = "paused";
-  else if (!window.matchMedia(RM_QUERY).matches) delete d.anim;
+  if (value) {
+    d.anim = "paused";
+    delete d.animAuto;
+  } else if (!window.matchMedia(RM_QUERY).matches) {
+    delete d.anim;
+    delete d.animAuto;
+  } else d.animAuto = ""; // sigue la pausa automática por prefers-reduced-motion (el anillo gira lento)
   try {
     localStorage.setItem("jv-pausa", value ? "1" : "0");
   } catch {
@@ -84,3 +89,24 @@ export function useMediaQuery(query: string, serverValue = false) {
 }
 
 export const EASE = [0.22, 1, 0.36, 1] as const;
+
+/**
+ * false durante los primeros instantes tras montar. Las placas de las pestañas (layoutId) no
+ * se deslizan mientras la página se acomoda al hidratar (el menú pasa de «Más» a las 9
+ * pestañas, el tema real reemplaza al del servidor…): aparecen ya en su sitio.
+ */
+export function useSettled(ms = 700) {
+  const [settled, setSettled] = useState(false);
+  useEffect(() => {
+    const t = window.setTimeout(() => setSettled(true), ms);
+    return () => window.clearTimeout(t);
+  }, [ms]);
+  return settled;
+}
+
+/** Transición de la placa activa: resorte corto; instantánea al cargar o con movimiento reducido. */
+export function usePlateMotion() {
+  const reduced = useReducedEffects();
+  const settled = useSettled();
+  return reduced || !settled ? { duration: 0 } : ({ type: "spring", stiffness: 420, damping: 36 } as const);
+}

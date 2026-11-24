@@ -3,11 +3,13 @@
 import { Pause, Play } from "lucide-react";
 import { setMotionPaused, useMotionPaused } from "@/lib/motion";
 import { cn } from "@/lib/cn";
+import { useI18n } from "./I18nProvider";
 
 /** Pausar / reanudar todo el movimiento automático del sitio (WCAG 2.2.2). */
 export function PauseButton({ className, withLabel = false }: { className?: string; withLabel?: boolean }) {
   const paused = useMotionPaused();
-  const label = paused ? "Reanudar animaciones" : "Pausar animaciones";
+  const { t } = useI18n();
+  const label = paused ? t.prefs.resume : t.prefs.pause;
   return (
     <button
       type="button"

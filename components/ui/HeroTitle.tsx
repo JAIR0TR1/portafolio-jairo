@@ -4,13 +4,15 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { avatarModes } from "@/data/avatar";
 import { MODES, useModeIndex } from "@/lib/mode";
 import { useReducedEffects } from "@/lib/effects";
-import { hash01 } from "@/lib/heroMotion";
+import { hash01, heroPointer } from "@/lib/heroMotion";
+import { motion, useSpring, useTransform } from "motion/react";
+import { useI18n } from "./I18nProvider";
 
 const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.";
 const SCRAMBLE_MS = 600;
 /** Ancho natural (px) de cada palabra a 100px en Michroma: permite pintar la palabra ya
  *  ajustada al ancho en el HTML (unidades de contenedor), antes de que cargue el JS. */
-const NATURAL: Record<string, number> = { JAIRO: 414.77, "CÓDIGO": 544.41, "JAIRO.IA": 565.02 };
+const NATURAL: Record<string, number> = { JAIRO: 414.77, "CÓDIGO": 544.41, "JAIRO.IA": 565.02, CODE: 396.75, "JAIRO.AI": 565.02 };
 
 /** Estilo común de la palabra y de la sonda que la mide (deben ser idénticos). */
 const TYPE: CSSProperties = { fontSize: 100, lineHeight: 0.9, letterSpacing: "-0.02em" };
@@ -24,7 +26,15 @@ const TYPE: CSSProperties = { fontSize: 100, lineHeight: 0.9, letterSpacing: "-0
 export function HeroTitle() {
   const reduced = useReducedEffects();
   const index = useModeIndex();
-  const word = avatarModes[MODES[index].id].word.toUpperCase();
+  const { lang } = useI18n();
+  const word = avatarModes[MODES[index].id].word[lang].toUpperCase();
+
+  // Parallax (sentido contrario al personaje): resorte sobre el puntero compartido. motion
+  // escribe solo el transform en línea → camino rápido, sin recálculo de estilos del Hero.
+  const sx = useSpring(heroPointer.x, { stiffness: 70, damping: 20 });
+  const sy = useSpring(heroPointer.y, { stiffness: 70, damping: 20 });
+  const px = useTransform(sx, (v) => v * -14);
+  const py = useTransform(sy, (v) => v * -6);
 
   const wrapRef = useRef<HTMLDivElement>(null);
   const probeRef = useRef<HTMLSpanElement>(null);
@@ -86,6 +96,7 @@ export function HeroTitle() {
   }, [word, reduced]);
 
   return (
+    <motion.div className="hero-word-parallax" style={reduced ? undefined : { x: px, y: py }}>
     <div ref={wrapRef} aria-hidden="true" className="pointer-events-none relative w-full select-none [container-type:inline-size]">
       <span ref={probeRef} className="invisible absolute left-0 top-0 whitespace-nowrap font-hero uppercase" style={TYPE} />
       <p
@@ -109,5 +120,6 @@ export function HeroTitle() {
         )}
       </p>
     </div>
+    </motion.div>
   );
 }

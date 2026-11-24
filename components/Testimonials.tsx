@@ -8,23 +8,24 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
-
-const TYPE_LABEL: Record<Testimonial["tipo"], string> = { cliente: "Cliente", academico: "Académico" };
+import { fmt, tx } from "@/lib/i18n";
+import { useI18n } from "@/components/ui/I18nProvider";
 
 function Card({ t, i }: { t: Testimonial; i: number }) {
+  const { lang, t: d } = useI18n();
   return (
     <figure className="glass spotlight flex h-full flex-col justify-between gap-8 p-6 md:p-7">
       <div className="space-y-5">
         <span className="chip">
-          {TYPE_LABEL[t.tipo]}
+          {t.tipo === "cliente" ? d.testimonials.client : d.testimonials.academic}
         </span>
-        <blockquote className="text-pretty text-[17px] leading-relaxed text-ink">“{t.texto}”</blockquote>
+        <blockquote className="text-pretty text-[17px] leading-relaxed text-ink">“{tx(t.texto, lang)}”</blockquote>
       </div>
       <figcaption className="flex items-center gap-3">
-        <InitialsAvatar name={t.nombre} src={t.foto} index={i} className="size-11 text-xs" />
+        <InitialsAvatar name={t.nombre} photoAlt={fmt(d.testimonials.photoAlt, { name: t.nombre })} src={t.foto} index={i} className="size-11 text-xs" />
         <span>
           <span className="block font-medium">{t.nombre}</span>
-          <span className="block text-small text-muted">{t.relacion}</span>
+          <span className="block text-small text-muted">{tx(t.relacion, lang)}</span>
         </span>
       </figcaption>
     </figure>
@@ -33,12 +34,13 @@ function Card({ t, i }: { t: Testimonial; i: number }) {
 
 /** Mientras no haya testimonios reales: 3 tarjetas discretas (solo en la rama de diseño). */
 function Placeholder() {
+  const { t } = useI18n();
   return (
     <div className="flex h-full flex-col items-start justify-between gap-10 rounded-[12px] border border-dashed border-line-2 p-6 md:p-7">
       <MessageSquareQuote aria-hidden="true" className="size-6 text-muted" />
       <div>
-        <p className="text-label text-muted">Próximamente</p>
-        <p className="mt-2 text-body text-muted">Opiniones de clientes y docentes, publicadas con su permiso.</p>
+        <p className="text-label text-muted">{t.testimonials.soon}</p>
+        <p className="mt-2 text-body text-muted">{t.testimonials.soonText}</p>
       </div>
     </div>
   );
@@ -46,6 +48,7 @@ function Placeholder() {
 
 export default function Testimonials() {
   const trackRef = useRef<HTMLUListElement>(null);
+  const { t } = useI18n();
   const [current, setCurrent] = useState(0);
   const empty = testimonials.length === 0;
   const total = empty ? 3 : testimonials.length;
@@ -69,17 +72,17 @@ export default function Testimonials() {
         <SectionHeading
           id="testimonios-title"
           index={sectionIndex("testimonios")}
-          eyebrow="Testimonios"
-          title="Lo que dicen de trabajar conmigo."
-          description="Clientes de @jairovende_ y compañeros o docentes de la universidad."
+          eyebrow={t.testimonials.eyebrow}
+          title={t.testimonials.title}
+          description={t.testimonials.description}
         />
 
         <Reveal stagger>
           <ul
             ref={trackRef}
             onScroll={onScroll}
-            aria-roledescription="carrusel"
-            aria-label="Testimonios"
+            aria-roledescription={t.testimonials.carousel}
+            aria-label={t.testimonials.list}
             className="testimonial-track -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3"
           >
             {Array.from({ length: total }, (_, i) => (
@@ -88,7 +91,7 @@ export default function Testimonials() {
                 key={empty ? i : testimonials[i].nombre + i}
                 className="w-[85%] shrink-0 snap-start md:w-auto"
               >
-                <div aria-roledescription="diapositiva" aria-label={`${i + 1} de ${total}`} className="h-full">
+                <div aria-roledescription={t.testimonials.slide} aria-label={fmt(t.testimonials.position, { n: i + 1, total })} className="h-full">
                   {empty ? <Placeholder /> : <Card t={testimonials[i]} i={i} />}
                 </div>
               </RevealItem>
@@ -98,20 +101,20 @@ export default function Testimonials() {
 
         {/* Controles del carrusel (solo móvil) */}
         <div className="mt-4 flex items-center justify-between md:hidden">
-          <button type="button" onClick={() => go(current - 1)} className="btn btn-secondary btn-sm size-11 p-0" aria-label="Testimonio anterior">
+          <button type="button" onClick={() => go(current - 1)} className="btn btn-secondary btn-sm size-11 p-0" aria-label={t.testimonials.prev}>
             <ChevronLeft aria-hidden="true" />
           </button>
           <div className="flex gap-1.5" aria-hidden="true">
             {Array.from({ length: total }, (_, i) => (
-              <span key={i} className={cn("h-1.5 rounded-full transition-all", i === current ? "w-6 bg-accent" : "w-1.5 bg-line-2")} />
+              <span key={i} className={cn("h-1.5 rounded-full transition-colors", i === current ? "w-6 bg-accent" : "w-1.5 bg-line-2")} />
             ))}
           </div>
-          <button type="button" onClick={() => go(current + 1)} className="btn btn-secondary btn-sm size-11 p-0" aria-label="Testimonio siguiente">
+          <button type="button" onClick={() => go(current + 1)} className="btn btn-secondary btn-sm size-11 p-0" aria-label={t.testimonials.next}>
             <ChevronRight aria-hidden="true" />
           </button>
         </div>
         <p className="sr-only" aria-live="polite">
-          Testimonio {current + 1} de {total}
+          {fmt(t.testimonials.live, { n: current + 1, total })}
         </p>
       </div>
     </section>

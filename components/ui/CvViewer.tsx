@@ -1,49 +1,88 @@
 "use client";
 
-import { Eye, X } from "lucide-react";
-import { useRef } from "react";
+import Image from "next/image";
+import { ArrowDownToLine, ArrowUpRight, Eye, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { profile } from "@/data/profile";
+import { fmt } from "@/lib/i18n";
+import { useI18n } from "./I18nProvider";
+
+/** Vista previa del CV (public/cv-preview.webp, 1242×1756) que se muestra dentro del portafolio. */
+const PREVIEW = { src: "/cv-preview.webp", width: 1242, height: 1756 };
 
 /**
- * «Ver hoja de vida»: modal accesible (<dialog> nativo: foco atrapado, Esc cierra, el resto
- * de la página queda inerte) con el PDF embebido. En móvil abre el PDF en otra pestaña.
+ * «Ver hoja de vida»: modal dentro de la página (<dialog> nativo: foco atrapado y Esc cierra) con la
+ * imagen del CV a ancho completo y scroll propio. Arriba: «Descargar PDF», «Abrir PDF» (pestaña nueva) y
+ * cerrar. También se cierra con clic fuera. Mientras está abierto, el fondo no hace scroll.
  */
 export function CvViewer() {
   const ref = useRef<HTMLDialogElement>(null);
+  const [open, setOpen] = useState(false);
+  const { t } = useI18n();
 
-  const open = () => ref.current?.showModal();
+  // Bloquea el scroll del fondo mientras el modal está abierto (y lo restaura al cerrar).
+  useEffect(() => {
+    if (!open) return;
+    const root = document.documentElement;
+    const prev = root.style.overflow;
+    root.style.overflow = "hidden";
+    return () => {
+      root.style.overflow = prev;
+    };
+  }, [open]);
+
+  const show = () => {
+    ref.current?.showModal();
+    setOpen(true);
+  };
 
   return (
     <>
-      {/* celular: enlace real que abre el PDF en pestaña nueva · escritorio: modal con el PDF */}
-      <a href="/cv.pdf" target="_blank" rel="noopener noreferrer" className="btn btn-secondary md:hidden">
-        <Eye aria-hidden="true" /> Ver hoja de vida <span className="sr-only">(abre en otra pestaña)</span>
-      </a>
-      <button type="button" onClick={open} className="btn btn-secondary max-md:hidden" aria-haspopup="dialog">
-        <Eye aria-hidden="true" /> Ver hoja de vida
+      <button type="button" onClick={show} className="btn btn-secondary" aria-haspopup="dialog">
+        <Eye aria-hidden="true" /> {t.common.viewCv}
       </button>
       <dialog
         ref={ref}
         aria-labelledby="cv-title"
-        className="cv-dialog m-auto w-[min(960px,calc(100vw-2rem))] rounded-[20px] border border-line-2 bg-card p-0 text-ink"
+        onClose={() => setOpen(false)}
         onClick={(e) => {
-          if (e.target === e.currentTarget) e.currentTarget.close(); // clic en el fondo
+          if (e.target === e.currentTarget) e.currentTarget.close(); // clic fuera (en el fondo)
         }}
+        className="cv-dialog m-auto max-h-[92dvh] w-[min(960px,calc(100vw-1rem))] overflow-hidden rounded-[20px] border border-line-2 bg-card p-0 text-ink open:flex open:flex-col"
       >
-        <div className="flex items-center justify-between gap-4 border-b border-line px-5 py-3">
-          <h2 id="cv-title" className="text-body font-semibold">
-            Hoja de vida · {profile.name}
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-line px-4 py-3 md:px-5">
+          <h2 id="cv-title" className="min-w-0 text-body font-semibold">
+            {fmt(t.about.cvDialog, { name: profile.name })}
           </h2>
-          <div className="flex items-center gap-2">
-            <a href="/cv.pdf" download className="btn btn-primary btn-sm">
-              Descargar
+          <div className="flex flex-wrap items-center gap-2">
+            <a href={profile.cv.href} download="CV_Jairo_Vallejo.pdf" className="btn btn-primary btn-sm">
+              <ArrowDownToLine aria-hidden="true" /> {t.about.cvDownloadPdf}
             </a>
-            <button type="button" onClick={() => ref.current?.close()} className="btn btn-secondary btn-sm" aria-label="Cerrar hoja de vida">
-              <X aria-hidden="true" /> Cerrar
+            <a href={profile.cv.href} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm">
+              <ArrowUpRight aria-hidden="true" /> {t.about.cvOpenPdf} <span className="sr-only">{t.common.newTab}</span>
+            </a>
+            <button
+              type="button"
+              onClick={() => ref.current?.close()}
+              className="btn btn-secondary btn-sm"
+              aria-label={t.about.cvClose}
+            >
+              <X aria-hidden="true" />
             </button>
           </div>
         </div>
-        <iframe src="/cv.pdf#view=FitH" title={`Hoja de vida de ${profile.name} (PDF)`} className="block h-[min(78dvh,900px)] w-full bg-white" />
+        {/* el CV a ancho completo; el scroll es del modal, no de la página */}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white">
+          <Image
+            src={PREVIEW.src}
+            width={PREVIEW.width}
+            height={PREVIEW.height}
+            alt={fmt(t.about.cvImage, { name: profile.name })}
+            sizes="(min-width: 980px) 960px, 100vw"
+            quality={90}
+            className="block h-auto w-full"
+          />
+        </div>
       </dialog>
     </>
   );

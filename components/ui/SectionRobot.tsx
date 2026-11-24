@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { sectionBubble, sectionRobot } from "@/data/avatar";
 import { useReducedEffects } from "@/lib/effects";
 import { RobotFigure } from "./ModeAvatar";
+import { useI18n } from "./I18nProvider";
 
 /**
  * Celular y tablet (< 1024 px): el robot aparece DENTRO de la sección, junto al encabezado,
@@ -14,7 +15,8 @@ import { RobotFigure } from "./ModeAvatar";
 export function SectionRobot({ section }: { section: string }) {
   const reduced = useReducedEffects();
   const cfg = sectionRobot[section];
-  const bubble = sectionBubble[section];
+  const { lang } = useI18n();
+  const bubble = sectionBubble[section]?.[lang];
   if (!cfg) return null;
   return (
     <motion.div
